@@ -1,0 +1,138 @@
+﻿/* --- Estilos Globales y Body --- */
+/* Estas son las reglas que afectan a toda la página */
+body {
+    margin: 0; /* Quitamos el margen que ponen los navegadores por defecto */
+    font-family: Arial, sans-serif;
+    background-color: #f2f2f2;
+}
+
+/* --- Estilos para el Header --- */
+/* Toda la barra de navegación superior */
+header {
+    background-color: #333333; /* El color oscuro que acordamos para la barra */
+    padding: 15px 30px; /* 15px de espacio arriba/abajo, 30px a los lados */
+    display: flex; /* Pone los elementos hijos (logo y nav) uno al lado del otro */
+    justify-content: space-between; /* Empuja el logo a la izquierda y el nav a la derecha */
+    align-items: center; /* Centra los elementos verticalmente */
+}
+
+.logo {
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+nav ul {
+    list-style: none; /* Quitamos los puntos de la lista */
+    margin: 0;
+    padding: 0;
+    display: flex; /* Ponemos los elementos de la lista (li) uno al lado del otro */
+}
+
+nav li {
+    margin-left: 20px; /* Creamos una separación entre cada elemento del menú */
+}
+
+nav a {
+    color: white;
+    text-decoration: none; /* Quitamos el feo subrayado de los enlaces */
+    font-size: 16px;
+}
+
+    nav a:hover {
+        color: #fffacd; /* ¡Nuestro amarillo pastel! */
+    }
+
+
+/* --- Estilos para la sección Héroe --- */
+/* La sección de bienvenida con la imagen de fondo */
+.hero {
+    /* El truco del fondo: imagen con un degradado oscuro encima para que el texto resalte */
+    background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('images/fondo-hero.jpg');
+    height: 60vh; /* Ocupará el 60% de la altura de la pantalla */
+    background-size: cover; /* La imagen cubrirá todo el espacio sin deformarse */
+    background-position: center; /* Se centrará la imagen */
+    /* Centraremos el contenido de texto vertical y horizontalmente */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.hero-content {
+    color: white;
+}
+
+    .hero-content h1 {
+        font-size: 48px; /* Título más grande */
+        margin-bottom: 10px;
+    }
+
+    .hero-content p {
+        font-size: 20px;
+        margin-bottom: 30px;
+    }
+
+.cta-button {
+    background-color: #fffacd; /* ¡Nuestro amarillo pastel! */
+    color: #333333; /* Texto oscuro para que contraste con el amarillo */
+    padding: 15px 25px;
+    text-decoration: none; /* Quitamos el subrayado */
+    border-radius: 5px; /* Bordes redondeados */
+    font-weight: bold;
+    transition: background-color 0.3s; /* Una transición suave para el efecto hover */
+}
+
+    .cta-button:hover {
+        background-color: #f5f5dc; /* Un amarillo un poco más apagado al pasar el mouse */
+    }
+
+
+/* --- Estilos para la sección de Características --- */
+/* La sección con las tres tarjetas de información */
+.features {
+    padding: 50px 20px; /* Espacio interno para que la sección respire */
+}
+
+.features-container {
+    max-width: 1200px; /* Ancho máximo para el contenido */
+    margin: 0 auto; /* Truco para centrar el contenedor */
+    display: flex; /* Ponemos las tarjetas una al lado de la otra */
+    gap: 30px; /* Espacio entre las tarjetas */
+}
+
+.feature-card {
+    background-color: white;
+    padding: 30px;
+    text-align: center;
+    border-radius: 8px; /* Bordes redondeados para las tarjetas */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Sombra sutil para efecto de profundidad */
+    flex: 1; /* Cada tarjeta ocupará un tercio del espacio disponible */
+}
+
+    .feature-card h2 {
+        font-size: 40px; /* Hacemos los íconos (emojis) más grandes */
+        margin: 0;
+    }
+
+    .feature-card h3 {
+        color: #333;
+        margin-top: 15px;
+        margin-bottom: 10px;
+    }
+
+    .feature-card p {
+        color: #555;
+        font-size: 15px;
+        line-height: 1.6; /* Espacio entre líneas para mejor legibilidad */
+    }
+
+
+/* --- Estilos para el Pie de Página --- */
+/* La barra final de la página */
+footer {
+    background-color: #333333;
+    color: white;
+    text-align: center;
+    padding: 20px 0;
+}
