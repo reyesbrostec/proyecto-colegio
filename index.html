@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Primer Sitio Web</title>
+    <title>Colegio Test0 - Inicio</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -14,14 +14,17 @@
         </div>
         <nav>
             <ul>
-                <li><a href="#">¿Quiénes Somos?</a></li>
-                <li><a href="#">Oferta Educativa</a></li>
-                <li><a href="#">Propuesta Educativa</a></li>
-                <li><a href="#">Documentos</a></li>
-                <li><a href="#">Contacto</a></li>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="quienes-somos.html">¿Quiénes Somos?</a></li>
+                <li><a href="oferta-educativa.html">Oferta Educativa</a></li>
+                <li><a href="propuesta-educativa.html">Propuesta Educativa</a></li>
+                <li><a href="documentos.html">Documentos</a></li>
+                <li><a href="contacto.html">Contacto</a></li>
+                <li><a href="estudiantes.html">Portal Estudiantes</a></li>
             </ul>
         </nav>
     </header>
+
     <main>
         <section class="hero">
             <div class="hero-content">
@@ -30,6 +33,7 @@
                 <a href="#" class="cta-button">Admisiones 2026</a>
             </div>
         </section>
+
         <section class="features">
             <div class="features-container">
                 <article class="feature-card">
@@ -51,50 +55,55 @@
                 </article>
             </div>
         </section>
+
         <section class="news">
             <h2>Últimas Noticias</h2>
             <div id="noticias-container">
             </div>
         </section>
     </main>
+
     <footer>
         <p>&copy; 2025 Colegio Test0. Todos los derechos reservados.</p>
     </footer>
-    <script>// Usamos fetch para hacer una petición a nuestro servidor backend
+
+    <script>
+        // Usamos fetch para hacer una petición a nuestro servidor backend desplegado en Render
         fetch('https://colegio-backend-6oun.onrender.com/api/noticias')
-      .then(response => response.json()) // 1. Cuando responde, convertimos la respuesta a JSON
-      .then(noticias => { // 2. Cuando la conversión termina, trabajamos con los datos (la lista de noticias)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('La respuesta de la red no fue exitosa');
+                }
+                return response.json();
+            })
+            .then(noticias => {
+                const container = document.getElementById('noticias-container');
+                if (noticias.length === 0) {
+                    container.innerHTML = '<p>No hay noticias para mostrar en este momento.</p>';
+                    return;
+                }
 
-        // Obtenemos el contenedor que creamos en el HTML
-        const container = document.getElementById('noticias-container');
+                noticias.forEach(noticia => {
+                    const article = document.createElement('article');
+                    article.classList.add('news-item');
 
-        // Por cada noticia en la lista, creamos los elementos HTML
-        noticias.forEach(noticia => {
-          // Creamos un <article> para cada noticia
-          const article = document.createElement('article');
-          article.classList.add('news-item');
+                    const titulo = document.createElement('h3');
+                    titulo.textContent = noticia.titulo;
 
-          // Creamos un <h3> para el título
-          const titulo = document.createElement('h3');
-          titulo.textContent = noticia.titulo;
+                    const contenido = document.createElement('p');
+                    contenido.textContent = noticia.contenido;
 
-          // Creamos un <p> para el contenido
-          const contenido = document.createElement('p');
-          contenido.textContent = noticia.contenido;
+                    article.appendChild(titulo);
+                    article.appendChild(contenido);
 
-          // Metemos el título y el contenido dentro del article
-          article.appendChild(titulo);
-          article.appendChild(contenido);
-
-          // Finalmente, metemos el article completo en nuestro contenedor
-          container.appendChild(article);
-        });
-      })
-      .catch(error => {
-        // Si hay un error (ej: el servidor está apagado), lo mostramos en la consola
-        console.error('Error al cargar las noticias:', error);
-        const container = document.getElementById('noticias-container');
-        container.innerHTML = '<p>No se pudieron cargar las noticias en este momento.</p>';
-      });</script>
+                    container.appendChild(article);
+                });
+            })
+            .catch(error => {
+                console.error('Error al cargar las noticias:', error);
+                const container = document.getElementById('noticias-container');
+                container.innerHTML = '<p>No se pudieron cargar las noticias en este momento.</p>';
+            });
+    </script>
 </body>
 </html>
