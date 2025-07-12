@@ -136,3 +136,29 @@ footer {
     text-align: center;
     padding: 20px 0;
 }
+/* --- Estilos para la sección de Noticias --- */
+.news {
+    padding: 50px 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+    .news h2 {
+        text-align: center;
+        font-size: 32px;
+        color: #333;
+        margin-bottom: 40px;
+    }
+
+.news-item {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+    .news-item h3 {
+        margin-top: 0;
+        color: #333;
+    }

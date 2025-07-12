@@ -51,9 +51,50 @@
                 </article>
             </div>
         </section>
+        <section class="news">
+            <h2>Últimas Noticias</h2>
+            <div id="noticias-container">
+            </div>
+        </section>
     </main>
     <footer>
         <p>&copy; 2025 Colegio Test0. Todos los derechos reservados.</p>
     </footer>
+    <script>// Usamos fetch para hacer una petición a nuestro servidor backend
+    fetch('http://localhost:3000')
+      .then(response => response.json()) // 1. Cuando responde, convertimos la respuesta a JSON
+      .then(noticias => { // 2. Cuando la conversión termina, trabajamos con los datos (la lista de noticias)
+
+        // Obtenemos el contenedor que creamos en el HTML
+        const container = document.getElementById('noticias-container');
+
+        // Por cada noticia en la lista, creamos los elementos HTML
+        noticias.forEach(noticia => {
+          // Creamos un <article> para cada noticia
+          const article = document.createElement('article');
+          article.classList.add('news-item');
+
+          // Creamos un <h3> para el título
+          const titulo = document.createElement('h3');
+          titulo.textContent = noticia.titulo;
+
+          // Creamos un <p> para el contenido
+          const contenido = document.createElement('p');
+          contenido.textContent = noticia.contenido;
+
+          // Metemos el título y el contenido dentro del article
+          article.appendChild(titulo);
+          article.appendChild(contenido);
+
+          // Finalmente, metemos el article completo en nuestro contenedor
+          container.appendChild(article);
+        });
+      })
+      .catch(error => {
+        // Si hay un error (ej: el servidor está apagado), lo mostramos en la consola
+        console.error('Error al cargar las noticias:', error);
+        const container = document.getElementById('noticias-container');
+        container.innerHTML = '<p>No se pudieron cargar las noticias en este momento.</p>';
+      });</script>
 </body>
 </html>
