@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UEPAM - Portal de Estudiantes</title>
+    <title>Portal de Estudiantes - Colegio Test0</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -15,7 +15,7 @@
         <nav>
             <ul>
                 <li><a href="index.html">Inicio</a></li>
-                <li><a href="quienes-somos.html">øQuiÈnes Somos?</a></li>
+                <li><a href="quienes-somos.html">¬øQui√©nes Somos?</a></li>
                 <li><a href="oferta-educativa.html">Oferta Educativa</a></li>
                 <li><a href="propuesta-educativa.html">Propuesta Educativa</a></li>
                 <li><a href="documentos.html">Documentos</a></li>
@@ -26,9 +26,20 @@
     </header>
 
     <main>
-        <div class="page-container">
-            <h1>TÌtulo de la P·gina</h1>
-            <p>El contenido de esta p·gina se aÒadir· aquÌ.</p>
+        <div class="page-container" style="max-width: 400px; margin: 50px auto; text-align: center;">
+            <h1>Portal de Estudiantes</h1>
+            <p>Inicia sesi√≥n para acceder al panel de administraci√≥n.</p>
+
+            <form id="login-form" style="text-align: left;">
+                <label for="email">Email:</label>
+                <input type="email" id="email" required style="width: 95%; padding: 10px; margin-bottom: 15px;">
+
+                <label for="password">Contrase√±a:</label>
+                <input type="password" id="password" required style="width: 95%; padding: 10px; margin-bottom: 15px;">
+
+                <button type="submit" style="width: 100%; padding: 10px; background-color: #337ab7; color: white; border: none; cursor: pointer;">Ingresar</button>
+            </form>
+            <p id="error-message" style="color: red; margin-top: 15px;"></p>
         </div>
     </main>
 
@@ -36,5 +47,45 @@
         <p>&copy; 2025 Colegio Test0. Todos los derechos reservados.</p>
     </footer>
 
+    <script>const loginForm = document.getElementById('login-form');
+        const errorMessage = document.getElementById('error-message');
+
+        loginForm.addEventListener('submit', async function(event) {
+            event.preventDefault(); // Evitamos que el formulario se env√≠e de la forma tradicional
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const liveBackendUrl = 'https://colegio-backend-6oun.onrender.com';
+
+            try {
+                const response = await fetch(`${liveBackendUrl}/api/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    // Si el servidor responde con un error (ej: 401 Credenciales inv√°lidas)
+                    throw new Error(data.message || 'Error al iniciar sesi√≥n');
+                }
+
+                // Si el login es exitoso:
+                console.log('Login exitoso:', data);
+
+                // Guardamos el token en sessionStorage (se borra al cerrar la pesta√±a)
+                sessionStorage.setItem('authToken', data.token);
+
+                // Redirigimos al panel de administraci√≥n
+                window.location.href = '/admin/dashboard.html';
+
+            } catch (error) {
+                // Mostramos el error en la p√°gina
+                errorMessage.textContent = error.message;
+            }
+        });</script>
 </body>
 </html>
