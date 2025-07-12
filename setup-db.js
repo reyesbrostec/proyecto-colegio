@@ -1,19 +1,15 @@
 ﻿require('dotenv').config();
 const { Pool } = require('pg');
 
-const setupQueries = `
-  DROP TABLE IF EXISTS noticias;
-
-  CREATE TABLE noticias (
+const createUsersTableQuery = `
+  CREATE TABLE IF NOT EXISTS usuarios (
       id SERIAL PRIMARY KEY,
-      titulo VARCHAR(255) NOT NULL,
-      contenido TEXT
+      email VARCHAR(255) UNIQUE NOT NULL,
+      password_hash VARCHAR(255) NOT NULL,
+      nombre VARCHAR(100),
+      rol VARCHAR(50) DEFAULT 'estudiante' NOT NULL,
+      creado_en TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
   );
-
-  INSERT INTO noticias (titulo, contenido) VALUES 
-  ('El Colegio Gana Competencia de Robótica', 'El equipo de robótica ''Los Constructores'' obtuvo el primer lugar en la competencia nacional...'),
-  ('Inscripciones Abiertas para el Próximo Año Escolar', 'A partir del 1 de agosto se abren las inscripciones para el ciclo 2026-2027...'),
-  ('Exitosa Jornada Deportiva Familiar', 'Con gran participación de padres y alumnos, se llevó a cabo la jornada deportiva anual...');
 `;
 
 const pool = new Pool({
@@ -23,13 +19,13 @@ const pool = new Pool({
     }
 });
 
-console.log('Ejecutando script de preparación...');
-pool.query(setupQueries)
+console.log('Creando la tabla de usuarios...');
+pool.query(createUsersTableQuery)
     .then(() => {
-        console.log('✅ ¡Base de datos preparada exitosamente!');
+        console.log('✅ ¡Tabla "usuarios" verificada/creada exitosamente!');
         pool.end();
     })
     .catch(err => {
-        console.error('❌ Error durante la preparación de la base de datos:', err);
+        console.error('❌ Error al crear la tabla "usuarios":', err);
         pool.end();
     });
