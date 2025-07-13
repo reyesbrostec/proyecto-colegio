@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Colegio Test0</title>
+    <link rel="stylesheet" href="admin-style.css">
+</head>
+<body>
+    <header class="admin-header">
+        <h1>Panel de Administración</h1>
+        <button id="logout-btn">Cerrar Sesión</button>
+    </header>
+
+    <main class="admin-main">
+        <!-- Reemplaza el formulario de Crear Usuario con este -->
+<section class="card">
+    <h2>Crear Nuevo Usuario (Estudiante/Maestro)</h2>
+    <form id="create-user-form">
+        <input type="text" id="create-user-fullname" placeholder="Nombres Completos" required>
+        <input type="text" id="create-user-username" placeholder="Nombre de Usuario (o Cédula)" required>
+        <input type="number" id="create-user-age" placeholder="Edad">
+        <input type="email" id="create-user-email" placeholder="Correo Electrónico" required>
+        <input type="password" id="create-user-password" placeholder="Contraseña" required>
+        <select id="create-user-role" required>
+            <option value="estudiante" selected>Estudiante</option>
+            <option value="maestro">Maestro</option>
+        </select>
+        <button type="submit">Crear Usuario</button>
+    </form>
+</section>
+
+        <section class="card">
+            <h2>Crear Nueva Noticia</h2>
+            <form id="create-news-form">
+                <input type="text" id="create-news-title" placeholder="Título de la noticia" required>
+                <textarea id="create-news-content" placeholder="Contenido de la noticia" rows="4" required></textarea>
+                <button type="submit">Guardar Noticia</button>
+            </form>
+        </section>
+
+        <div class="columns-container">
+            <section class="card column">
+                <h2>Noticias Existentes</h2>
+                <div id="noticias-list"></div>
+            </section>
+
+            <section class="card column">
+                <h2>Usuarios Registrados</h2>
+                <div id="usuarios-list"></div>
+            </section>
+        </div>
+    </main>
+    
+    <script src="admin-script.js"></script>
+</body>
+</html>
