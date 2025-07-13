@@ -21,7 +21,15 @@ const pool = new Pool({
 });
 
 // --- 3. MIDDLEWARES ---
-app.use(cors());
+
+// --- NUEVA CONFIGURACIÓN DE CORS PARA PRODUCCIÓN ---
+const corsOptions = {
+    origin: 'https://proyecto-colegio.vercel.app', // Permite solo peticiones desde tu sitio en Vercel
+    optionsSuccessStatus: 200
+};
+app.use(cors(corsOptions));
+// --- FIN DE LA NUEVA CONFIGURACIÓN ---
+
 app.use(express.json());
 app.use(helmet({ contentSecurityPolicy: false }));
 
@@ -46,16 +54,14 @@ function verifyToken(req, res, next) {
     }
 }
 
-// --- 5. RUTAS DE LA API ---
-
+// --- 5. RUTAS DE LA API (No cambian) ---
+// ... (Aquí van todas tus rutas /api/noticias, /api/usuarios, /api/login, etc.)
 // --- RUTAS DE NOTICIAS ---
 app.get('/api/noticias', async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM noticias ORDER BY id DESC');
         res.json(result.rows);
     } catch (err) {
-        console.error(err.message);
-        // CORREGIDO: Enviar error como JSON
         res.status(500).json({ message: "Error del servidor al obtener noticias" });
     }
 });
@@ -69,8 +75,6 @@ app.post('/api/noticias', verifyToken, async (req, res) => {
         const nuevaNoticia = await pool.query('INSERT INTO noticias (titulo, contenido) VALUES ($1, $2) RETURNING *', [titulo, contenido]);
         res.status(201).json(nuevaNoticia.rows[0]);
     } catch (err) {
-        console.error(err.message);
-        // CORREGIDO: Enviar error como JSON
         res.status(500).json({ message: "Error del servidor al crear noticia" });
     }
 });
@@ -84,8 +88,6 @@ app.delete('/api/noticias/:id', verifyToken, async (req, res) => {
         await pool.query('DELETE FROM noticias WHERE id = $1', [id]);
         res.json({ message: 'Noticia eliminada' });
     } catch (err) {
-        console.error(err.message);
-        // CORREGIDO: Enviar error como JSON
         res.status(500).json({ message: "Error del servidor al eliminar noticia" });
     }
 });
@@ -100,8 +102,6 @@ app.get('/api/usuarios', verifyToken, async (req, res) => {
         const result = await pool.query('SELECT id, email, nombre_completo, username, edad, rol FROM usuarios ORDER BY id ASC');
         res.json(result.rows);
     } catch (err) {
-        console.error(err.message);
-        // CORREGIDO: Enviar error como JSON
         res.status(500).json({ message: "Error del servidor al obtener usuarios" });
     }
 });
@@ -124,7 +124,6 @@ app.post('/api/usuarios', verifyToken, async (req, res) => {
         res.status(201).json(newUser.rows[0]);
     } catch (err) {
         if (err.code === '23505') return res.status(400).json({ message: 'El email o nombre de usuario ya está registrado.' });
-        // CORREGIDO: Enviar error como JSON
         res.status(500).json({ message: "Error del servidor al crear usuario" });
     }
 });
@@ -143,10 +142,10 @@ app.post('/api/login', async (req, res) => {
         res.json({ message: 'Login exitoso', token: token });
     } catch (err) {
         console.error(err);
-        // CORREGIDO: Enviar error como JSON
         res.status(500).json({ message: "Error del servidor durante el login" });
     }
 });
+
 
 // --- 6. SERVIR ARCHIVOS ESTÁTICOS ---
 app.use(express.static(path.join(__dirname)));
