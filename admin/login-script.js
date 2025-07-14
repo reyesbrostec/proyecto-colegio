@@ -1,6 +1,6 @@
 ﻿const loginForm = document.getElementById('login-form');
 const errorMessage = document.getElementById('error-message');
-const API_URL = 'http://localhost:3000/api';
+const API_URL = 'https://colegio-backend-6oun.onrender.com/api'; // URL de producción
 
 loginForm.addEventListener('submit', async function (event) {
     event.preventDefault();
@@ -21,17 +21,14 @@ loginForm.addEventListener('submit', async function (event) {
 
         sessionStorage.setItem('authToken', data.token);
         const payload = JSON.parse(atob(data.token.split('.')[1]));
-        sessionStorage.setItem('userRole', payload.rol);
 
         if (payload.rol === 'admin') {
             window.location.href = '/admin/dashboard.html';
         } else if (payload.rol === 'estudiante') {
             window.location.href = '/plataforma-estudiantil.html';
         } else {
-            alert('Portal para maestros en construcción.');
-            errorMessage.textContent = 'Portal para su rol no disponible aún.';
+            errorMessage.textContent = 'Rol no reconocido o portal no disponible.';
         }
-
     } catch (error) {
         errorMessage.textContent = error.message;
     }
