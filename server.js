@@ -1,5 +1,4 @@
-// --- 1. IMPORTACIONES ---
-require('dotenv').config();
+﻿require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -9,27 +8,15 @@ const jwt = require('jsonwebtoken');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 
-// --- 2. CONFIGURACIÓN INICIAL ---
 const app = express();
 const port = 3000;
 
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
-    ssl: {
-        rejectUnauthorized: false
-    }
+    ssl: { rejectUnauthorized: false }
 });
 
-// --- 3. MIDDLEWARES ---
-
-// --- NUEVA CONFIGURACIÓN DE CORS PARA PRODUCCIÓN ---
-const corsOptions = {
-    origin: 'https://proyecto-colegio.vercel.app', // Permite solo peticiones desde tu sitio en Vercel
-    optionsSuccessStatus: 200
-};
-app.use(cors(corsOptions));
-// --- FIN DE LA NUEVA CONFIGURACIÓN ---
-
+app.use(cors());
 app.use(express.json());
 app.use(helmet({ contentSecurityPolicy: false }));
 
@@ -39,7 +26,6 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
-// --- 4. MIDDLEWARE DE AUTENTICACIÓN ---
 function verifyToken(req, res, next) {
     const bearerHeader = req.headers['authorization'];
     if (typeof bearerHeader !== 'undefined') {
@@ -54,9 +40,7 @@ function verifyToken(req, res, next) {
     }
 }
 
-// --- 5. RUTAS DE LA API (No cambian) ---
-// ... (Aquí van todas tus rutas /api/noticias, /api/usuarios, /api/login, etc.)
-// --- RUTAS DE NOTICIAS ---
+// --- RUTAS DE LA API ---
 app.get('/api/noticias', async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM noticias ORDER BY id DESC');
@@ -66,34 +50,6 @@ app.get('/api/noticias', async (req, res) => {
     }
 });
 
-app.post('/api/noticias', verifyToken, async (req, res) => {
-    if (req.user.rol !== 'admin') {
-        return res.status(403).json({ message: 'Acceso denegado.' });
-    }
-    try {
-        const { titulo, contenido } = req.body;
-        const nuevaNoticia = await pool.query('INSERT INTO noticias (titulo, contenido) VALUES ($1, $2) RETURNING *', [titulo, contenido]);
-        res.status(201).json(nuevaNoticia.rows[0]);
-    } catch (err) {
-        res.status(500).json({ message: "Error del servidor al crear noticia" });
-    }
-});
-
-app.delete('/api/noticias/:id', verifyToken, async (req, res) => {
-    if (req.user.rol !== 'admin') {
-        return res.status(403).json({ message: 'Acceso denegado.' });
-    }
-    try {
-        const { id } = req.params;
-        await pool.query('DELETE FROM noticias WHERE id = $1', [id]);
-        res.json({ message: 'Noticia eliminada' });
-    } catch (err) {
-        res.status(500).json({ message: "Error del servidor al eliminar noticia" });
-    }
-});
-
-
-// --- RUTAS DE USUARIOS ---
 app.get('/api/usuarios', verifyToken, async (req, res) => {
     if (req.user.rol !== 'admin') {
         return res.status(403).json({ message: 'Acceso denegado.' });
@@ -128,7 +84,6 @@ app.post('/api/usuarios', verifyToken, async (req, res) => {
     }
 });
 
-// RUTA DE LOGIN (Pública)
 app.post('/api/login', async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) return res.status(400).json({ message: 'El email y la contraseña son requeridos.' });
@@ -141,16 +96,29 @@ app.post('/api/login', async (req, res) => {
         const token = jwt.sign({ id: user.id, email: user.email, rol: user.rol }, process.env.JWT_SECRET, { expiresIn: '1h' });
         res.json({ message: 'Login exitoso', token: token });
     } catch (err) {
-        console.error(err);
         res.status(500).json({ message: "Error del servidor durante el login" });
     }
 });
 
+// --- NUEVA RUTA: OBTENER NOTAS DEL ESTUDIANTE LOGUEADO ---
+app.get('/api/mis-notas', verifyToken, async (req, res) => {
+    if (req.user.rol !== 'estudiante') {
+        return res.status(403).json({ message: 'Acceso denegado: esta función es solo para estudiantes.' });
+    }
+    try {
+        const estudianteId = req.user.id;
+        const result = await pool.query('SELECT materia, parcial1, parcial2, examen_final, nota_final FROM notas WHERE estudiante_id = $1 ORDER BY materia', [estudianteId]);
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ message: "Error del servidor al obtener las notas" });
+    }
+});
 
-// --- 6. SERVIR ARCHIVOS ESTÁTICOS ---
+// --- SERVIR ARCHIVOS ESTÁTICOS ---
 app.use(express.static(path.join(__dirname)));
 
-// --- 7. INICIAR EL SERVIDOR ---
+// --- INICIAR EL SERVIDOR ---
 app.listen(port, () => {
     console.log(`Servidor escuchando en http://localhost:${port}`);
 });

@@ -3,6 +3,7 @@ const { Pool } = require('pg');
 const bcrypt = require('bcryptjs');
 
 const setupQueries = `
+  DROP TABLE IF EXISTS notas;
   DROP TABLE IF EXISTS noticias;
   DROP TABLE IF EXISTS usuarios;
 
@@ -24,47 +25,84 @@ const setupQueries = `
       creado_en TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
   );
 
-  INSERT INTO noticias (titulo, contenido) VALUES 
-  ('El Colegio Gana Competencia de Robótica', 'El equipo de robótica ''Los Constructores'' obtuvo el primer lugar en la competencia nacional...'),
-  ('Inscripciones Abiertas para el Próximo Año Escolar', 'A partir del 1 de agosto se abren las inscripciones para el ciclo 2026-2027...'),
-  ('Exitosa Jornada Deportiva Familiar', 'Con gran participación de padres y alumnos, se llevó a cabo la jornada deportiva anual...');
+  CREATE TABLE notas (
+    id SERIAL PRIMARY KEY,
+    estudiante_id INT REFERENCES usuarios(id) ON DELETE CASCADE,
+    materia VARCHAR(100) NOT NULL,
+    parcial1 NUMERIC(4, 2),
+    parcial2 NUMERIC(4, 2),
+    examen_final NUMERIC(4, 2),
+    nota_final NUMERIC(4, 2)
+  );
 `;
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false
-  }
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+        rejectUnauthorized: false
+    }
 });
 
 async function setupDatabase() {
-  console.log('Ejecutando script de preparación...');
-  const client = await pool.connect();
-  try {
-    await client.query(setupQueries);
-    console.log('✅ ¡Tablas y datos iniciales creados exitosamente!');
-    
-    const adminEmail = 'rybr0ss@colegio.com';
-    const adminPassword = 'reyesbrostec';
-    const salt = await bcrypt.genSalt(10);
-    const password_hash = await bcrypt.hash(adminPassword, salt);
+    console.log('Ejecutando script de preparación...');
+    const client = await pool.connect();
+    try {
+        await client.query(setupQueries);
+        console.log('✅ ¡Tablas base creadas exitosamente!');
 
-    await client.query(
-        `INSERT INTO usuarios (email, password_hash, nombre_completo, username, rol) 
-         VALUES ($1, $2, $3, $4, 'admin') 
-         ON CONFLICT (email) 
-         DO UPDATE SET password_hash = $2, nombre_completo = $3, rol = 'admin';`,
-        [adminEmail, password_hash, 'Administrador Principal', 'admin_user']
-    );
-    console.log(`✅ ¡Usuario administrador "${adminEmail}" creado/actualizado exitosamente!`);
+        // --- Crear Usuario Administrador ---
+        const adminEmail = 'rybr0ss@colegio.com';
+        const adminPassword = 'reyesbrostec';
+        let salt = await bcrypt.genSalt(10);
+        let password_hash = await bcrypt.hash(adminPassword, salt);
+        await client.query(
+            `INSERT INTO usuarios (email, password_hash, nombre_completo, username, rol) VALUES ($1, $2, $3, 'admin_user', 'admin')`,
+            [adminEmail, password_hash, 'Administrador Principal']
+        );
+        console.log('✅ ¡Usuario administrador creado!');
 
-  } catch (err) {
-    console.error('❌ Error durante la preparación de la base de datos:', err);
-  } finally {
-    client.release();
-    pool.end();
-    console.log('Script finalizado. Conexión cerrada.');
-  }
+        // --- Crear Estudiantes y Notas Simuladas ---
+        const estudiantes = [];
+        for (let i = 1; i <= 15; i++) {
+            const cedula = `172000000${i}`;
+            const estudiante = {
+                email: `${cedula}@colegio.com`,
+                password: cedula,
+                nombre_completo: `Estudiante Apellido ${i}`,
+                username: `estudiante${i}`,
+                rol: 'estudiante'
+            };
+            salt = await bcrypt.genSalt(10);
+            password_hash = await bcrypt.hash(estudiante.password, salt);
+
+            const res = await client.query(
+                `INSERT INTO usuarios (email, password_hash, nombre_completo, username, rol) VALUES ($1, $2, $3, $4, $5) RETURNING id`,
+                [estudiante.email, password_hash, estudiante.nombre_completo, estudiante.username, estudiante.rol]
+            );
+            const estudianteId = res.rows[0].id;
+
+            // Crear notas para cada estudiante
+            const materias = ['Matemáticas', 'Lenguaje', 'Ciencias Naturales', 'Estudios Sociales', 'Inglés'];
+            for (const materia of materias) {
+                const p1 = (Math.random() * 5 + 5).toFixed(2); // Nota entre 5 y 10
+                const p2 = (Math.random() * 5 + 5).toFixed(2);
+                const ef = (Math.random() * 5 + 5).toFixed(2);
+                const nf = ((parseFloat(p1) + parseFloat(p2) + parseFloat(ef)) / 3).toFixed(2);
+                await client.query(
+                    `INSERT INTO notas (estudiante_id, materia, parcial1, parcial2, examen_final, nota_final) VALUES ($1, $2, $3, $4, $5, $6)`,
+                    [estudianteId, materia, p1, p2, ef, nf]
+                );
+            }
+        }
+        console.log(`✅ ¡${15} estudiantes y sus notas simuladas han sido creados!`);
+
+    } catch (err) {
+        console.error('❌ Error durante la preparación de la base de datos:', err);
+    } finally {
+        client.release();
+        pool.end();
+        console.log('Script finalizado.');
+    }
 }
 
 setupDatabase();

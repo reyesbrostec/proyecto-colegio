@@ -1,0 +1,137 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Plataforma - Pagina web educativa demostrativa</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Estilos específicos para la plataforma estudiantil */
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        main {
+            flex-grow: 1;
+        }
+        .page-container { 
+            max-width: 1000px; 
+            margin: 40px auto; 
+            padding: 20px; 
+        }
+        .grades-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 20px; 
+            background-color: #fff; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .grades-table th, .grades-table td { 
+            padding: 12px 15px; 
+            border-bottom: 1px solid #ddd; 
+            text-align: left; 
+        }
+        .grades-table th { 
+            background-color: #f2f2f2; 
+            font-weight: bold; 
+        }
+        .grades-table tr:hover {
+             background-color: #f5f5f5;
+        }
+        header nav { 
+            display: flex; 
+            justify-content: flex-end; 
+            width: 100%; 
+        }
+        #logout-btn {
+            background-color: #dc3545; 
+            color: white; 
+            padding: 8px 16px; 
+            border-radius: 5px; 
+            border: none; 
+            cursor: pointer;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">Pagina web educativa demostrativa</div>
+        <nav>
+            <button id="logout-btn">Cerrar Sesión</button>
+        </nav>
+    </header>
+
+    <main>
+        <div class="page-container">
+            <h1>Mis Calificaciones</h1>
+            <p>Aquí puedes visualizar un resumen de tu progreso académico.</p>
+            <div id="grades-container">
+                <p>Cargando calificaciones...</p>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Pagina web educativa demostrativa. Todos los derechos reservados.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = sessionStorage.getItem('authToken');
+            // Verificación de seguridad al cargar la página
+            if (!token) {
+                alert('Acceso denegado. Por favor, inicie sesión.');
+                window.location.href = 'estudiantes.html';
+                return;
+            }
+
+            // Funcionalidad del botón de cerrar sesión
+            document.getElementById('logout-btn').addEventListener('click', () => {
+                sessionStorage.clear();
+                window.location.href = 'estudiantes.html';
+            });
+
+            // Función para cargar las notas desde la API
+            async function cargarNotas() {
+                const container = document.getElementById('grades-container');
+                try {
+                    // Usamos la URL del backend local para pruebas
+                    const response = await fetch('http://localhost:3000/api/mis-notas', {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.message || 'No se pudo cargar la información.');
+                    }
+                    
+                    const notas = await response.json();
+                    
+                    if (notas.length === 0) {
+                        container.innerHTML = '<p>Aún no tienes calificaciones registradas.</p>';
+                        return;
+                    }
+
+                    // Construimos la tabla HTML con los datos
+                    let tableHTML = '<table class="grades-table"><thead><tr><th>Materia</th><th>Parcial 1</th><th>Parcial 2</th><th>Examen Final</th><th>Nota Final</th></tr></thead><tbody>';
+                    notas.forEach(nota => {
+                        tableHTML += `<tr><td>${nota.materia}</td><td>${nota.parcial1}</td><td>${nota.parcial2}</td><td>${nota.examen_final}</td><td><b>${nota.nota_final}</b></td></tr>`;
+                    });
+                    tableHTML += '</tbody></table>';
+                    container.innerHTML = tableHTML;
+
+                } catch (error) {
+                    container.innerHTML = `<p style="color: red;">${error.message}</p>`;
+                }
+            }
+
+            // Cargar los datos al iniciar la página
+            cargarNotas();
+        });
+    </script>
+</body>
+</html>
