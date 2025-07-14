@@ -1,21 +1,58 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>T�tulo de la P�gina - Colegio Test0</title>
+    <title>¿Quiénes Somos? - Pagina web educativa demostrativa</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* Estilos adicionales para esta página */
+        .page-container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+        .content-section {
+            margin-bottom: 40px;
+        }
+        .team-grid {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .team-member {
+            text-align: center;
+            max-width: 200px;
+        }
+        /* Técnica de Disuasión: Imagen como fondo */
+        .team-photo {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            margin: 0 auto 15px auto;
+            border: 4px solid #f0f0f0;
+            background-size: cover;
+            background-position: center;
+        }
+        .team-member h4 {
+            margin-bottom: 5px;
+            font-size: 1.1rem;
+        }
+        .team-member p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+    </style>
 </head>
 <body>
-
     <header>
-        <div class="logo">
-            Colegio Test0
-        </div>
+        <div class="logo">Pagina web educativa demostrativa</div>
         <nav>
             <ul>
                 <li><a href="index.html">Inicio</a></li>
-                <li><a href="quienes-somos.html">�Qui�nes Somos?</a></li>
+                <li><a href="quienes-somos.html">¿Quiénes Somos?</a></li>
                 <li><a href="oferta-educativa.html">Oferta Educativa</a></li>
                 <li><a href="propuesta-educativa.html">Propuesta Educativa</a></li>
                 <li><a href="documentos.html">Documentos</a></li>
@@ -27,14 +64,71 @@
 
     <main>
         <div class="page-container">
-            <h1>T�tulo de la P�gina</h1>
-            <p>El contenido de esta p�gina se a�adir� aqu�.</p>
+            <h1>Nuestra Institución</h1>
+
+            <!-- INICIO SECCIÓN EDITABLE: Historia -->
+            <section class="content-section">
+                <h2>Nuestra Historia</h2>
+                <p>
+                    <!-- Aquí va el texto sobre la fundación y los hitos del colegio. -->
+                    Fundado en [Año de Fundación], nuestro colegio nació del sueño de un grupo de educadores apasionados por ofrecer una educación de vanguardia. Desde nuestros humildes comienzos, hemos crecido hasta convertirnos en un referente educativo, celebrando hitos como [Mencionar Hito 1] y [Mencionar Hito 2].
+                </p>
+            </section>
+            <!-- FIN SECCIÓN EDITABLE -->
+
+            <!-- INICIO SECCIÓN EDITABLE: Misión y Visión -->
+            <section class="content-section">
+                <h2>Misión y Visión</h2>
+                <h3>Misión</h3>
+                <p>
+                    <!-- Aquí va la declaración de la Misión. -->
+                    Nuestra misión es formar líderes íntegros y competentes, capaces de enfrentar los desafíos del futuro a través de una educación humanista, científica y tecnológica.
+                </p>
+                <h3>Visión</h3>
+                <p>
+                    <!-- Aquí va la declaración de la Visión. -->
+                    Ser reconocidos como una institución líder en innovación educativa, comprometida con el desarrollo sostenible y el bienestar de nuestra comunidad.
+                </p>
+            </section>
+            <!-- FIN SECCIÓN EDITABLE -->
+
+            <!-- INICIO SECCIÓN EDITABLE: Directivos -->
+            <section class="content-section">
+                <h2>Nuestro Equipo Directivo</h2>
+                <div class="team-grid">
+                    <div class="team-member">
+                        <!-- Sustituye la URL de la imagen en el style y el texto -->
+                        <div class="team-photo" style="background-image: url('https://placehold.co/150x150/EFEFEF/333333?text=Foto');"></div>
+                        <h4>[Nombre del Rector/a]</h4>
+                        <p>Rector/a</p>
+                    </div>
+                    <div class="team-member">
+                        <!-- Sustituye la URL de la imagen en el style y el texto -->
+                        <div class="team-photo" style="background-image: url('https://placehold.co/150x150/EFEFEF/333333?text=Foto');"></div>
+                        <h4>[Nombre del Vicerrector/a]</h4>
+                        <p>Vicerrector/a</p>
+                    </div>
+                    <div class="team-member">
+                        <!-- Sustituye la URL de la imagen en el style y el texto -->
+                        <div class="team-photo" style="background-image: url('https://placehold.co/150x150/EFEFEF/333333?text=Foto');"></div>
+                        <h4>[Nombre del Inspector/a]</h4>
+                        <p>Inspector/a General</p>
+                    </div>
+                </div>
+            </section>
+            <!-- FIN SECCIÓN EDITABLE -->
+
         </div>
     </main>
 
     <footer>
-        <p>&copy; 2025 Colegio Test0. Todos los derechos reservados.</p>
+        <p>&copy; 2025 Pagina web educativa demostrativa. Todos los derechos reservados.</p>
     </footer>
+
+    <script>
+        // Técnica de Disuasión: Deshabilitar clic derecho
+        document.addEventListener('contextmenu', event => event.preventDefault());
+    </script>
 
 </body>
 </html>

@@ -3,15 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Colegio Test0 - Inicio</title>
+    <title>Inicio - Pagina web educativa demostrativa</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Tailwind CSS para un diseño rápido y moderno -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilo para la imagen de fondo de la sección principal */
+        .hero-section {
+            background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://placehold.co/1920x1080/EFEFEF/333333?text=Imagen+Institucional');
+            background-size: cover;
+            background-position: center;
+        }
+    </style>
 </head>
 <body>
-
     <header>
-        <div class="logo">
-            Colegio Test0
-        </div>
+        <div class="logo">Pagina web educativa demostrativa</div>
         <nav>
             <ul>
                 <li><a href="index.html">Inicio</a></li>
@@ -26,49 +33,61 @@
     </header>
 
     <main>
-        <section class="hero">
-            <div class="hero-content">
-                <h1>Innovación y Calidez Humana</h1>
-                <p>Formando líderes para el futuro en un ambiente de respeto y excelencia.</p>
-                <a href="#" class="cta-button">Admisiones 2026</a>
+        <!-- INICIO SECCIÓN EDITABLE: Bienvenida (Hero) -->
+        <section class="hero-section text-white text-center py-24 md:py-32">
+            <div class="container mx-auto px-4">
+                <h1 class="text-4xl md:text-6xl font-bold">Innovación y Calidez Humana</h1>
+                <p class="text-lg md:text-xl mt-4 max-w-3xl mx-auto">Formando líderes para el futuro en un ambiente de respeto y excelencia académica.</p>
+                <a href="oferta-educativa.html" class="mt-8 inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition-colors">
+                    Nuestra Oferta Educativa
+                </a>
             </div>
         </section>
-
-        <section class="features">
-            <div class="features-container">
-                <article class="feature-card">
-                    <h2>🎓</h2>
-                    <h3>Excelencia Académica</h3>
-                    <p>Programas educativos de vanguardia para potenciar el talento de cada estudiante.</p>
-                </article>
-
-                <article class="feature-card">
-                    <h2>🏀</h2>
-                    <h3>Desarrollo Integral</h3>
-                    <p>Fomentamos el deporte, el arte y los valores para un crecimiento completo.</p>
-                </article>
-
-                <article class="feature-card">
-                    <h2>🤝</h2>
-                    <h3>Comunidad Activa</h3>
-                    <p>Un ambiente de colaboración y respeto entre alumnos, padres y docentes.</p>
-                </article>
+        <!-- FIN SECCIÓN EDITABLE -->
+        <!-- INICIO SECCIÓN EDITABLE: Características -->
+        <section class="py-16 bg-gray-50">
+            <div class="container mx-auto px-4 text-center">
+                <h2 class="text-3xl font-bold mb-12">Pilares de Nuestra Educación</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+                    <div class="feature-card p-6">
+                        <div class="text-5xl mb-4">🎓</div>
+                        <h3 class="text-xl font-bold mb-2">Excelencia Académica</h3>
+                        <p class="text-gray-600">Programas educativos de vanguardia para potenciar el talento de cada estudiante.</p>
+                    </div>
+                    <div class="feature-card p-6">
+                        <div class="text-5xl mb-4">🏀</div>
+                        <h3 class="text-xl font-bold mb-2">Desarrollo Integral</h3>
+                        <p class="text-gray-600">Fomentamos el deporte, el arte y los valores para un crecimiento completo.</p>
+                    </div>
+                    <div class="feature-card p-6">
+                        <div class="text-5xl mb-4">🤝</div>
+                        <h3 class="text-xl font-bold mb-2">Comunidad Activa</h3>
+                        <p class="text-gray-600">Un ambiente de colaboración y respeto entre alumnos, padres y docentes.</p>
+                    </div>
+                </div>
             </div>
         </section>
-
-        <section class="news">
-            <h2>Últimas Noticias</h2>
-            <div id="noticias-container">
+        <!-- FIN SECCIÓN EDITABLE -->
+        <!-- Sección de Noticias (Dinámica) -->
+        <section class="py-16">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl font-bold text-center mb-12">Últimas Noticias</h2>
+                <div id="noticias-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Las noticias se cargarán aquí desde la API -->
+                </div>
             </div>
         </section>
     </main>
 
     <footer>
-        <p>&copy; 2025 Colegio Test0. Todos los derechos reservados.</p>
+        <p>&copy; 2025 Pagina web educativa demostrativa. Todos los derechos reservados.</p>
     </footer>
 
     <script>
-        // Usamos fetch para hacer una petición a nuestro servidor backend desplegado en Render
+        // Técnica de Disuasión: Deshabilitar clic derecho
+        document.addEventListener('contextmenu', event => event.preventDefault());
+
+        // Cargar noticias desde la API de Render
         fetch('https://colegio-backend-6oun.onrender.com/api/noticias')
             .then(response => {
                 if (!response.ok) {
@@ -78,31 +97,26 @@
             })
             .then(noticias => {
                 const container = document.getElementById('noticias-container');
-                if (noticias.length === 0) {
-                    container.innerHTML = '<p>No hay noticias para mostrar en este momento.</p>';
+                if (!noticias || noticias.length === 0) {
+                    container.innerHTML = '<p class="col-span-full text-center text-gray-500">No hay noticias para mostrar en este momento.</p>';
                     return;
                 }
 
+                container.innerHTML = ''; // Limpiamos el contenedor
                 noticias.forEach(noticia => {
                     const article = document.createElement('article');
-                    article.classList.add('news-item');
-
-                    const titulo = document.createElement('h3');
-                    titulo.textContent = noticia.titulo;
-
-                    const contenido = document.createElement('p');
-                    contenido.textContent = noticia.contenido;
-
-                    article.appendChild(titulo);
-                    article.appendChild(contenido);
-
+                    article.className = 'news-item bg-white p-6 rounded-lg shadow-md';
+                    article.innerHTML = `
+                            <h3 class="text-xl font-bold mb-2">${noticia.titulo}</h3>
+                            <p class="text-gray-700">${noticia.contenido}</p>
+                        `;
                     container.appendChild(article);
                 });
             })
             .catch(error => {
                 console.error('Error al cargar las noticias:', error);
                 const container = document.getElementById('noticias-container');
-                container.innerHTML = '<p>No se pudieron cargar las noticias en este momento.</p>';
+                container.innerHTML = '<p class="col-span-full text-center text-red-500">No se pudieron cargar las noticias en este momento.</p>';
             });
     </script>
 </body>
