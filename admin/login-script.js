@@ -34,6 +34,8 @@ loginForm.addEventListener('submit', async function(event) {
         // Redirigir basado en el rol. Se usan rutas relativas para mayor flexibilidad.
         if (payload.rol === 'admin') {
             window.location.href = 'dashboard.html'; // Ya estamos en la carpeta /admin
+        } else if (payload.rol === 'docente') {
+            window.location.href = '../docente/dashboard.html';
         } else {
             window.location.href = '../plataforma-estudiantil.html'; // Subir un nivel para encontrar el archivo
         }

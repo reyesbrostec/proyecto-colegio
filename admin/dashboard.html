@@ -5,6 +5,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard de Administración</title>
     <link rel="stylesheet" href="admin-style.css">
+    <style>
+        /* Reutilizamos los estilos del portal docente para la tabla de notas */
+        .grades-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9em; }
+        .grades-table th, .grades-table td { padding: 8px 12px; border: 1px solid #ddd; text-align: left; }
+        .grades-table th { background-color: #f8f9fa; }
+        .grades-table input { width: 60px; padding: 5px; text-align: center; border: 1px solid #ccc; border-radius: 4px; }
+        .grades-table .save-btn { padding: 5px 10px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .grades-table .save-btn:hover { background-color: #218838; }
+        .student-name-header { margin-top: 20px; padding-bottom: 5px; border-bottom: 2px solid #007bff; color: #007bff; }
+        .editor-cell { font-size: 0.8em; color: #6c757d; }
+        #toast-notification {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #28a745;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.5s, bottom 0.5s;
+            visibility: hidden;
+        }
+        #toast-notification.show {
+            opacity: 1;
+            bottom: 30px;
+            visibility: visible;
+        }
+        #search-grades {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+    </style>
 </head>
 <body>
     <header class="admin-header">
@@ -36,6 +74,7 @@
                         <input type="number" id="create-user-age" placeholder="Edad">
                         <select id="create-user-role" required>
                             <option value="estudiante">Estudiante</option>
+                            <option value="docente">Docente</option>
                             <option value="admin">Administrador</option>
                         </select>
                         <button type="submit">Crear Usuario</button>
@@ -46,10 +85,13 @@
         </div>
 
         <div class="card">
-            <h2>Calificaciones de Todos los Estudiantes</h2>
+            <h2>Gestión de Calificaciones</h2>
+            <input type="text" id="search-grades" placeholder="Buscar por nombre de estudiante...">
             <div id="all-grades-container"></div>
         </div>
     </main>
+
+    <div id="toast-notification">Calificación guardada con éxito.</div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -68,6 +110,7 @@
             const noticiasListDiv = document.getElementById('noticias-list');
             const usuariosListDiv = document.getElementById('usuarios-list');
             const allGradesContainer = document.getElementById('all-grades-container');
+            const searchGradesInput = document.getElementById('search-grades');
 
             async function fetchData(endpoint) {
                 const response = await fetch(`${API_URL}/${endpoint}`, {
@@ -110,6 +153,21 @@
                 return false;
             }
 
+            async function updateGrade(noteId, data) {
+                const response = await fetch(`${API_URL}/notas/${noteId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify(data)
+                });
+                if (!response.ok) {
+                    const error = await response.json();
+                    alert(`Error al guardar: ${error.message}`);
+                    return null;
+                }
+                return response.json();
+            }
+
+
             function renderizarNoticias(noticias) {
                 noticiasListDiv.innerHTML = '';
                 noticias.forEach(noticia => {
@@ -130,12 +188,26 @@
                 });
             }
 
+            let allNotesData = []; // Cache for all notes to enable searching
+
             function renderizarTodasLasNotas(notas) {
+                allNotesData = notas; // Store the full dataset
                 if (!notas || notas.length === 0) {
                     allGradesContainer.innerHTML = '<p>No hay calificaciones para mostrar.</p>';
                     return;
                 }
-                const notasAgrupadas = notas.reduce((acc, nota) => {
+
+                const searchTerm = searchGradesInput.value.toLowerCase();
+                const filteredNotes = searchTerm
+                    ? notas.filter(nota => nota.nombre_completo.toLowerCase().includes(searchTerm))
+                    : notas;
+
+                if (filteredNotes.length === 0) {
+                    allGradesContainer.innerHTML = '<p>No se encontraron estudiantes con ese nombre.</p>';
+                    return;
+                }
+
+                const notasAgrupadas = filteredNotes.reduce((acc, nota) => {
                     if (!acc[nota.nombre_completo]) acc[nota.nombre_completo] = [];
                     acc[nota.nombre_completo].push(nota);
                     return acc;
@@ -144,9 +216,20 @@
                 let html = '';
                 for (const nombreEstudiante in notasAgrupadas) {
                     html += `<h4 class="student-name-header">${nombreEstudiante}</h4>`;
-                    html += '<table class="grades-table"><thead><tr><th>Materia</th><th>Nota Final</th></tr></thead><tbody>';
+                    html += '<table class="grades-table"><thead><tr><th>Materia</th><th>P1</th><th>P2</th><th>EF</th><th>Final</th><th>Últ. Edición</th><th>Acción</th></tr></thead><tbody>';
                     notasAgrupadas[nombreEstudiante].forEach(nota => {
-                        html += `<tr><td>${nota.materia}</td><td><b>${nota.nota_final}</b></td></tr>`;
+                        const fechaEdicion = nota.fecha_edicion ? new Date(nota.fecha_edicion).toLocaleString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'N/A';
+                        const editor = nota.editado_por ? nota.editado_por.split('@')[0] : 'N/A'; // Show user part of email
+
+                        html += `<tr data-note-id="${nota.id}">
+                            <td>${nota.materia}</td>
+                            <td><input type="number" class="parcial1-input" value="${nota.parcial1}" min="0" max="10" step="0.01"></td>
+                            <td><input type="number" class="parcial2-input" value="${nota.parcial2}" min="0" max="10" step="0.01"></td>
+                            <td><input type="number" class="examen-final-input" value="${nota.examen_final}" min="0" max="10" step="0.01"></td>
+                            <td class="nota-final-cell"><b>${nota.nota_final}</b></td>
+                            <td class="editor-cell" title="${nota.editado_por || ''}">${editor}<br>${fechaEdicion}</td>
+                            <td><button class="save-btn">Guardar</button></td>
+                        </tr>`;
                     });
                     html += '</tbody></table>';
                 }
@@ -157,6 +240,12 @@
                 sessionStorage.removeItem('authToken');
                 window.location.href = 'login.html';
             });
+
+            function showToast() {
+                const toast = document.getElementById('toast-notification');
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 3000);
+            }
 
             createNewsForm.addEventListener('submit', async (event) => {
                 event.preventDefault();
@@ -192,6 +281,29 @@
                     }
                 }
             });
+
+            allGradesContainer.addEventListener('click', async (event) => {
+                if (event.target.classList.contains('save-btn')) {
+                    const row = event.target.closest('tr');
+                    const noteId = row.dataset.noteId;
+                    const data = {
+                        parcial1: row.querySelector('.parcial1-input').value,
+                        parcial2: row.querySelector('.parcial2-input').value,
+                        examen_final: row.querySelector('.examen-final-input').value
+                    };
+                    const updatedNote = await updateGrade(noteId, data);
+                    if (updatedNote) {
+                        row.querySelector('.nota-final-cell').innerHTML = `<b>${updatedNote.nota_final}</b>`;
+                        const editorCell = row.querySelector('.editor-cell');
+                        const fechaEdicion = new Date(updatedNote.fecha_edicion).toLocaleString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+                        const editor = updatedNote.editado_por.split('@')[0];
+                        editorCell.innerHTML = `${editor}<br>${fechaEdicion}`;
+                        showToast();
+                    }
+                }
+            });
+
+            searchGradesInput.addEventListener('input', () => renderizarTodasLasNotas(allNotesData));
 
             async function cargarContenido() {
                 try {

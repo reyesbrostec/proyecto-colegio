@@ -91,8 +91,9 @@
 
             // Funcionalidad del botón de cerrar sesión
             document.getElementById('logout-btn').addEventListener('click', () => {
-                sessionStorage.clear();
-                window.location.href = 'estudiantes.html';
+                sessionStorage.removeItem('authToken'); // Es más seguro que sessionStorage.clear()
+                // Redirigir a la página de inicio principal
+                window.location.href = 'index.html';
             });
 
             // Función para cargar las notas desde la API

@@ -3,20 +3,19 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const { Pool } = require('pg');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 
+// Importar routers
+const authRoutes = require('./routes/auth');
+const noticiasRoutes = require('./routes/noticias');
+const usuariosRoutes = require('./routes/usuarios');
+const notasRoutes = require('./routes/notas');
+
 // --- 2. CONFIGURACIÓN INICIAL ---
 const app = express();
-const port = 3000;
-
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: { rejectUnauthorized: false }
-});
+// Usar el puerto de Render o 3000 para desarrollo local
+const port = process.env.PORT || 3000;
 
 // --- 3. MIDDLEWARES ---
 const allowedOrigins = [

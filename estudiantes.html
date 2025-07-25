@@ -107,6 +107,9 @@
                 } else if (payload.rol === 'admin') {
                     // Si un admin inicia sesión aquí, lo mandamos a su dashboard
                     window.location.href = '/admin/dashboard.html';
+                } else if (payload.rol === 'docente') {
+                    // Redirigimos al nuevo portal de docentes
+                    window.location.href = '/docente/dashboard.html';
                 } else {
                     errorMessage.textContent = 'Rol de usuario no reconocido.';
                 }
