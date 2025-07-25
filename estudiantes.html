@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+﻿﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -95,12 +95,21 @@
                     throw new Error(data.message || 'Error al iniciar sesión');
                 }
 
-                // Guardamos el token para usarlo en el panel
+                // Guardamos el token para usarlo en las siguientes páginas
                 sessionStorage.setItem('authToken', data.token);
 
-                // Redirigimos al panel de administración
-                window.location.href = '/admin/dashboard.html';
+                // Decodificamos el token para obtener el rol y redirigir correctamente
+                const payload = JSON.parse(atob(data.token.split('.')[1]));
 
+                if (payload.rol === 'estudiante') {
+                    // Redirigimos a la plataforma estudiantil
+                    window.location.href = 'plataforma-estudiantil.html';
+                } else if (payload.rol === 'admin') {
+                    // Si un admin inicia sesión aquí, lo mandamos a su dashboard
+                    window.location.href = '/admin/dashboard.html';
+                } else {
+                    errorMessage.textContent = 'Rol de usuario no reconocido.';
+                }
             } catch (error) {
                 errorMessage.textContent = error.message;
             }

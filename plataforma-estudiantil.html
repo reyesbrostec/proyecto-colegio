@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+﻿﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -99,8 +99,9 @@
             async function cargarNotas() {
                 const container = document.getElementById('grades-container');
                 try {
-                    // Usamos la URL del backend local para pruebas
-                    const response = await fetch('http://localhost:3000/api/mis-notas', {
+                    // Apuntamos al backend en producción para consistencia
+                    const API_URL = 'https://colegio-backend-6oun.onrender.com/api';
+                    const response = await fetch(`${API_URL}/mis-notas`, {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
                     

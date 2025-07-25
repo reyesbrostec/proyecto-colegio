@@ -1,14 +1,19 @@
-﻿document.addEventListener('DOMContentLoaded', () => {
+﻿// Espera a que todo el HTML esté cargado antes de ejecutar cualquier código
+document.addEventListener('DOMContentLoaded', () => {
 
-    const API_URL = 'https://colegio-backend-6oun.onrender.com/api'; // URL de producción
+    // --- CONFIGURACIÓN Y VERIFICACIÓN INICIAL ---
+    // Apuntamos a la URL del servidor en producción
+    const API_URL = 'https://colegio-backend-6oun.onrender.com/api';
     const token = sessionStorage.getItem('authToken');
 
+    // Si no hay token guardado, no se puede acceder a esta página
     if (!token) {
+        alert('Acceso denegado. Por favor, inicie sesión.');
         window.location.href = 'login.html';
-        return;
+        return; // Detiene la ejecución del resto del script
     }
 
-    // ... (El resto del código es el mismo, no necesita cambios)
+    // --- SELECCIÓN DE ELEMENTOS DEL DOM ---
     const logoutBtn = document.getElementById('logout-btn');
     const createNewsForm = document.getElementById('create-news-form');
     const createUserForm = document.getElementById('create-user-form');
@@ -16,11 +21,14 @@
     const usuariosListDiv = document.getElementById('usuarios-list');
     const allGradesContainer = document.getElementById('all-grades-container');
 
+    // --- FUNCIONES DE API ---
     async function fetchData(endpoint) {
-        const response = await fetch(`${API_URL}/${endpoint}`, { headers: { 'Authorization': `Bearer ${token}` } });
-        if (response.status === 403) {
+        const response = await fetch(`${API_URL}/${endpoint}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.status === 403) { // Maneja el caso de token expirado o inválido
             sessionStorage.removeItem('authToken');
-            alert('Tu sesión ha expirado o no tienes permisos.');
+            alert('Tu sesión ha expirado o no tienes permisos. Por favor, inicia sesión de nuevo.');
             window.location.href = 'login.html';
         }
         return response.json();
@@ -50,12 +58,16 @@
         return false;
     }
 
+    // --- RENDERIZADO EN PÁGINA ---
     function renderizarNoticias(noticias) {
         noticiasListDiv.innerHTML = '';
         noticias.forEach(noticia => {
             const item = document.createElement('div');
             item.className = 'item-admin';
-            item.innerHTML = `<div><h4>${noticia.titulo}</h4><p>${noticia.contenido.substring(0, 50)}...</p></div><button class="delete-btn" data-id="${noticia.id}">Eliminar</button>`;
+            item.innerHTML = `
+                <div><h4>${noticia.titulo}</h4><p>${noticia.contenido.substring(0, 50)}...</p></div>
+                <button class="delete-btn" data-id="${noticia.id}">Eliminar</button>
+            `;
             noticiasListDiv.appendChild(item);
         });
     }
@@ -65,7 +77,9 @@
         usuarios.forEach(usuario => {
             const item = document.createElement('div');
             item.className = 'item-admin';
-            item.innerHTML = `<div><h4>${usuario.nombre_completo || 'Sin nombre'} (@${usuario.username})</h4><p>${usuario.email} (${usuario.rol})</p></div>`;
+            item.innerHTML = `
+                <div><h4>${usuario.nombre_completo || 'Sin nombre'} (@${usuario.username})</h4><p>${usuario.email} (${usuario.rol})</p></div>
+            `;
             usuariosListDiv.appendChild(item);
         });
     }
@@ -93,8 +107,10 @@
         allGradesContainer.innerHTML = html;
     }
 
+    // --- MANEJO DE EVENTOS ---
     logoutBtn.addEventListener('click', () => {
         sessionStorage.removeItem('authToken');
+        alert('Has cerrado sesión exitosamente.');
         window.location.href = 'login.html';
     });
 
@@ -134,6 +150,7 @@
         }
     });
 
+    // --- CARGA INICIAL ---
     async function cargarContenido() {
         try {
             const [noticias, usuarios, todasLasNotas] = await Promise.all([

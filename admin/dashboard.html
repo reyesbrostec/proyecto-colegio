@@ -1,162 +1,215 @@
-﻿document.addEventListener('DOMContentLoaded', () => {
+﻿﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Administración</title>
+    <link rel="stylesheet" href="admin-style.css">
+</head>
+<body>
+    <header class="admin-header">
+        <h1>Panel de Administración</h1>
+        <button id="logout-btn">Cerrar Sesión</button>
+    </header>
 
-    const API_URL = 'http://localhost:3000/api';
-    const token = sessionStorage.getItem('authToken');
+    <main class="admin-main">
+        <div class="columns-container">
+            <div class="column">
+                <div class="card">
+                    <h2>Gestionar Noticias</h2>
+                    <form id="create-news-form">
+                        <input type="text" id="create-news-title" placeholder="Título de la noticia" required>
+                        <textarea id="create-news-content" placeholder="Contenido de la noticia" required></textarea>
+                        <button type="submit">Crear Noticia</button>
+                    </form>
+                    <div id="noticias-list" class="item-list"></div>
+                </div>
+            </div>
+            <div class="column">
+                <div class="card">
+                    <h2>Gestionar Usuarios</h2>
+                    <form id="create-user-form">
+                        <input type="text" id="create-user-fullname" placeholder="Nombre Completo" required>
+                        <input type="text" id="create-user-username" placeholder="Nombre de usuario" required>
+                        <input type="email" id="create-user-email" placeholder="Email" required>
+                        <input type="password" id="create-user-password" placeholder="Contraseña" required>
+                        <input type="number" id="create-user-age" placeholder="Edad">
+                        <select id="create-user-role" required>
+                            <option value="estudiante">Estudiante</option>
+                            <option value="admin">Administrador</option>
+                        </select>
+                        <button type="submit">Crear Usuario</button>
+                    </form>
+                    <div id="usuarios-list" class="item-list"></div>
+                </div>
+            </div>
+        </div>
 
-    if (!token) {
-        alert('Acceso denegado. Por favor, inicie sesión.');
-        window.location.href = 'login.html';
-        return;
-    }
+        <div class="card">
+            <h2>Calificaciones de Todos los Estudiantes</h2>
+            <div id="all-grades-container"></div>
+        </div>
+    </main>
 
-    const logoutBtn = document.getElementById('logout-btn');
-    const createNewsForm = document.getElementById('create-news-form');
-    const createUserForm = document.getElementById('create-user-form');
-    const noticiasListDiv = document.getElementById('noticias-list');
-    const usuariosListDiv = document.getElementById('usuarios-list');
-    const allGradesContainer = document.getElementById('all-grades-container');
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const API_URL = 'https://colegio-backend-6oun.onrender.com/api';
+            const token = sessionStorage.getItem('authToken');
 
-    async function fetchData(endpoint) {
-        const response = await fetch(`${API_URL}/${endpoint}`, { headers: { 'Authorization': `Bearer ${token}` } });
-        if (response.status === 403) {
-            sessionStorage.removeItem('authToken');
-            alert('Tu sesión ha expirado o no tienes permisos.');
-            window.location.href = 'login.html';
-        }
-        return response.json();
-    }
-
-    async function postData(endpoint, data) {
-        const response = await fetch(`${API_URL}/${endpoint}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-            body: JSON.stringify(data)
-        });
-        if (!response.ok) {
-            const errorData = await response.json();
-            alert(`Error: ${errorData.message}`);
-        }
-        return response.ok;
-    }
-
-    async function deleteData(endpoint, id) {
-        if (confirm('¿Estás seguro de que quieres eliminar este elemento?')) {
-            await fetch(`${API_URL}/${endpoint}/${id}`, {
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            return true;
-        }
-        return false;
-    }
-
-    function renderizarNoticias(noticias) {
-        noticiasListDiv.innerHTML = '';
-        noticias.forEach(noticia => {
-            const item = document.createElement('div');
-            item.className = 'item-admin';
-            item.innerHTML = `<div><h4>${noticia.titulo}</h4><p>${noticia.contenido.substring(0, 50)}...</p></div>
-<button class="delete-btn" data-id="${noticia.id}">Eliminar</button>`;
-            noticiasListDiv.appendChild(item);
-        });
-    }
-
-    function renderizarUsuarios(usuarios) {
-        usuariosListDiv.innerHTML = '';
-        usuarios.forEach(usuario => {
-            const item = document.createElement('div');
-            item.className = 'item-admin';
-            item.innerHTML = `<div><h4>${usuario.nombre_completo || 'Sin nombre'} (@${usuario.username})</h4><p>${usuario.email} (${usuario.rol})</p></div>`;
-            usuariosListDiv.appendChild(item);
-        });
-    }
-
-    function renderizarTodasLasNotas(notas) {
-        if (!notas || notas.length === 0) {
-            allGradesContainer.innerHTML = '<p>No hay calificaciones para mostrar.</p>';
-            return;
-        }
-        const notasAgrupadas = notas.reduce((acc, nota) => {
-            if (!acc[nota.nombre_completo]) {
-                acc[nota.nombre_completo] = [];
+            if (!token) {
+                alert('Acceso denegado. Por favor, inicie sesión.');
+                window.location.href = 'login.html';
+                return;
             }
-            acc[nota.nombre_completo].push(nota);
-            return acc;
-        }, {});
 
-        let html = '';
-        for (const nombreEstudiante in notasAgrupadas) {
-            html += `<h4 class="student-name-header">${nombreEstudiante}</h4>`;
-            html += '<table class="grades-table">
-    <thead><tr><th>Materia</th><th>Nota Final</th></tr></thead>
-    <tbody>
-        ';
-        notasAgrupadas[nombreEstudiante].forEach(nota => {
-        html += `
-        <tr><td>${nota.materia}</td><td><b>${nota.nota_final}</b></td></tr>`;
+            const logoutBtn = document.getElementById('logout-btn');
+            const createNewsForm = document.getElementById('create-news-form');
+            const createUserForm = document.getElementById('create-user-form');
+            const noticiasListDiv = document.getElementById('noticias-list');
+            const usuariosListDiv = document.getElementById('usuarios-list');
+            const allGradesContainer = document.getElementById('all-grades-container');
+
+            async function fetchData(endpoint) {
+                const response = await fetch(`${API_URL}/${endpoint}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.status === 403) {
+                    sessionStorage.removeItem('authToken');
+                    alert('Tu sesión ha expirado o no tienes permisos. Por favor, inicia sesión de nuevo.');
+                    window.location.href = 'login.html';
+                    throw new Error('Sesión inválida, redireccionando...');
+                }
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({ message: 'Error desconocido' }));
+                    throw new Error(errorData.message);
+                }
+                return response.json();
+            }
+
+            async function postData(endpoint, data) {
+                const response = await fetch(`${API_URL}/${endpoint}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify(data)
+                });
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    alert(`Error: ${errorData.message}`);
+                }
+                return response.ok;
+            }
+
+            async function deleteData(endpoint, id) {
+                if (confirm('¿Estás seguro de que quieres eliminar este elemento?')) {
+                    const response = await fetch(`${API_URL}/${endpoint}/${id}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    return response.ok;
+                }
+                return false;
+            }
+
+            function renderizarNoticias(noticias) {
+                noticiasListDiv.innerHTML = '';
+                noticias.forEach(noticia => {
+                    const item = document.createElement('div');
+                    item.className = 'item-admin';
+                    item.innerHTML = `<div><h4>${noticia.titulo}</h4><p>${noticia.contenido.substring(0, 50)}...</p></div><button class="delete-btn" data-id="${noticia.id}">Eliminar</button>`;
+                    noticiasListDiv.appendChild(item);
+                });
+            }
+
+            function renderizarUsuarios(usuarios) {
+                usuariosListDiv.innerHTML = '';
+                usuarios.forEach(usuario => {
+                    const item = document.createElement('div');
+                    item.className = 'item-admin';
+                    item.innerHTML = `<div><h4>${usuario.nombre_completo || 'Sin nombre'} (@${usuario.username})</h4><p>${usuario.email} (${usuario.rol})</p></div>`;
+                    usuariosListDiv.appendChild(item);
+                });
+            }
+
+            function renderizarTodasLasNotas(notas) {
+                if (!notas || notas.length === 0) {
+                    allGradesContainer.innerHTML = '<p>No hay calificaciones para mostrar.</p>';
+                    return;
+                }
+                const notasAgrupadas = notas.reduce((acc, nota) => {
+                    if (!acc[nota.nombre_completo]) acc[nota.nombre_completo] = [];
+                    acc[nota.nombre_completo].push(nota);
+                    return acc;
+                }, {});
+
+                let html = '';
+                for (const nombreEstudiante in notasAgrupadas) {
+                    html += `<h4 class="student-name-header">${nombreEstudiante}</h4>`;
+                    html += '<table class="grades-table"><thead><tr><th>Materia</th><th>Nota Final</th></tr></thead><tbody>';
+                    notasAgrupadas[nombreEstudiante].forEach(nota => {
+                        html += `<tr><td>${nota.materia}</td><td><b>${nota.nota_final}</b></td></tr>`;
+                    });
+                    html += '</tbody></table>';
+                }
+                allGradesContainer.innerHTML = html;
+            }
+
+            logoutBtn.addEventListener('click', () => {
+                sessionStorage.removeItem('authToken');
+                window.location.href = 'login.html';
+            });
+
+            createNewsForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                const titulo = document.getElementById('create-news-title').value;
+                const contenido = document.getElementById('create-news-content').value;
+                if (await postData('noticias', { titulo, contenido })) {
+                    cargarContenido();
+                    event.target.reset();
+                }
+            });
+
+            createUserForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                const userData = {
+                    nombre_completo: document.getElementById('create-user-fullname').value,
+                    username: document.getElementById('create-user-username').value,
+                    edad: document.getElementById('create-user-age').value || null,
+                    email: document.getElementById('create-user-email').value,
+                    password: document.getElementById('create-user-password').value,
+                    rol: document.getElementById('create-user-role').value
+                };
+                if (await postData('usuarios', userData)) {
+                    cargarContenido();
+                    event.target.reset();
+                }
+            });
+
+            noticiasListDiv.addEventListener('click', async (event) => {
+                if (event.target.classList.contains('delete-btn')) {
+                    const id = event.target.dataset.id;
+                    if (await deleteData('noticias', id)) {
+                        cargarContenido();
+                    }
+                }
+            });
+
+            async function cargarContenido() {
+                try {
+                    const [noticias, usuarios, todasLasNotas] = await Promise.all([
+                        fetchData('noticias'),
+                        fetchData('usuarios'),
+                        fetchData('todas-las-notas')
+                    ]);
+                    renderizarNoticias(noticias);
+                    renderizarUsuarios(usuarios);
+                    renderizarTodasLasNotas(todasLasNotas);
+                } catch (error) {
+                    console.error('Error al cargar contenido del dashboard:', error);
+                }
+            }
+
+            cargarContenido();
         });
-        html += '
-    </tbody>
-</table>';
-        }
-        allGradesContainer.innerHTML = html;
-    }
-
-    logoutBtn.addEventListener('click', () => {
-        sessionStorage.removeItem('authToken');
-        window.location.href = 'login.html';
-    });
-
-    createNewsForm.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        const titulo = document.getElementById('create-news-title').value;
-        const contenido = document.getElementById('create-news-content').value;
-        const success = await postData('noticias', { titulo, contenido });
-        if (success) {
-            cargarContenido();
-            event.target.reset();
-        }
-    });
-
-    createUserForm.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        const userData = {
-            nombre_completo: document.getElementById('create-user-fullname').value,
-            username: document.getElementById('create-user-username').value,
-            edad: document.getElementById('create-user-age').value || null,
-            email: document.getElementById('create-user-email').value,
-            password: document.getElementById('create-user-password').value,
-            rol: document.getElementById('create-user-role').value
-        };
-        const success = await postData('usuarios', userData);
-        if (success) {
-            cargarContenido();
-            event.target.reset();
-        }
-    });
-
-    noticiasListDiv.addEventListener('click', async (event) => {
-        if (event.target.classList.contains('delete-btn')) {
-            const id = event.target.dataset.id;
-            const success = await deleteData('noticias', id);
-            if (success) cargarContenido();
-        }
-    });
-
-    async function cargarContenido() {
-        try {
-            const [noticias, usuarios, todasLasNotas] = await Promise.all([
-                fetchData('noticias'),
-                fetchData('usuarios'),
-                fetchData('todas-las-notas')
-            ]);
-            renderizarNoticias(noticias);
-            renderizarUsuarios(usuarios);
-            renderizarTodasLasNotas(todasLasNotas);
-        } catch (error) {
-            console.error('Error al cargar contenido del dashboard:', error);
-        }
-    }
-
-    cargarContenido();
-});
+    </script>
+</body>
+</html>
