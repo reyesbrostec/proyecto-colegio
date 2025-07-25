@@ -3,22 +3,169 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal Docente</title>
-    <link rel="stylesheet" href="../admin/admin-style.css"> <!-- Reutilizamos estilos del admin por ahora -->
+    <title>Portal Docente - Gestión de Calificaciones</title>
+    <!-- Reusing admin styles for consistency -->
+    <link rel="stylesheet" href="../admin/admin-style.css">
+    <style>
+        /* Specific styles for the teacher dashboard */
+        .grades-table input {
+            width: 60px;
+            padding: 5px;
+            text-align: center;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .grades-table .save-btn {
+            padding: 5px 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .grades-table .save-btn:hover {
+            background-color: #218838;
+        }
+        .student-name-header {
+            margin-top: 20px;
+            padding-bottom: 5px;
+            border-bottom: 2px solid #007bff;
+            color: #007bff;
+        }
+        #toast-notification {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #28a745;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.5s, bottom 0.5s;
+            visibility: hidden;
+        }
+        #toast-notification.show {
+            opacity: 1;
+            bottom: 30px;
+            visibility: visible;
+        }
+    </style>
 </head>
 <body>
     <header class="admin-header">
         <h1>Portal Docente</h1>
         <button id="logout-btn">Cerrar Sesión</button>
     </header>
+
     <main class="admin-main">
-        <p>Esta página está en construcción. Aquí podrá visualizar y editar las calificaciones de los estudiantes.</p>
+        <div class="card">
+            <h2>Gestión de Calificaciones</h2>
+            <p>Modifique las notas de los parciales o el examen final y haga clic en "Guardar" para registrar los cambios.</p>
+            <div id="grades-container">
+                <p>Cargando calificaciones...</p>
+            </div>
+        </div>
     </main>
+
+    <div id="toast-notification">Calificación guardada con éxito.</div>
+
     <script>
-        if (!sessionStorage.getItem('authToken')) window.location.href = '../estudiantes.html';
-        document.getElementById('logout-btn').addEventListener('click', () => {
-            sessionStorage.removeItem('authToken');
-            window.location.href = '../index.html';
+        document.addEventListener('DOMContentLoaded', () => {
+            const API_URL = 'https://colegio-backend-6oun.onrender.com/api';
+            const token = sessionStorage.getItem('authToken');
+
+            if (!token) {
+                alert('Acceso denegado. Por favor, inicie sesión.');
+                window.location.href = '../estudiantes.html';
+                return;
+            }
+
+            const gradesContainer = document.getElementById('grades-container');
+            const logoutBtn = document.getElementById('logout-btn');
+
+            async function updateGrade(noteId, data) {
+                const response = await fetch(`${API_URL}/notas/${noteId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify(data)
+                });
+                if (!response.ok) {
+                    const error = await response.json();
+                    alert(`Error al guardar: ${error.message}`);
+                    return null;
+                }
+                return response.json();
+            }
+
+            function renderGrades(notas) {
+                if (!notas || notas.length === 0) {
+                    gradesContainer.innerHTML = '<p>No hay calificaciones para mostrar.</p>';
+                    return;
+                }
+
+                const notasAgrupadas = notas.reduce((acc, nota) => {
+                    if (!acc[nota.nombre_completo]) acc[nota.nombre_completo] = [];
+                    acc[nota.nombre_completo].push(nota);
+                    return acc;
+                }, {});
+
+                let html = '';
+                for (const nombreEstudiante in notasAgrupadas) {
+                    html += `<h4 class="student-name-header">${nombreEstudiante}</h4>`;
+                    html += `<table class="grades-table"><thead><tr><th>Materia</th><th>Parcial 1</th><th>Parcial 2</th><th>Examen Final</th><th>Nota Final</th><th>Acción</th></tr></thead><tbody>`;
+                    notasAgrupadas[nombreEstudiante].forEach(nota => {
+                        html += `<tr data-note-id="${nota.id}">
+                            <td>${nota.materia}</td>
+                            <td><input type="number" class="parcial1-input" value="${nota.parcial1}" min="0" max="10" step="0.01"></td>
+                            <td><input type="number" class="parcial2-input" value="${nota.parcial2}" min="0" max="10" step="0.01"></td>
+                            <td><input type="number" class="examen-final-input" value="${nota.examen_final}" min="0" max="10" step="0.01"></td>
+                            <td class="nota-final-cell"><b>${nota.nota_final}</b></td>
+                            <td><button class="save-btn">Guardar</button></td>
+                        </tr>`;
+                    });
+                    html += '</tbody></table>';
+                }
+                gradesContainer.innerHTML = html;
+            }
+
+            function showToast() {
+                const toast = document.getElementById('toast-notification');
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 3000);
+            }
+
+            gradesContainer.addEventListener('click', async (event) => {
+                if (event.target.classList.contains('save-btn')) {
+                    const row = event.target.closest('tr');
+                    const noteId = row.dataset.noteId;
+                    const data = {
+                        parcial1: row.querySelector('.parcial1-input').value,
+                        parcial2: row.querySelector('.parcial2-input').value,
+                        examen_final: row.querySelector('.examen-final-input').value
+                    };
+                    const updatedNote = await updateGrade(noteId, data);
+                    if (updatedNote) {
+                        row.querySelector('.nota-final-cell').innerHTML = `<b>${updatedNote.nota_final}</b>`;
+                        showToast();
+                    }
+                }
+            });
+
+            logoutBtn.addEventListener('click', () => {
+                sessionStorage.removeItem('authToken');
+                window.location.href = '../index.html';
+            });
+
+            // Carga inicial de datos
+            fetch(`${API_URL}/todas-las-notas`, { headers: { 'Authorization': `Bearer ${token}` } })
+                .then(res => res.json())
+                .then(renderGrades)
+                .catch(err => {
+                    gradesContainer.innerHTML = `<p style="color: red;">Error al cargar los datos.</p>`;
+                    console.error(err);
+                });
         });
     </script>
 </body>
