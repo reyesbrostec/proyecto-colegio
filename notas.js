@@ -19,7 +19,7 @@ router.get('/mis-notas', verifyToken, isEstudiante, async (req, res) => {
 // GET todas las notas (solo admin y docentes)
 router.get('/todas-las-notas', verifyToken, isDocente, async (req, res) => {
     try {
-        const query = `SELECT n.id, u.nombre_completo, u.username, n.materia, n.parcial1, n.parcial2, n.examen_final, n.nota_final FROM notas n JOIN usuarios u ON n.estudiante_id = u.id WHERE u.rol = 'estudiante' ORDER BY u.nombre_completo, n.materia;`;
+        const query = `SELECT n.id, u.nombre_completo, u.username, n.materia, n.parcial1, n.parcial2, n.examen_final, n.nota_final, n.editado_por, n.fecha_edicion FROM notas n JOIN usuarios u ON n.estudiante_id = u.id WHERE u.rol = 'estudiante' ORDER BY u.nombre_completo, n.materia;`;
         const result = await pool.query(query);
         res.json(result.rows);
     } catch (err) {
@@ -28,11 +28,11 @@ router.get('/todas-las-notas', verifyToken, isDocente, async (req, res) => {
     }
 });
 
-// PUT para actualizar una nota (solo docentes y admin)
 router.put('/:id', verifyToken, isDocente, async (req, res) => {
     try {
         const { id } = req.params;
         const { parcial1, parcial2, examen_final } = req.body;
+        const editorInfo = req.user.email; // Obtenemos el email del usuario que edita desde el token
 
         // Validar que las notas son números
         if (isNaN(parcial1) || isNaN(parcial2) || isNaN(examen_final)) {
@@ -44,7 +44,10 @@ router.put('/:id', verifyToken, isDocente, async (req, res) => {
         const ef = parseFloat(examen_final);
         const nota_final = ((p1 + p2 + ef) / 3).toFixed(2);
 
-        const result = await pool.query('UPDATE notas SET parcial1 = $1, parcial2 = $2, examen_final = $3, nota_final = $4 WHERE id = $5 RETURNING *', [p1, p2, ef, nota_final, id]);
+        const result = await pool.query(
+            'UPDATE notas SET parcial1 = $1, parcial2 = $2, examen_final = $3, nota_final = $4, editado_por = $5, fecha_edicion = NOW() WHERE id = $6 RETURNING *',
+            [p1, p2, ef, nota_final, editorInfo, id]
+        );
         res.json(result.rows[0]);
     } catch (err) {
         console.error(`Error al actualizar la nota ${req.params.id}:`, err);
