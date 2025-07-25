@@ -1,0 +1,25 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Docente</title>
+    <link rel="stylesheet" href="../admin/admin-style.css"> <!-- Reutilizamos estilos del admin por ahora -->
+</head>
+<body>
+    <header class="admin-header">
+        <h1>Portal Docente</h1>
+        <button id="logout-btn">Cerrar Sesión</button>
+    </header>
+    <main class="admin-main">
+        <p>Esta página está en construcción. Aquí podrá visualizar y editar las calificaciones de los estudiantes.</p>
+    </main>
+    <script>
+        if (!sessionStorage.getItem('authToken')) window.location.href = '../estudiantes.html';
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            sessionStorage.removeItem('authToken');
+            window.location.href = '../index.html';
+        });
+    </script>
+</body>
+</html>
