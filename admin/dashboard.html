@@ -238,7 +238,8 @@
 
             logoutBtn.addEventListener('click', () => {
                 sessionStorage.removeItem('authToken');
-                window.location.href = 'login.html';
+                // Redirigir a la página de inicio principal del sitio
+                window.location.href = '../index.html';
             });
 
             function showToast() {

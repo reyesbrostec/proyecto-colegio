@@ -1,4 +1,4 @@
-﻿// Espera a que todo el HTML esté cargado antes de ejecutar cualquier código
+﻿﻿// Espera a que todo el HTML esté cargado antes de ejecutar cualquier código
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- CONFIGURACIÓN Y VERIFICACIÓN INICIAL ---
@@ -110,8 +110,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- MANEJO DE EVENTOS ---
     logoutBtn.addEventListener('click', () => {
         sessionStorage.removeItem('authToken');
-        alert('Has cerrado sesión exitosamente.');
-        window.location.href = 'login.html';
+        // Redirigir a la página de inicio principal del sitio
+        window.location.href = '../index.html';
     });
 
     createNewsForm.addEventListener('submit', async (event) => {
