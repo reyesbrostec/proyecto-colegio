@@ -63,11 +63,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function deleteData(endpoint, id) {
         if (confirm('¿Estás seguro de que quieres eliminar este elemento?')) {
-            await fetch(`${API_URL}/${endpoint}/${id}`, {
+            const response = await fetch(`${API_URL}/${endpoint}/${id}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-            return true;
+            // Devuelve 'true' solo si la respuesta fue exitosa (ej. 200, 204)
+            return response.ok;
         }
         return false;
     }
@@ -206,6 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
             nombre_completo: document.getElementById('edit-user-fullname').value,
             username: document.getElementById('edit-user-username').value,
             email: document.getElementById('edit-user-email').value,
+            edad: document.getElementById('edit-user-age').value || null, // Añadimos la edad
             rol: document.getElementById('edit-user-role').value
         };
 
