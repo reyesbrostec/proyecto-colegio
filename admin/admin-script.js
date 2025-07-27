@@ -1,4 +1,4 @@
-﻿﻿﻿﻿// Espera a que todo el HTML esté cargado antes de ejecutar cualquier código
+﻿﻿// Espera a que todo el HTML esté cargado antes de ejecutar cualquier código
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- CONFIGURACIÓN Y VERIFICACIÓN INICIAL ---
