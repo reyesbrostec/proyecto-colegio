@@ -1,4 +1,4 @@
-﻿﻿<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -102,7 +102,7 @@
                 try {
                     // Apuntamos al backend en producción para consistencia
                     const API_URL = 'https://colegio-backend-6oun.onrender.com/api';
-                    const response = await fetch(`${API_URL}/mis-notas`, {
+                    const response = await fetch(`${API_URL}/notas/mis-notas`, {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
                     
