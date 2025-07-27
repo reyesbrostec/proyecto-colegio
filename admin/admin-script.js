@@ -232,7 +232,7 @@
             const [noticias, usuarios, todasLasNotas] = await Promise.all([
                 fetchData('noticias'),
                 fetchData('usuarios'),
-                fetchData('todas-las-notas')
+                fetchData('notas/todas-las-notas') // Corregimos la URL para que apunte al endpoint correcto
             ]);
             renderizarNoticias(noticias);
             renderizarUsuarios(usuarios);
