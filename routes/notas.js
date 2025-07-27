@@ -1,4 +1,4 @@
-﻿const express = require('express');
+const express = require('express');
 const pool = require('../db');
 const { verifyToken, isAdmin, isEstudiante, isDocente } = require('../middleware/auth');
 
