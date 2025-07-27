@@ -1,7 +1,7 @@
 const express = require('express');
 const pool = require('../db'); // Asumimos que tienes un archivo db.js que exporta el pool
 const bcrypt = require('bcryptjs');
-const { verifyToken, isAdmin } = require('../middleware/auth'); // Usaremos el middleware de auth
+const { verifyToken, isAdmin } = require('../middleware/auth'); // Correcto: Sube un nivel y entra a middleware/
 
 const router = express.Router();
 
