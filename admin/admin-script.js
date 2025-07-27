@@ -31,6 +31,13 @@ document.addEventListener('DOMContentLoaded', () => {
             sessionStorage.removeItem('authToken');
             alert('Tu sesión ha expirado o no tienes permisos. Por favor, inicia sesión de nuevo.');
             window.location.href = 'login.html';
+            // Lanzamos un error para detener la ejecución en Promise.all
+            throw new Error('Sesión inválida, redireccionando...');
+        }
+        if (!response.ok) {
+            // Intentamos obtener un mensaje del cuerpo, si no, usamos el texto de estado
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(errorData.message || 'Error al obtener los datos');
         }
         return response.json();
     }
@@ -193,6 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('edit-user-fullname').value = userData.nombre_completo;
                 document.getElementById('edit-user-username').value = userData.username;
                 document.getElementById('edit-user-email').value = userData.email;
+                document.getElementById('edit-user-age').value = userData.edad || ''; // Añadimos la edad
                 document.getElementById('edit-user-role').value = userData.rol;
                 editUserModal.style.display = 'block'; // Mostramos el modal
             }
