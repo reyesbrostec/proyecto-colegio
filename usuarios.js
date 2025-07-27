@@ -46,13 +46,41 @@ router.post('/', verifyToken, isAdmin, async (req, res) => {
 router.put('/:id', verifyToken, isAdmin, async (req, res) => {
     const { id } = req.params;
     const { nombre_completo, username, email, rol, edad } = req.body;
-    // ... (el resto de tu lógica de actualización va aquí)
+    if (!nombre_completo || !username || !email || !rol) {
+        return res.status(400).json({ message: 'Todos los campos requeridos excepto la edad.' });
+    }
+
+    try {
+        const result = await pool.query(
+            'UPDATE usuarios SET nombre_completo = $1, username = $2, email = $3, rol = $4, edad = $5 WHERE id = $6 RETURNING id, nombre_completo, username, email, rol, edad',
+            [nombre_completo, username, email, rol, edad || null, id]
+        );
+        if (result.rows.length === 0) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+        res.json(result.rows[0]);
+    } catch (err) {
+        if (err.code === '23505') {
+            return res.status(400).json({ message: 'El email o nombre de usuario ya existe.' });
+        }
+        console.error(`Error al actualizar usuario ${id}:`, err);
+        res.status(500).json({ message: "Error del servidor" });
+    }
 });
 
 // DELETE eliminar un usuario (solo admin)
 router.delete('/:id', verifyToken, isAdmin, async (req, res) => {
     const { id } = req.params;
-    // ... (el resto de tu lógica de eliminación va aquí)
+    try {
+        const deleteResult = await pool.query('DELETE FROM usuarios WHERE id = $1', [id]);
+        if (deleteResult.rowCount === 0) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+        res.status(204).send(); // No Content
+    } catch (err) {
+        console.error(`Error al eliminar usuario ${id}:`, err);
+        res.status(500).json({ message: "Error del servidor" });
+    }
 });
 
 module.exports = router;

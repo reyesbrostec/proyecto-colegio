@@ -13,6 +13,8 @@ const usuariosRoutes = require('./routes/usuarios');
 const notasRoutes = require('./routes/notas');
 const pool = require('./db'); // Importamos la conexión centralizada
 
+const app = express();
+
 // --- 3. MIDDLEWARES ---
 const allowedOrigins = [
     'https://proyecto-colegio.vercel.app',
