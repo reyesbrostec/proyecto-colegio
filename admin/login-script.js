@@ -1,4 +1,5 @@
-﻿const errorMessage = document.getElementById('error-message');
+﻿const loginForm = document.getElementById('login-form');
+const errorMessage = document.getElementById('error-message');
 // Apuntamos a la URL del servidor en producción para que coincida con el resto de la app
 const API_URL = 'https://colegio-backend-6oun.onrender.com/api';
 
