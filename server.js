@@ -54,7 +54,7 @@ app.use('/api/', limiter);
 
 // --- 5. RUTAS DE LA API ---
 // ¡Aquí está la magia! Usamos los routers que importamos.
-app.use('/api/auth', authRoutes);
+app.use('/api', authRoutes); // Cambiamos /api/auth a /api para que coincida con el frontend
 app.use('/api/noticias', noticiasRoutes);
 app.use('/api/usuarios', usuariosRoutes);
 app.use('/api/notas', notasRoutes);
