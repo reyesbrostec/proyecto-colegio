@@ -1,5 +1,4 @@
-﻿﻿// Espera a que todo el HTML esté cargado antes de ejecutar cualquier código
-document.addEventListener('DOMContentLoaded', () => {
+﻿﻿document.addEventListener('DOMContentLoaded', () => {
 
     // --- CONFIGURACIÓN Y VERIFICACIÓN INICIAL ---
     // Apuntamos a la URL del servidor en producción

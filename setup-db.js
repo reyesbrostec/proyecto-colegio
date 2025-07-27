@@ -1,5 +1,4 @@
-﻿﻿require('dotenv').config();
-const { Pool } = require('pg');
+﻿﻿const { Pool } = require('pg');
 const bcrypt = require('bcryptjs');
 
 const setupQueries = `
