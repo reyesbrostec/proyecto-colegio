@@ -1,4 +1,4 @@
-﻿﻿<!DOCTYPE html>
+﻿﻿﻿﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -93,6 +93,36 @@
 
     <div id="toast-notification">Calificación guardada con éxito.</div>
 
+    <!-- INICIO: Modal para Editar Usuario (Añadir este bloque) -->
+    <div id="edit-user-modal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close-btn" onclick="document.getElementById('edit-user-modal').style.display='none'">&times;</span>
+            <h2>Editar Usuario</h2>
+            <form id="edit-user-form">
+                <input type="hidden" id="edit-user-id">
+                
+                <label for="edit-user-fullname">Nombre Completo:</label>
+                <input type="text" id="edit-user-fullname" required>
+                
+                <label for="edit-user-username">Username:</label>
+                <input type="text" id="edit-user-username" required>
+                
+                <label for="edit-user-email">Email:</label>
+                <input type="email" id="edit-user-email" required>
+                
+                <label for="edit-user-role">Rol:</label>
+                <select id="edit-user-role" required>
+                    <option value="estudiante">Estudiante</option>
+                    <option value="docente">Docente</option>
+                    <option value="admin">Admin</option>
+                </select>
+                
+                <button type="submit">Guardar Cambios</button>
+            </form>
+        </div>
+    </div>
+    <!-- FIN: Modal para Editar Usuario -->
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const API_URL = 'https://colegio-backend-6oun.onrender.com/api';
@@ -109,6 +139,7 @@
             const createUserForm = document.getElementById('create-user-form');
             const noticiasListDiv = document.getElementById('noticias-list');
             const usuariosListDiv = document.getElementById('usuarios-list');
+            const editUserModal = document.getElementById('edit-user-modal');
             const allGradesContainer = document.getElementById('all-grades-container');
             const searchGradesInput = document.getElementById('search-grades');
 
@@ -138,6 +169,19 @@
                 if (!response.ok) {
                     const errorData = await response.json();
                     alert(`Error: ${errorData.message}`);
+                }
+                return response.ok;
+            }
+
+            async function updateData(endpoint, id, data) {
+                const response = await fetch(`${API_URL}/${endpoint}/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify(data)
+                });
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    alert(`Error al actualizar: ${errorData.message}`);
                 }
                 return response.ok;
             }
@@ -183,7 +227,13 @@
                 usuarios.forEach(usuario => {
                     const item = document.createElement('div');
                     item.className = 'item-admin';
-                    item.innerHTML = `<div><h4>${usuario.nombre_completo || 'Sin nombre'} (@${usuario.username})</h4><p>${usuario.email} (${usuario.rol})</p></div>`;
+                    item.innerHTML = `
+                        <div><h4>${usuario.nombre_completo || 'Sin nombre'} (@${usuario.username})</h4><p>${usuario.email} (Rol: ${usuario.rol})</p></div>
+                        <div>
+                            <button class="edit-user-btn" data-id="${usuario.id}">Editar</button>
+                            <button class="delete-user-btn" data-id="${usuario.id}">Eliminar</button>
+                        </div>
+                    `;
                     usuariosListDiv.appendChild(item);
                 });
             }
@@ -280,6 +330,49 @@
                     if (await deleteData('noticias', id)) {
                         cargarContenido();
                     }
+                }
+            });
+
+            usuariosListDiv.addEventListener('click', async (event) => {
+                const target = event.target;
+
+                if (target.classList.contains('delete-user-btn')) {
+                    const id = target.dataset.id;
+                    if (await deleteData('usuarios', id)) {
+                        alert('Usuario eliminado correctamente.');
+                        cargarContenido();
+                    }
+                }
+
+                if (target.classList.contains('edit-user-btn')) {
+                    const id = target.dataset.id;
+                    const userData = await fetchData(`usuarios/${id}`);
+                    if (userData) {
+                        document.getElementById('edit-user-id').value = userData.id;
+                        document.getElementById('edit-user-fullname').value = userData.nombre_completo;
+                        document.getElementById('edit-user-username').value = userData.username;
+                        document.getElementById('edit-user-email').value = userData.email;
+                        document.getElementById('edit-user-role').value = userData.rol;
+                        editUserModal.style.display = 'block';
+                    }
+                }
+            });
+
+            document.getElementById('edit-user-form').addEventListener('submit', async (event) => {
+                event.preventDefault();
+                const id = document.getElementById('edit-user-id').value;
+                const updatedData = {
+                    nombre_completo: document.getElementById('edit-user-fullname').value,
+                    username: document.getElementById('edit-user-username').value,
+                    email: document.getElementById('edit-user-email').value,
+                    rol: document.getElementById('edit-user-role').value
+                };
+
+                const success = await updateData('usuarios', id, updatedData);
+                if (success) {
+                    alert('Usuario actualizado correctamente.');
+                    editUserModal.style.display = 'none';
+                    cargarContenido();
                 }
             });
 
