@@ -1,4 +1,4 @@
-﻿﻿// Espera a que todo el HTML esté cargado antes de ejecutar cualquier código
+﻿﻿﻿﻿// Espera a que todo el HTML esté cargado antes de ejecutar cualquier código
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- CONFIGURACIÓN Y VERIFICACIÓN INICIAL ---
@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const createUserForm = document.getElementById('create-user-form');
     const noticiasListDiv = document.getElementById('noticias-list');
     const usuariosListDiv = document.getElementById('usuarios-list');
+    const editUserModal = document.getElementById('edit-user-modal'); // Modal para editar
     const allGradesContainer = document.getElementById('all-grades-container');
 
     // --- FUNCIONES DE API ---
@@ -43,6 +44,19 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!response.ok) {
             const errorData = await response.json();
             alert(`Error: ${errorData.message}`);
+        }
+        return response.ok;
+    }
+
+    async function updateData(endpoint, id, data) {
+        const response = await fetch(`${API_URL}/${endpoint}/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify(data)
+        });
+        if (!response.ok) {
+            const errorData = await response.json();
+            alert(`Error al actualizar: ${errorData.message}`);
         }
         return response.ok;
     }
@@ -78,7 +92,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const item = document.createElement('div');
             item.className = 'item-admin';
             item.innerHTML = `
-                <div><h4>${usuario.nombre_completo || 'Sin nombre'} (@${usuario.username})</h4><p>${usuario.email} (${usuario.rol})</p></div>
+                <div><h4>${usuario.nombre_completo || 'Sin nombre'} (@${usuario.username})</h4><p>${usuario.email} (Rol: ${usuario.rol})</p></div>
+                <div>
+                    <button class="edit-user-btn" data-id="${usuario.id}">Editar</button>
+                    <button class="delete-user-btn" data-id="${usuario.id}">Eliminar</button>
+                </div>
             `;
             usuariosListDiv.appendChild(item);
         });
@@ -147,6 +165,55 @@ document.addEventListener('DOMContentLoaded', () => {
             const id = event.target.dataset.id;
             const success = await deleteData('noticias', id);
             if (success) cargarContenido();
+        }
+    });
+
+    // Event listener para los botones de la lista de usuarios (editar/eliminar)
+    usuariosListDiv.addEventListener('click', async (event) => {
+        const target = event.target;
+
+        // --- Lógica para Eliminar Usuario ---
+        if (target.classList.contains('delete-user-btn')) {
+            const id = target.dataset.id;
+            const success = await deleteData('usuarios', id);
+            if (success) {
+                alert('Usuario eliminado correctamente.');
+                cargarContenido(); // Recargamos la lista
+            }
+        }
+
+        // --- Lógica para Editar Usuario ---
+        if (target.classList.contains('edit-user-btn')) {
+            const id = target.dataset.id;
+            const userData = await fetchData(`usuarios/${id}`); // Necesitas un endpoint en tu API que devuelva un solo usuario
+            if (userData) {
+                // Llenamos el formulario del modal con los datos del usuario
+                document.getElementById('edit-user-id').value = userData.id;
+                document.getElementById('edit-user-fullname').value = userData.nombre_completo;
+                document.getElementById('edit-user-username').value = userData.username;
+                document.getElementById('edit-user-email').value = userData.email;
+                document.getElementById('edit-user-role').value = userData.rol;
+                editUserModal.style.display = 'block'; // Mostramos el modal
+            }
+        }
+    });
+
+    // Event listener para el formulario de edición dentro del modal
+    document.getElementById('edit-user-form').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const id = document.getElementById('edit-user-id').value;
+        const updatedData = {
+            nombre_completo: document.getElementById('edit-user-fullname').value,
+            username: document.getElementById('edit-user-username').value,
+            email: document.getElementById('edit-user-email').value,
+            rol: document.getElementById('edit-user-role').value
+        };
+
+        const success = await updateData('usuarios', id, updatedData);
+        if (success) {
+            alert('Usuario actualizado correctamente.');
+            editUserModal.style.display = 'none'; // Ocultamos el modal
+            cargarContenido(); // Recargamos la lista
         }
     });
 
