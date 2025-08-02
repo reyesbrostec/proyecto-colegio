@@ -131,7 +131,7 @@
             return;
         }
         // Agrupar notas por estudiante
-        const notasAgrupadas = notas.reduce((acc, nota) => {
+        const notasAgrupadas = notas.filter(nota => nota.nombre_completo).reduce((acc, nota) => {
             if (!acc[nota.nombre_completo]) acc[nota.nombre_completo] = [];
             acc[nota.nombre_completo].push(nota);
             return acc;
