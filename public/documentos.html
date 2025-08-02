@@ -1,0 +1,148 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentos - Pagina web educativa demostrativa</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Estilos adicionales para esta página */
+        .page-container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .document-list {
+            margin-top: 30px;
+            display: grid;
+            gap: 20px;
+        }
+
+        .document-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            transition: box-shadow 0.3s ease;
+        }
+
+            .document-item:hover {
+                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            }
+
+        .document-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .document-icon {
+            font-size: 2.5rem;
+            margin-right: 20px;
+            color: #d9534f; /* Un color rojo para asociar con PDF */
+        }
+
+        .document-item h3 {
+            margin: 0 0 5px 0;
+            font-size: 1.2rem;
+        }
+
+        .document-item p {
+            margin: 0;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .download-btn {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">Pagina web educativa demostrativa</div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="quienes-somos.html">¿Quiénes Somos?</a></li>
+                <li><a href="oferta-educativa.html">Oferta Educativa</a></li>
+                <li><a href="propuesta-educativa.html">Propuesta Educativa</a></li>
+                <li><a href="documentos.html">Documentos</a></li>
+                <li><a href="contacto.html">Contacto</a></li>
+                <li><a href="estudiantes.html">Portal UEPAM</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <div class="page-container">
+            <h1>Documentos de Interés</h1>
+            <p>Encuentre y descargue todos los formularios y documentos importantes para la comunidad educativa.</p>
+
+            <div class="document-list">
+
+                <!-- INICIO SECCIÓN EDITABLE: Documento 1 -->
+                <div class="document-item">
+                    <div class="document-info">
+                        <div class="document-icon">📄</div>
+                        <div>
+                            <h3>Contrato de Servicios Educativos 2025-2026</h3>
+                            <p>Documento legal para la matriculación del estudiante.</p>
+                        </div>
+                    </div>
+                    <!-- Sustituye el '#' con el enlace real a tu archivo PDF -->
+                    <a href="#" class="download-btn" download>Descargar</a>
+                </div>
+                <!-- FIN SECCIÓN EDITABLE -->
+                <!-- INICIO SECCIÓN EDITABLE: Documento 2 -->
+                <div class="document-item">
+                    <div class="document-info">
+                        <div class="document-icon">📄</div>
+                        <div>
+                            <h3>Formulario de Solicitud de Matrícula</h3>
+                            <p>Requerido para el proceso de admisión de nuevos estudiantes.</p>
+                        </div>
+                    </div>
+                    <!-- Sustituye el '#' con el enlace real a tu archivo PDF -->
+                    <a href="#" class="download-btn" download>Descargar</a>
+                </div>
+                <!-- FIN SECCIÓN EDITABLE -->
+                <!-- INICIO SECCIÓN EDITABLE: Documento 3 -->
+                <div class="document-item">
+                    <div class="document-info">
+                        <div class="document-icon">📄</div>
+                        <div>
+                            <h3>Reglamento Interno de Convivencia</h3>
+                            <p>Normas y directrices para todos los miembros de la comunidad.</p>
+                        </div>
+                    </div>
+                    <!-- Sustituye el '#' con el enlace real a tu archivo PDF -->
+                    <a href="#" class="download-btn" download>Descargar</a>
+                </div>
+                <!-- FIN SECCIÓN EDITABLE -->
+                <!-- Para añadir más documentos, simplemente copia y pega una de las secciones "document-item" y modifica su contenido. -->
+
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Pagina web educativa demostrativa. Todos los derechos reservados.</p>
+    </footer>
+
+    <script>
+        // Técnica de Disuasión: Deshabilitar clic derecho
+        document.addEventListener('contextmenu', event => event.preventDefault());
+    </script>
+
+</body>
+</html>

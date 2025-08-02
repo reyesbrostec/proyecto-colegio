@@ -1,0 +1,89 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio - Pagina web educativa demostrativa</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Tailwind CSS para un diseño rápido y moderno -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilo para la imagen de fondo de la sección principal */
+        .hero-section {
+            background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://placehold.co/1920x1080/EFEFEF/333333?text=Imagen+Institucional');
+            background-size: cover;
+            background-position: center;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">Pagina web educativa demostrativa</div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="quienes-somos.html">¿Quiénes Somos?</a></li>
+                <li><a href="oferta-educativa.html">Oferta Educativa</a></li>
+                <li><a href="propuesta-educativa.html">Propuesta Educativa</a></li>
+                <li><a href="documentos.html">Documentos</a></li>
+                <li><a href="contacto.html">Contacto</a></li>
+                <li><a href="estudiantes.html">Portal UEPAM</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <!-- INICIO SECCIÓN EDITABLE: Bienvenida (Hero) -->
+        <section class="hero-section text-white text-center py-24 md:py-32">
+            <div class="container mx-auto px-4">
+                <h1 class="text-4xl md:text-6xl font-bold">Innovación y Calidez Humana</h1>
+                <p class="text-lg md:text-xl mt-4 max-w-3xl mx-auto">Formando líderes para el futuro en un ambiente de respeto y excelencia académica.</p>
+                <a href="oferta-educativa.html" class="mt-8 inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition-colors">
+                    Nuestra Oferta Educativa
+                </a>
+            </div>
+        </section>
+        <!-- FIN SECCIÓN EDITABLE -->
+        <!-- INICIO SECCIÓN EDITABLE: Características -->
+        <section class="py-16 bg-gray-50">
+            <div class="container mx-auto px-4 text-center">
+                <h2 class="text-3xl font-bold mb-12">Pilares de Nuestra Educación</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+                    <div class="feature-card p-6">
+                        <div class="text-5xl mb-4">🎓</div>
+                        <h3 class="text-xl font-bold mb-2">Excelencia Académica</h3>
+                        <p class="text-gray-600">Programas educativos de vanguardia para potenciar el talento de cada estudiante.</p>
+                    </div>
+                    <div class="feature-card p-6">
+                        <div class="text-5xl mb-4">🏀</div>
+                        <h3 class="text-xl font-bold mb-2">Desarrollo Integral</h3>
+                        <p class="text-gray-600">Fomentamos el deporte, el arte y los valores para un crecimiento completo.</p>
+                    </div>
+                    <div class="feature-card p-6">
+                        <div class="text-5xl mb-4">🤝</div>
+                        <h3 class="text-xl font-bold mb-2">Comunidad Activa</h3>
+                        <p class="text-gray-600">Un ambiente de colaboración y respeto entre alumnos, padres y docentes.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- FIN SECCIÓN EDITABLE -->
+        <!-- Sección de Noticias (Dinámica) -->
+        <section class="py-16">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl font-bold text-center mb-12">Últimas Noticias</h2>
+                <div id="noticias-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Las noticias se cargarán aquí desde la API -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Pagina web educativa demostrativa. Todos los derechos reservados.</p>
+    </footer>
+
+    <!-- Se usa una ruta absoluta desde la raíz del sitio para mayor robustez -->
+    <script src="/js/main-page.js"></script>
+</body>
+</html>

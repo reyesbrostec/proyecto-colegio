@@ -1,0 +1,174 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contacto - Pagina web educativa demostrativa</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Estilos adicionales para esta página */
+        .page-container {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 40px;
+            margin-top: 30px;
+        }
+
+        @media (min-width: 768px) {
+            .contact-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .info-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+            .info-item .icon {
+                margin-right: 15px;
+                font-size: 1.5rem;
+                color: #007bff; /* Un color de acento */
+            }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 5px;
+                font-weight: bold;
+            }
+
+            .form-group input,
+            .form-group textarea {
+                width: 100%;
+                padding: 10px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+            }
+
+            .form-group button {
+                width: 100%;
+                padding: 12px;
+                border: none;
+                background-color: #007bff;
+                color: white;
+                font-size: 1rem;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">Pagina web educativa demostrativa</div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="quienes-somos.html">¿Quiénes Somos?</a></li>
+                <li><a href="oferta-educativa.html">Oferta Educativa</a></li>
+                <li><a href="propuesta-educativa.html">Propuesta Educativa</a></li>
+                <li><a href="documentos.html">Documentos</a></li>
+                <li><a href="contacto.html">Contacto</a></li>
+                <li><a href="estudiantes.html">Portal UEPAM</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <div class="page-container">
+            <h1>Contacto y Ubicación</h1>
+            <p>Estamos aquí para ayudarle. No dude en visitarnos, llamarnos o enviarnos un mensaje.</p>
+
+            <div class="contact-grid">
+                <!-- Columna de Información -->
+                <div>
+                    <h2>Nuestra Ubicación</h2>
+
+                    <!-- INICIO SECCIÓN EDITABLE: Datos de Contacto -->
+                    <div class="info-item">
+                        <span class="icon">📍</span>
+                        <div>
+                            <strong>Dirección:</strong>
+                            <p>[Avenida Principal 123, Ciudad, País]</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <span class="icon">📞</span>
+                        <div>
+                            <strong>Teléfono:</strong>
+                            <p>[+123 456 7890]</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <span class="icon">✉️</span>
+                        <div>
+                            <strong>Email:</strong>
+                            <p>[info@paginaeducativa.com]</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <span class="icon">🕒</span>
+                        <div>
+                            <strong>Horario de Atención:</strong>
+                            <p>Lunes a Viernes: 8:00 AM - 5:00 PM</p>
+                        </div>
+                    </div>
+                    <!-- FIN SECCIÓN EDITABLE -->
+                    <!-- INICIO SECCIÓN EDITABLE: Mapa -->
+                    <div class="map-container" style="margin-top: 20px;">
+                        <!-- Sustituye la URL por la de un mapa real o déjala como marcador de posición -->
+                        <div class="map-image" style="width:100%; height:300px; background-image: url('https://placehold.co/600x400/EFEFEF/333333?text=Mapa+de+Ubicaci%C3%B3n'); background-size: cover; background-position: center; border-radius: 8px;"></div>
+                    </div>
+                    <!-- FIN SECCIÓN EDITABLE -->
+                </div>
+
+                <!-- Columna de Formulario -->
+                <div>
+                    <h2>Envíenos un Mensaje</h2>
+                    <form action="#" method="POST">
+                        <div class="form-group">
+                            <label for="name">Nombre Completo</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Correo Electrónico</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="subject">Asunto</label>
+                            <input type="text" id="subject" name="subject" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Mensaje</label>
+                            <textarea id="message" name="message" rows="5" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit">Enviar Mensaje</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Pagina web educativa demostrativa. Todos los derechos reservados.</p>
+    </footer>
+
+    <script>
+        // Técnica de Disuasión: Deshabilitar clic derecho
+        document.addEventListener('contextmenu', event => event.preventDefault());
+    </script>
+
+</body>
+</html>
