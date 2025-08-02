@@ -34,7 +34,13 @@ router.get('/todas-las-notas', [verifyToken, (req, res, next) => {
     }
 });
 
-router.put('/:id', verifyToken, isDocente, async (req, res) => {
+router.put('/:id', [verifyToken, (req, res, next) => {
+    // Middleware personalizado para permitir acceso a admin O docente
+    if (req.user.rol === 'admin' || req.user.rol === 'docente') {
+        return next();
+    }
+    return res.status(403).json({ message: 'Acceso no autorizado para este rol.' });
+}], async (req, res) => {
     try {
         const { id } = req.params;
         const { parcial1, parcial2, examen_final } = req.body;

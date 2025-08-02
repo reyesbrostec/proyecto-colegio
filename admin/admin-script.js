@@ -22,6 +22,7 @@
     const closeModalBtn = editUserModal.querySelector('.close-btn');
     const allGradesContainer = document.getElementById('all-grades-container');
     const searchGradesInput = document.getElementById('search-grades');
+    const toast = document.getElementById('toast-notification');
     let todasLasNotasOriginales = []; // Para guardar la lista completa y permitir filtrar
 
     // --- FUNCIONES DE API ---
@@ -114,23 +115,58 @@
         });
     }
 
+    function showToast(message, isError = false) {
+        toast.textContent = message;
+        toast.style.backgroundColor = isError ? 'var(--danger-color)' : '#28a745';
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
     function renderizarTodasLasNotas(notas) {
         if (!notas || notas.length === 0) {
             allGradesContainer.innerHTML = '<p>No hay calificaciones para mostrar.</p>';
             return;
         }
+        // Agrupar notas por estudiante
         const notasAgrupadas = notas.reduce((acc, nota) => {
             if (!acc[nota.nombre_completo]) acc[nota.nombre_completo] = [];
             acc[nota.nombre_completo].push(nota);
             return acc;
         }, {});
 
+        // Construir el HTML de las tablas editables
         let html = '';
         for (const nombreEstudiante in notasAgrupadas) {
             html += `<h4 class="student-name-header">${nombreEstudiante}</h4>`;
-            html += '<table class="grades-table"><thead><tr><th>Materia</th><th>Nota Final</th></tr></thead><tbody>';
+            html += `
+                <table class="grades-table">
+                    <thead>
+                        <tr>
+                            <th>Materia</th>
+                            <th>Parcial 1</th>
+                            <th>Parcial 2</th>
+                            <th>Examen Final</th>
+                            <th>Nota Final</th>
+                            <th>Acción</th>
+                            <th>Última Edición</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
             notasAgrupadas[nombreEstudiante].forEach(nota => {
-                html += `<tr><td>${nota.materia}</td><td><b>${nota.nota_final}</b></td></tr>`;
+                const fechaEdicion = nota.fecha_edicion ? new Date(nota.fecha_edicion).toLocaleString('es-ES') : 'N/A';
+                const editor = nota.editado_por || '';
+                html += `
+                    <tr data-nota-id="${nota.id}">
+                        <td>${nota.materia}</td>
+                        <td><input type="number" class="grade-input" name="parcial1" value="${nota.parcial1 || 0}" min="0" max="10" step="0.01"></td>
+                        <td><input type="number" class="grade-input" name="parcial2" value="${nota.parcial2 || 0}" min="0" max="10" step="0.01"></td>
+                        <td><input type="number" class="grade-input" name="examen_final" value="${nota.examen_final || 0}" min="0" max="10" step="0.01"></td>
+                        <td class="nota-final-cell"><b>${nota.nota_final || 0}</b></td>
+                        <td><button class="save-btn" data-id="${nota.id}">Guardar</button></td>
+                        <td class="editor-cell">${editor}<br>${fechaEdicion}</td>
+                    </tr>
+                `;
             });
             html += '</tbody></table>';
         }
@@ -168,6 +204,16 @@
         }
     });
 
+    // Event listener para guardar calificaciones desde la tabla
+    allGradesContainer.addEventListener('click', async (event) => {
+        if (event.target.classList.contains('save-btn')) {
+            const notaId = event.target.dataset.id;
+            const row = event.target.closest('tr');
+            
+            const updatedGradeData = {
+                parcial1: row.querySelector('input[name="parcial1"]').value,
+                parcial2: row.querySelector('input[name="parcial2"]').value,
+                examen
     createUserForm.addEventListener('submit', async (event) => {
         event.preventDefault();
         const userData = {
