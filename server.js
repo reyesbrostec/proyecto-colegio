@@ -42,6 +42,10 @@ const corsOptions = {
     allowedHeaders: ['Content-Type', 'Authorization']
 };
 
+// Confiar en el proxy de Render para express-rate-limit
+// Esto es necesario para que el rate limiting funcione correctamente en entornos como Render.
+app.set('trust proxy', 1);
+
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(helmet({ contentSecurityPolicy: false }));

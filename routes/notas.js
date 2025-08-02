@@ -4,6 +4,14 @@ const { verifyToken, isAdmin, isEstudiante, isDocente } = require('../middleware
 
 const router = express.Router();
 
+// Middleware personalizado para permitir acceso a admin O docente
+const isDocenteOrAdmin = (req, res, next) => {
+    if (req.user.rol === 'admin' || req.user.rol === 'docente') {
+        return next();
+    }
+    return res.status(403).json({ message: 'Acceso no autorizado para este rol.' });
+};
+
 // GET mis notas (solo estudiante)
 router.get('/mis-notas', verifyToken, isEstudiante, async (req, res) => {
     try {
@@ -17,13 +25,7 @@ router.get('/mis-notas', verifyToken, isEstudiante, async (req, res) => {
 });
 
 // GET todas las notas (solo admin y docentes)
-router.get('/todas-las-notas', [verifyToken, (req, res, next) => {
-    // Middleware personalizado para permitir acceso a admin O docente
-    if (req.user.rol === 'admin' || req.user.rol === 'docente') {
-        return next();
-    }
-    return res.status(403).json({ message: 'Acceso no autorizado para este rol.' });
-}], async (req, res) => {
+router.get('/todas-las-notas', [verifyToken, isDocenteOrAdmin], async (req, res) => {
     try {
         const query = `SELECT n.id, u.nombre_completo, u.username, n.materia, n.parcial1, n.parcial2, n.examen_final, n.nota_final, n.editado_por, n.fecha_edicion FROM notas n JOIN usuarios u ON n.estudiante_id = u.id WHERE u.rol = 'estudiante' ORDER BY u.nombre_completo, n.materia;`;
         const result = await pool.query(query);
@@ -34,13 +36,7 @@ router.get('/todas-las-notas', [verifyToken, (req, res, next) => {
     }
 });
 
-router.put('/:id', [verifyToken, (req, res, next) => {
-    // Middleware personalizado para permitir acceso a admin O docente
-    if (req.user.rol === 'admin' || req.user.rol === 'docente') {
-        return next();
-    }
-    return res.status(403).json({ message: 'Acceso no autorizado para este rol.' });
-}], async (req, res) => {
+router.put('/:id', [verifyToken, isDocenteOrAdmin], async (req, res) => {
     try {
         const { id } = req.params;
         const { parcial1, parcial2, examen_final } = req.body;
