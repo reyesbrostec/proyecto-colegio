@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Plataforma - Pagina web educativa demostrativa</title>
+    <title>Portal UEPAM - Pagina web educativa demostrativa</title>
     <link rel="stylesheet" href="style.css">
     <style>
         /* Estilos específicos para la plataforma estudiantil */
@@ -67,7 +67,7 @@
 
     <main>
         <div class="page-container">
-            <h1>Mis Calificaciones</h1>
+            <h1>Portal UEPAM - Mis Calificaciones</h1>
             <p>Aquí puedes visualizar un resumen de tu progreso académico.</p>
             <div id="grades-container">
                 <p>Cargando calificaciones...</p>
@@ -91,16 +91,18 @@
 
             // Funcionalidad del botón de cerrar sesión
             document.getElementById('logout-btn').addEventListener('click', () => {
-                sessionStorage.clear();
-                window.location.href = 'estudiantes.html';
+                sessionStorage.removeItem('authToken'); // Es más seguro que sessionStorage.clear()
+                // Redirigir a la página de inicio principal
+                window.location.href = 'index.html';
             });
 
             // Función para cargar las notas desde la API
             async function cargarNotas() {
                 const container = document.getElementById('grades-container');
                 try {
-                    // Usamos la URL del backend local para pruebas
-                    const response = await fetch('http://localhost:3000/api/mis-notas', {
+                    // Apuntamos al backend en producción para consistencia
+                    const API_URL = 'https://colegio-backend-6oun.onrender.com/api';
+                    const response = await fetch(`${API_URL}/notas/mis-notas`, {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
                     

@@ -1,5 +1,4 @@
-﻿require('dotenv').config();
-const { Pool } = require('pg');
+﻿﻿const { Pool } = require('pg');
 const bcrypt = require('bcryptjs');
 
 const setupQueries = `
@@ -32,7 +31,9 @@ const setupQueries = `
     parcial1 NUMERIC(4, 2),
     parcial2 NUMERIC(4, 2),
     examen_final NUMERIC(4, 2),
-    nota_final NUMERIC(4, 2)
+    nota_final NUMERIC(4, 2),
+    editado_por VARCHAR(255),
+    fecha_edicion TIMESTAMP WITH TIME ZONE
   );
 `;
 
@@ -60,6 +61,17 @@ async function setupDatabase() {
             [adminEmail, password_hash, 'Administrador Principal']
         );
         console.log('✅ ¡Usuario administrador creado!');
+
+        // --- Crear Usuario Docente ---
+        const docenteEmail = 'docente@colegio.com';
+        const docentePassword = 'profesor123';
+        salt = await bcrypt.genSalt(10);
+        password_hash = await bcrypt.hash(docentePassword, salt);
+        await client.query(
+            `INSERT INTO usuarios (email, password_hash, nombre_completo, username, rol) VALUES ($1, $2, $3, 'profe_ejemplo', 'docente')`,
+            [docenteEmail, password_hash, 'Profesor Ejemplo',]
+        );
+        console.log('✅ ¡Usuario docente creado!');
 
         // --- Crear Estudiantes y Notas Simuladas ---
         const estudiantes = [];

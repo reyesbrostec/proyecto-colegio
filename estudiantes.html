@@ -1,9 +1,8 @@
-﻿<!DOCTYPE html>
-<html lang="es">
+﻿﻿<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal de Estudiantes - Pagina web educativa demostrativa</title>
+    <title>Portal UEPAM - Pagina web educativa demostrativa</title>
     <link rel="stylesheet" href="style.css">
     <!-- Tailwind CSS para un diseño rápido y moderno -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -30,7 +29,7 @@
         <main class="flex-grow flex items-center justify-center">
             <div class="w-full max-w-md bg-white bg-opacity-90 backdrop-blur-sm rounded-lg shadow-xl p-8 m-4">
                 <div class="text-center">
-                    <h1 class="text-3xl font-bold text-gray-800">Portal de Estudiantes</h1>
+                    <h1 class="text-3xl font-bold text-gray-800">Portal UEPAM</h1>
                     <p class="text-gray-600 mt-2">Inicia sesión para acceder a tus recursos.</p>
                 </div>
 
@@ -95,12 +94,24 @@
                     throw new Error(data.message || 'Error al iniciar sesión');
                 }
 
-                // Guardamos el token para usarlo en el panel
+                // Guardamos el token para usarlo en las siguientes páginas
                 sessionStorage.setItem('authToken', data.token);
 
-                // Redirigimos al panel de administración
-                window.location.href = '/admin/dashboard.html';
+                // Decodificamos el token para obtener el rol y redirigir correctamente
+                const payload = JSON.parse(atob(data.token.split('.')[1]));
 
+                if (payload.rol === 'estudiante') {
+                    // Redirigimos a la plataforma estudiantil
+                    window.location.href = 'plataforma-estudiantil.html';
+                } else if (payload.rol === 'admin') {
+                    // Si un admin inicia sesión aquí, lo mandamos a su dashboard
+                    window.location.href = '/admin/dashboard.html';
+                } else if (payload.rol === 'docente') {
+                    // Redirigimos al nuevo portal de docentes
+                    window.location.href = '/docente/dashboard.html';
+                } else {
+                    errorMessage.textContent = 'Rol de usuario no reconocido.';
+                }
             } catch (error) {
                 errorMessage.textContent = error.message;
             }
