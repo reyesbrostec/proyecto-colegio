@@ -1,4 +1,4 @@
-﻿﻿const { Pool } = require('pg');
+﻿﻿﻿﻿const { Pool } = require('pg');
 const bcrypt = require('bcryptjs');
 
 const setupQueries = `
@@ -72,6 +72,13 @@ async function setupDatabase() {
             [docenteEmail, password_hash, 'Profesor Ejemplo',]
         );
         console.log('✅ ¡Usuario docente creado!');
+
+        // --- Crear Noticias de Ejemplo ---
+        await client.query(
+            `INSERT INTO noticias (titulo, contenido) VALUES ($1, $2), ($3, $4)`,
+            ['¡Bienvenidos al Nuevo Año Escolar!', 'Estamos muy emocionados de comenzar un nuevo ciclo lleno de aprendizaje y nuevas aventuras. ¡Consulten el calendario para las fechas importantes!', 'Reunión de Padres de Familia', 'La primera reunión de padres de familia se llevará a cabo el próximo viernes a las 18:00 en el auditorio principal. ¡No falten!']
+        );
+        console.log('✅ ¡Noticias de ejemplo creadas!');
 
         // --- Crear Estudiantes y Notas Simuladas ---
         const estudiantes = [];

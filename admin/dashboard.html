@@ -1,20 +1,11 @@
-﻿<!DOCTYPE html>
+﻿﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard de Administración</title>
     <link rel="stylesheet" href="admin-style.css">
-    <style>
-        /* Reutilizamos los estilos del portal docente para la tabla de notas */
-        .grades-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9em; }
-        .grades-table th, .grades-table td { padding: 8px 12px; border: 1px solid #ddd; text-align: left; }
-        .grades-table th { background-color: #f8f9fa; }
-        .grades-table input { width: 60px; padding: 5px; text-align: center; border: 1px solid #ccc; border-radius: 4px; }
-        .grades-table .save-btn { padding: 5px 10px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        .grades-table .save-btn:hover { background-color: #218838; }
-        .student-name-header { margin-top: 20px; padding-bottom: 5px; border-bottom: 2px solid #007bff; color: #007bff; }
-        .editor-cell { font-size: 0.8em; color: #6c757d; }
+    <!-- Se movieron los estilos de la tabla al archivo CSS principal -->
         #toast-notification {
             position: fixed;
             bottom: 20px;
@@ -96,7 +87,7 @@
     <!-- INICIO: Modal para Editar Usuario (Añadir este bloque) -->
     <div id="edit-user-modal" class="modal" style="display:none;">
         <div class="modal-content">
-            <span class="close-btn" onclick="document.getElementById('edit-user-modal').style.display='none'">&times;</span>
+            <span class="close-btn">&times;</span>
             <h2>Editar Usuario</h2>
             <form id="edit-user-form">
                 <input type="hidden" id="edit-user-id">
@@ -126,6 +117,21 @@
     </div>
     <!-- FIN: Modal para Editar Usuario -->
 
+    <!-- Template para los items de la lista de usuarios -->
+    <template id="user-item-template">
+        <div class="item-admin">
+            <div>
+                <h4 class="user-fullname"></h4>
+                <p class="user-details"></p>
+            </div>
+            <div>
+                <button class="edit-user-btn" data-id="">Editar</button>
+                <button class="delete-user-btn" data-id="">Eliminar</button>
+            </div>
+        </div>
+    </template>
+
+    <script src="../js/config.js"></script> <!-- Carga la configuración global -->
     <script src="admin-script.js"></script>
 </body>
 </html>

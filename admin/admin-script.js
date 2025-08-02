@@ -1,4 +1,4 @@
-﻿﻿document.addEventListener('DOMContentLoaded', () => {
+﻿﻿﻿﻿document.addEventListener('DOMContentLoaded', () => {
 
     // --- CONFIGURACIÓN Y VERIFICACIÓN INICIAL ---
     // Apuntamos a la URL del servidor en producción
@@ -19,6 +19,7 @@
     const noticiasListDiv = document.getElementById('noticias-list');
     const usuariosListDiv = document.getElementById('usuarios-list');
     const editUserModal = document.getElementById('edit-user-modal'); // Modal para editar
+    const closeModalBtn = editUserModal.querySelector('.close-btn');
     const allGradesContainer = document.getElementById('all-grades-container');
 
     // --- FUNCIONES DE API ---
@@ -95,17 +96,19 @@
 
     function renderizarUsuarios(usuarios) {
         usuariosListDiv.innerHTML = '';
+        const template = document.getElementById('user-item-template');
+
         usuarios.forEach(usuario => {
-            const item = document.createElement('div');
-            item.className = 'item-admin';
-            item.innerHTML = `
-                <div><h4>${usuario.nombre_completo || 'Sin nombre'} (@${usuario.username})</h4><p>${usuario.email} (Rol: ${usuario.rol})</p></div>
-                <div>
-                    <button class="edit-user-btn" data-id="${usuario.id}">Editar</button>
-                    <button class="delete-user-btn" data-id="${usuario.id}">Eliminar</button>
-                </div>
-            `;
-            usuariosListDiv.appendChild(item);
+            const userClone = template.content.cloneNode(true);
+            
+            userClone.querySelector('.user-fullname').textContent = `${usuario.nombre_completo || 'Sin nombre'} (@${usuario.username})`;
+            userClone.querySelector('.user-details').textContent = `${usuario.email} (Rol: ${usuario.rol})`;
+            
+            const editBtn = userClone.querySelector('.edit-user-btn');
+            const deleteBtn = userClone.querySelector('.delete-user-btn');
+            editBtn.dataset.id = usuario.id;
+            deleteBtn.dataset.id = usuario.id;
+            usuariosListDiv.appendChild(userClone);
         });
     }
 
@@ -224,6 +227,11 @@
             editUserModal.style.display = 'none'; // Ocultamos el modal
             cargarContenido(); // Recargamos la lista
         }
+    });
+
+    // --- Manejo del Modal ---
+    closeModalBtn.addEventListener('click', () => {
+        editUserModal.style.display = 'none';
     });
 
     // --- CARGA INICIAL ---

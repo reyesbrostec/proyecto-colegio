@@ -172,3 +172,14 @@ button:hover {
     font-weight: bold;
     cursor: pointer;
 }
+
+/* Estilos para la tabla de notas (movidos desde dashboard.html) */
+.grades-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9em; }
+.grades-table th, .grades-table td { padding: 8px 12px; border: 1px solid #ddd; text-align: left; }
+.grades-table th { background-color: var(--light-color); }
+.grades-table input { width: 60px; padding: 5px; text-align: center; border: 1px solid #ccc; border-radius: 4px; }
+.grades-table .save-btn { padding: 5px 10px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; }
+.grades-table .save-btn:hover { background-color: #218838; }
+.student-name-header { margin-top: 20px; padding-bottom: 5px; border-bottom: 2px solid var(--primary-color); color: var(--primary-color); }
+.editor-cell { font-size: 0.8em; color: #6c757d; }
+}

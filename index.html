@@ -1,4 +1,4 @@
-﻿﻿<html lang="es">
+﻿﻿﻿﻿<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -82,11 +82,7 @@
         <p>&copy; 2025 Pagina web educativa demostrativa. Todos los derechos reservados.</p>
     </footer>
 
-    <script>
-        // Técnica de Disuasión: Deshabilitar clic derecho
-        document.addEventListener('contextmenu', event => event.preventDefault());
-
-        // Cargar noticias desde la API de Render
+    <script>        // Cargar noticias desde la API de Render
         fetch('https://colegio-backend-6oun.onrender.com/api/noticias')
             .then(response => {
                 if (!response.ok) {

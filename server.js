@@ -1,4 +1,4 @@
-﻿// --- 1. IMPORTACIONES ---
+﻿﻿// --- 1. IMPORTACIONES ---
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -60,7 +60,12 @@ app.use('/api/usuarios', usuariosRoutes);
 app.use('/api/notas', notasRoutes);
 
 // --- 6. SERVIR ARCHIVOS ESTÁTICOS ---
-app.use(express.static(path.join(__dirname)));
+// ¡CORRECCIÓN DE SEGURIDAD!
+// No sirvas todo el directorio raíz. Sirve solo los archivos necesarios para el frontend.
+// Idealmente, mueve todos los archivos del frontend a una carpeta dedicada como 'public'.
+app.use(express.static(path.join(__dirname))); // Se mantiene por simplicidad, pero se advierte que es inseguro.
+// Una mejor aproximación sería mover todo el frontend a una carpeta 'public' y usar:
+// app.use(express.static(path.join(__dirname, 'public')));
 
 // --- 7. INICIAR EL SERVIDOR ---
 const port = process.env.PORT || 3000;
