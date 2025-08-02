@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal del Docente</title>
+    <!-- Usaremos los mismos estilos que el dashboard de admin para consistencia -->
+    <link rel="stylesheet" href="../admin/admin-styles.css">
+</head>
+<body>
+    <header>
+        <h1>Portal del Docente</h1>
+        <button id="logout-btn">Cerrar Sesión</button>
+    </header>
+
+    <main>
+        <section id="grades-management">
+            <h2>Gestión de Calificaciones</h2>
+            <div class="card">
+                <h3>Calificaciones de Todos los Estudiantes</h3>
+                <input type="text" id="search-grades" placeholder="Buscar estudiante por nombre...">
+                <div id="all-grades-container" class="grades-container-scroll">
+                    <!-- Las tablas de calificaciones se insertarán aquí dinámicamente -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="toast-notification"></div>
+
+    <script src="docente-script.js"></script>
+</body>
+</html>
