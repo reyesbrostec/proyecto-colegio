@@ -46,41 +46,44 @@
     }
 
     async function postData(endpoint, data) {
-        const response = await fetch(`${API_URL}/${endpoint}`, {
+        const response = await fetch(`${API_URL}/${endpoint}`, { // Corregido: se añade /
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
             body: JSON.stringify(data)
         });
+        const responseData = await response.json().catch(() => ({})); // Evita error si no hay body
         if (!response.ok) {
-            const errorData = await response.json();
-            alert(`Error: ${errorData.message}`);
+            throw new Error(responseData.message || 'Error al crear el elemento.');
         }
-        return response.ok;
+        return responseData;
     }
 
     async function updateData(endpoint, id, data) {
-        const response = await fetch(`${API_URL}/${endpoint}/${id}`, {
+        const response = await fetch(`${API_URL}/${endpoint}/${id}`, { // Corregido: se añade /
             method: 'PUT',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
             body: JSON.stringify(data)
         });
+        const responseData = await response.json().catch(() => ({}));
         if (!response.ok) {
-            const errorData = await response.json();
-            alert(`Error al actualizar: ${errorData.message}`);
+            throw new Error(responseData.message || 'Error al actualizar el elemento.');
         }
-        return response.ok;
+        return responseData;
     }
 
     async function deleteData(endpoint, id) {
-        if (confirm('¿Estás seguro de que quieres eliminar este elemento?')) {
-            const response = await fetch(`${API_URL}/${endpoint}/${id}`, {
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            // Devuelve 'true' solo si la respuesta fue exitosa (ej. 200, 204)
-            return response.ok;
+        // La confirmación ahora se maneja en el event listener para no mezclar lógica.
+        const response = await fetch(`${API_URL}/${endpoint}/${id}`, { // Corregido: se añade /
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        // DELETE puede devolver 204 No Content, que no tiene JSON.
+        // `response.ok` es suficiente para saber si fue exitoso.
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || 'Error al eliminar el elemento.');
         }
-        return false;
+        // No es necesario devolver nada en caso de éxito.
     }
 
     // --- RENDERIZADO EN PÁGINA ---
@@ -197,10 +200,13 @@
         event.preventDefault();
         const titulo = document.getElementById('create-news-title').value;
         const contenido = document.getElementById('create-news-content').value;
-        const success = await postData('noticias', { titulo, contenido });
-        if (success) {
+        try {
+            await postData('noticias', { titulo, contenido });
+            showToast('Noticia creada con éxito.');
             cargarContenido();
             event.target.reset();
+        } catch (error) {
+            showToast(error.message, true);
         }
     });
 
@@ -209,11 +215,39 @@
         if (event.target.classList.contains('save-btn')) {
             const notaId = event.target.dataset.id;
             const row = event.target.closest('tr');
-            
+
             const updatedGradeData = {
                 parcial1: row.querySelector('input[name="parcial1"]').value,
                 parcial2: row.querySelector('input[name="parcial2"]').value,
-                examen
+                examen_final: row.querySelector('input[name="examen_final"]').value
+            };
+
+            // Usamos fetch directamente para tener más control sobre la respuesta y la UX
+            try {
+                const response = await fetch(`${API_URL}/notas/${notaId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify(updatedGradeData)
+                });
+
+                if (response.ok) {
+                    const updatedNota = await response.json();
+                    // Actualizamos la fila específica sin recargar todo para una mejor experiencia
+                    row.querySelector('.nota-final-cell b').textContent = updatedNota.nota_final;
+                    const editorCell = row.querySelector('.editor-cell');
+                    const fechaEdicion = new Date(updatedNota.fecha_edicion).toLocaleString('es-ES');
+                    editorCell.innerHTML = `${updatedNota.editado_por}<br>${fechaEdicion}`;
+                    showToast('Calificación guardada con éxito.');
+                } else {
+                    const errorData = await response.json();
+                    showToast(`Error: ${errorData.message}`, true);
+                }
+            } catch (error) {
+                showToast('Error de red al guardar la calificación.', true);
+            }
+        }
+    });
+
     createUserForm.addEventListener('submit', async (event) => {
         event.preventDefault();
         const userData = {
@@ -224,32 +258,51 @@
             password: document.getElementById('create-user-password').value,
             rol: document.getElementById('create-user-role').value
         };
-        const success = await postData('usuarios', userData);
-        if (success) {
+        try {
+            await postData('usuarios', userData);
+            showToast('Usuario creado con éxito.');
             cargarContenido();
             event.target.reset();
+        } catch (error) {
+            showToast(error.message, true);
         }
     });
 
     noticiasListDiv.addEventListener('click', async (event) => {
         if (event.target.classList.contains('delete-btn')) {
-            const id = event.target.dataset.id;
-            const success = await deleteData('noticias', id);
-            if (success) cargarContenido();
+            if (confirm('¿Estás seguro de que quieres eliminar esta noticia?')) {
+                const id = event.target.dataset.id;
+                try {
+                    await deleteData('noticias', id);
+                    showToast('Noticia eliminada.');
+                    cargarContenido();
+                } catch (error) {
+                    showToast(error.message, true);
+                }
+            }
         }
     });
 
     // Event listener para los botones de la lista de usuarios (editar/eliminar)
     usuariosListDiv.addEventListener('click', async (event) => {
         const target = event.target;
-
-        // --- Lógica para Eliminar Usuario ---
+        // --- Lógica para Eliminar Usuario (movida para usar showToast) ---
         if (target.classList.contains('delete-user-btn')) {
             const id = target.dataset.id;
             const success = await deleteData('usuarios', id);
             if (success) {
                 alert('Usuario eliminado correctamente.');
                 cargarContenido(); // Recargamos la lista
+            }
+            if (confirm('¿Estás seguro de que quieres eliminar este usuario?')) {
+                const id = target.dataset.id;
+                try {
+                    await deleteData('usuarios', id);
+                    showToast('Usuario eliminado correctamente.');
+                    cargarContenido();
+                } catch (error) {
+                    showToast(error.message, true);
+                }
             }
         }
 
@@ -282,11 +335,14 @@
             rol: document.getElementById('edit-user-role').value
         };
 
-        const success = await updateData('usuarios', id, updatedData);
-        if (success) {
-            alert('Usuario actualizado correctamente.');
+        try {
+            await updateData('usuarios', id, updatedData);
+            showToast('Usuario actualizado correctamente.');
             editUserModal.style.display = 'none'; // Ocultamos el modal
             cargarContenido(); // Recargamos la lista
+        } catch (error) {
+            // Mostramos el error sin cerrar el modal para que el usuario pueda corregir
+            showToast(error.message, true);
         }
     });
 
