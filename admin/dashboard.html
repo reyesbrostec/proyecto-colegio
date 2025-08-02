@@ -1,39 +1,11 @@
-﻿﻿<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard de Administración</title>
     <link rel="stylesheet" href="admin-style.css">
-    <!-- Se movieron los estilos de la tabla al archivo CSS principal -->
-        #toast-notification {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #28a745;
-            color: white;
-            padding: 15px;
-            border-radius: 5px;
-            z-index: 1000;
-            opacity: 0;
-            transition: opacity 0.5s, bottom 0.5s;
-            visibility: hidden;
-        }
-        #toast-notification.show {
-            opacity: 1;
-            bottom: 30px;
-            visibility: visible;
-        }
-        #search-grades {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 20px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 1rem;
-        }
-    </style>
+    <!-- Los estilos ahora están en admin-style.css para una mejor organización -->
 </head>
 <body>
     <header class="admin-header">
@@ -131,7 +103,7 @@
         </div>
     </template>
 
-    <script src="../js/config.js"></script> <!-- Carga la configuración global -->
+    <script src="../config.js"></script> <!-- Carga la configuración global -->
     <script src="admin-script.js"></script>
 </body>
 </html>

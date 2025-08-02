@@ -21,6 +21,8 @@
     const editUserModal = document.getElementById('edit-user-modal'); // Modal para editar
     const closeModalBtn = editUserModal.querySelector('.close-btn');
     const allGradesContainer = document.getElementById('all-grades-container');
+    const searchGradesInput = document.getElementById('search-grades');
+    let todasLasNotasOriginales = []; // Para guardar la lista completa y permitir filtrar
 
     // --- FUNCIONES DE API ---
     async function fetchData(endpoint) {
@@ -135,6 +137,19 @@
         allGradesContainer.innerHTML = html;
     }
 
+    // --- BÚSQUEDA DE CALIFICACIONES ---
+    function filtrarCalificaciones() {
+        const searchTerm = searchGradesInput.value.toLowerCase().trim();
+
+        // Filtramos el array original de notas. La función de renderizado se encargará de agrupar.
+        const notasFiltradas = todasLasNotasOriginales.filter(nota =>
+            nota.nombre_completo.toLowerCase().includes(searchTerm)
+        );
+
+        renderizarTodasLasNotas(notasFiltradas);
+    }
+
+
     // --- MANEJO DE EVENTOS ---
     logoutBtn.addEventListener('click', () => {
         sessionStorage.removeItem('authToken');
@@ -234,6 +249,9 @@
         editUserModal.style.display = 'none';
     });
 
+    // Event listener para la barra de búsqueda de calificaciones
+    searchGradesInput.addEventListener('input', filtrarCalificaciones);
+
     // --- CARGA INICIAL ---
     async function cargarContenido() {
         try {
@@ -242,6 +260,7 @@
                 fetchData('usuarios'),
                 fetchData('notas/todas-las-notas')
             ]);
+            todasLasNotasOriginales = todasLasNotas; // Guardamos la lista original para poder filtrar
             renderizarNoticias(noticias);
             renderizarUsuarios(usuarios);
             renderizarTodasLasNotas(todasLasNotas);

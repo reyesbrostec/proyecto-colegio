@@ -182,4 +182,36 @@ button:hover {
 .grades-table .save-btn:hover { background-color: #218838; }
 .student-name-header { margin-top: 20px; padding-bottom: 5px; border-bottom: 2px solid var(--primary-color); color: var(--primary-color); }
 .editor-cell { font-size: 0.8em; color: #6c757d; }
+
+/* Estilos para Toast / Notificaciones (movidos de dashboard.html) */
+#toast-notification {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #28a745;
+    color: white;
+    padding: 15px;
+    border-radius: 5px;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.5s, bottom 0.5s;
+    visibility: hidden;
+}
+
+#toast-notification.show {
+    opacity: 1;
+    bottom: 30px;
+    visibility: visible;
+}
+
+/* Estilos para la barra de búsqueda (movidos de dashboard.html) */
+#search-grades {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+    box-sizing: border-box;
 }
