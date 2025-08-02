@@ -82,37 +82,7 @@
         <p>&copy; 2025 Pagina web educativa demostrativa. Todos los derechos reservados.</p>
     </footer>
 
-    <script>        // Cargar noticias desde la API de Render
-        fetch('https://colegio-backend-6oun.onrender.com/api/noticias')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('La respuesta de la red no fue exitosa');
-                }
-                return response.json();
-            })
-            .then(noticias => {
-                const container = document.getElementById('noticias-container');
-                if (!noticias || noticias.length === 0) {
-                    container.innerHTML = '<p class="col-span-full text-center text-gray-500">No hay noticias para mostrar en este momento.</p>';
-                    return;
-                }
-
-                container.innerHTML = ''; // Limpiamos el contenedor
-                noticias.forEach(noticia => {
-                    const article = document.createElement('article');
-                    article.className = 'news-item bg-white p-6 rounded-lg shadow-md';
-                    article.innerHTML = `
-                            <h3 class="text-xl font-bold mb-2">${noticia.titulo}</h3>
-                            <p class="text-gray-700">${noticia.contenido}</p>
-                        `;
-                    container.appendChild(article);
-                });
-            })
-            .catch(error => {
-                console.error('Error al cargar las noticias:', error);
-                const container = document.getElementById('noticias-container');
-                container.innerHTML = '<p class="col-span-full text-center text-red-500">No se pudieron cargar las noticias en este momento.</p>';
-            });
-    </script>
+    <!-- Se mueve la lógica a un archivo externo para mayor orden -->
+    <script src="js/main-page.js"></script>
 </body>
 </html>
