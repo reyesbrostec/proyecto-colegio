@@ -286,20 +286,16 @@
     // Event listener para los botones de la lista de usuarios (editar/eliminar)
     usuariosListDiv.addEventListener('click', async (event) => {
         const target = event.target;
-        // --- Lógica para Eliminar Usuario (movida para usar showToast) ---
+        // --- Lógica para Eliminar Usuario (CORREGIDA) ---
+        // Se ha simplificado la lógica para que pida confirmación primero
+        // y solo intente eliminar el usuario una vez.
         if (target.classList.contains('delete-user-btn')) {
-            const id = target.dataset.id;
-            const success = await deleteData('usuarios', id);
-            if (success) {
-                alert('Usuario eliminado correctamente.');
-                cargarContenido(); // Recargamos la lista
-            }
             if (confirm('¿Estás seguro de que quieres eliminar este usuario?')) {
                 const id = target.dataset.id;
                 try {
                     await deleteData('usuarios', id);
                     showToast('Usuario eliminado correctamente.');
-                    cargarContenido();
+                    cargarContenido(); // Recarga la lista para reflejar el cambio
                 } catch (error) {
                     showToast(error.message, true);
                 }
