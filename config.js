@@ -1,1 +1,0 @@
-const API_URL = 'https://colegio-backend-6oun.onrender.com/api';
