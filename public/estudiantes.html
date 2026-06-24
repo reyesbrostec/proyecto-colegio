@@ -8,7 +8,7 @@
     <meta name="robots" content="noindex, nofollow">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link rel="shortcut icon" href="favicon/favicon.ico">
     <style>
@@ -23,27 +23,27 @@
         .login-card {
             background: rgba(255,255,255,0.95);
             backdrop-filter: blur(8px);
-            border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-xl);
             padding: 40px;
             width: 100%;
             max-width: 420px;
         }
     </style>
 </head>
-<body style="font-family:'Inter',sans-serif;">
+<body>
     <a href="#login-card" class="skip-link">Saltar al formulario de inicio de sesión</a>
 
     <div class="login-background">
         <header style="padding:24px;">
-            <a href="index.html" style="color:#fff; font-size:1.25rem; font-weight:700; text-decoration:none;">Colegio UEPAM</a>
+            <a href="index.html" style="color:#fff; font-size:1.25rem; font-weight:800; text-decoration:none; letter-spacing:-0.02em;">Colegio UEPAM</a>
         </header>
 
         <main style="flex:1; display:flex; align-items:center; justify-content:center;" id="main-content">
             <div class="login-card" id="login-card">
                 <div style="text-align:center;">
-                    <h1 style="font-size:1.75rem; font-weight:700; color:#1e293b;">Portal UEPAM</h1>
-                    <p style="color:#64748b; margin-top:8px;">Inicia sesión para acceder a tus recursos.</p>
+                    <h1 style="font-size:1.75rem; font-weight:700; color:var(--gray-900);">Portal UEPAM</h1>
+                    <p style="color:var(--gray-500); margin-top:8px;">Inicia sesión para acceder a tus recursos.</p>
                 </div>
 
                 <form id="login-form" style="margin-top:32px;" novalidate>
