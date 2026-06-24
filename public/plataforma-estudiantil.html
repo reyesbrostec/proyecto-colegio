@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Calificaciones — Portal UEPAM | Colegio UEPAM</title>
+    <meta name="description" content="Consulta tus calificaciones y progreso académico en el Portal UEPAM del Colegio UEPAM.">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="shortcut icon" href="favicon/favicon.ico">
+</head>
+<body style="font-family:'Inter',sans-serif;">
+    <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
+
+    <header>
+        <div class="logo">
+            <a href="index.html" aria-label="Colegio UEPAM — Ir al inicio">Colegio UEPAM</a>
+        </div>
+        <nav aria-label="Navegación principal">
+            <button id="logout-btn" class="btn btn-secondary" style="padding:8px 16px; font-size:0.875rem;">Cerrar Sesión</button>
+        </nav>
+    </header>
+
+    <main id="main-content">
+        <div class="page-container">
+            <h1>Mis Calificaciones</h1>
+            <p>Aquí puedes visualizar un resumen de tu progreso académico.</p>
+            <div id="grades-container" style="margin-top:24px;">
+                <p>Cargando calificaciones…</p>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Colegio UEPAM. Todos los derechos reservados.</p>
+    </footer>
+
+    <script src="js/accessibility.js" defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var token = sessionStorage.getItem('authToken');
+
+            if (!token) {
+                alert('Acceso denegado. Por favor, inicie sesión.');
+                window.location.href = 'estudiantes.html';
+                return;
+            }
+
+            document.getElementById('logout-btn').addEventListener('click', function () {
+                sessionStorage.removeItem('authToken');
+                window.location.href = 'index.html';
+            });
+
+            async function cargarNotas() {
+                var container = document.getElementById('grades-container');
+                try {
+                    var API_URL = 'https://colegio-backend-6oun.onrender.com/api';
+                    var response = await fetch(API_URL + '/notas/mis-notas', {
+                        headers: { 'Authorization': 'Bearer ' + token }
+                    });
+
+                    if (!response.ok) {
+                        var errorData = await response.json();
+                        throw new Error(errorData.message || 'No se pudo cargar la información.');
+                    }
+
+                    var notas = await response.json();
+
+                    if (notas.length === 0) {
+                        container.innerHTML = '<p>Aún no tienes calificaciones registradas.</p>';
+                        return;
+                    }
+
+                    var tableHTML = '<table class="grades-table"><thead><tr><th>Materia</th><th>Parcial 1</th><th>Parcial 2</th><th>Examen Final</th><th>Nota Final</th></tr></thead><tbody>';
+                    notas.forEach(function (nota) {
+                        tableHTML += '<tr><td>' + nota.materia + '</td><td>' + nota.parcial1 + '</td><td>' + nota.parcial2 + '</td><td>' + nota.examen_final + '</td><td><strong>' + nota.nota_final + '</strong></td></tr>';
+                    });
+                    tableHTML += '</tbody></table>';
+                    container.innerHTML = tableHTML;
+
+                } catch (error) {
+                    container.innerHTML = '<p style="color:#ef4444;">' + error.message + '</p>';
+                }
+            }
+
+            cargarNotas();
+        });
+    </script>
+</body>
+</html>

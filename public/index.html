@@ -1,25 +1,49 @@
 ﻿<!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inicio - Pagina web educativa demostrativa</title>
+    <title>Colegio UEPAM — Educación de Excelencia para el Futuro de tus Hijos</title>
+    <meta name="description" content="El Colegio UEPAM ofrece educación inicial, básica y bachillerato con un modelo constructivista e inclusivo. Formamos líderes íntegros en un ambiente de respeto, innovación y calidez humana.">
+    <meta name="keywords" content="colegio, educación, bachillerato, educación inicial, educación básica, UEPAM, colegio inclusivo, formación integral, matrícula escolar">
+    <meta name="author" content="Colegio UEPAM">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#2563eb">
+    <link rel="canonical" href="https://proyecto-colegio.vercel.app/">
+    <!-- Open Graph -->
+    <meta property="og:title" content="Colegio UEPAM — Educación de Excelencia">
+    <meta property="og:description" content="Formamos líderes para el futuro en un ambiente de respeto y excelencia académica. ¡Inscripciones abiertas!">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://proyecto-colegio.vercel.app/">
+    <meta property="og:locale" content="es_EC">
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Colegio UEPAM — Educación de Excelencia">
+    <meta name="twitter:description" content="Formamos líderes para el futuro en un ambiente de respeto y excelencia académica.">
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Styles -->
     <link rel="stylesheet" href="style.css">
-    <!-- Tailwind CSS para un diseño rápido y moderno -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        /* Estilo para la imagen de fondo de la sección principal */
-        .hero-section {
-            background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://placehold.co/1920x1080/EFEFEF/333333?text=Imagen+Institucional');
-            background-size: cover;
-            background-position: center;
-        }
-    </style>
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/svg+xml" href="favicon/favicon.svg">
+    <link rel="icon" type="image/png" sizes="96x96" href="favicon/favicon-96x96.png">
+    <link rel="shortcut icon" href="favicon/favicon.ico">
+    <link rel="manifest" href="favicon/site.webmanifest">
 </head>
-<body>
+<body style="font-family:'Inter',sans-serif;">
+
+    <!-- Skip Link (Accesibilidad) -->
+    <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
+
+    <!-- ── Header ── -->
     <header>
-        <div class="logo">Pagina web educativa demostrativa</div>
-        <nav>
+        <div class="logo">
+            <a href="index.html" aria-label="Colegio UEPAM — Ir al inicio">Colegio UEPAM</a>
+        </div>
+        <nav aria-label="Navegación principal">
             <ul>
                 <li><a href="index.html">Inicio</a></li>
                 <li><a href="quienes-somos.html">¿Quiénes Somos?</a></li>
@@ -32,58 +56,99 @@
         </nav>
     </header>
 
-    <main>
-        <!-- INICIO SECCIÓN EDITABLE: Bienvenida (Hero) -->
-        <section class="hero-section text-white text-center py-24 md:py-32">
-            <div class="container mx-auto px-4">
-                <h1 class="text-4xl md:text-6xl font-bold">Innovación y Calidez Humana</h1>
-                <p class="text-lg md:text-xl mt-4 max-w-3xl mx-auto">Formando líderes para el futuro en un ambiente de respeto y excelencia académica.</p>
-                <a href="oferta-educativa.html" class="mt-8 inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition-colors">
-                    Nuestra Oferta Educativa
-                </a>
+    <!-- ── Contenido Principal ── -->
+    <main id="main-content">
+
+        <!-- ★ HERO SECTION (StoryBrand: Above the Fold) ★ -->
+        <section class="hero" aria-labelledby="hero-heading">
+            <div class="hero-content">
+                <h1 id="hero-heading">El Futuro de tus Hijos<br>Comienza con una Gran Educación</h1>
+                <p>En el <strong>Colegio UEPAM</strong> formamos líderes íntegros, seguros y preparados para los desafíos del mañana. Combinamos innovación educativa con calidez humana para que cada estudiante descubra y potencie su talento único.</p>
+                <div style="display:flex; flex-wrap:wrap; gap:16px; justify-content:center;">
+                    <a href="contacto.html" class="btn btn-primary">Solicitar Información</a>
+                    <a href="oferta-educativa.html" class="btn btn-outline-light">Conoce Nuestra Oferta</a>
+                </div>
             </div>
         </section>
-        <!-- FIN SECCIÓN EDITABLE -->
-        <!-- INICIO SECCIÓN EDITABLE: Características -->
-        <section class="py-16 bg-gray-50">
-            <div class="container mx-auto px-4 text-center">
-                <h2 class="text-3xl font-bold mb-12">Pilares de Nuestra Educación</h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
-                    <div class="feature-card p-6">
-                        <div class="text-5xl mb-4">🎓</div>
-                        <h3 class="text-xl font-bold mb-2">Excelencia Académica</h3>
-                        <p class="text-gray-600">Programas educativos de vanguardia para potenciar el talento de cada estudiante.</p>
+
+        <!-- ★ PILARES ★ -->
+        <section aria-labelledby="pilares-heading" style="background:#f8fafc;">
+            <div class="container">
+                <h2 id="pilares-heading" style="text-align:center; margin-bottom:48px;">Pilares de Nuestra Educación</h2>
+                <div class="features-grid">
+                    <div class="card" style="text-align:center;">
+                        <div style="font-size:3rem; margin-bottom:16px;" aria-hidden="true">🎓</div>
+                        <h3>Excelencia Académica</h3>
+                        <p>Programas educativos de vanguardia que potencian el talento de cada estudiante con metodologías activas y personalizadas.</p>
                     </div>
-                    <div class="feature-card p-6">
-                        <div class="text-5xl mb-4">🏀</div>
-                        <h3 class="text-xl font-bold mb-2">Desarrollo Integral</h3>
-                        <p class="text-gray-600">Fomentamos el deporte, el arte y los valores para un crecimiento completo.</p>
+                    <div class="card" style="text-align:center;">
+                        <div style="font-size:3rem; margin-bottom:16px;" aria-hidden="true">🌟</div>
+                        <h3>Desarrollo Integral</h3>
+                        <p>Fomentamos el deporte, el arte y los valores para un crecimiento completo. Cada niño encuentra su pasión y la desarrolla.</p>
                     </div>
-                    <div class="feature-card p-6">
-                        <div class="text-5xl mb-4">🤝</div>
-                        <h3 class="text-xl font-bold mb-2">Comunidad Activa</h3>
-                        <p class="text-gray-600">Un ambiente de colaboración y respeto entre alumnos, padres y docentes.</p>
+                    <div class="card" style="text-align:center;">
+                        <div style="font-size:3rem; margin-bottom:16px;" aria-hidden="true">🤝</div>
+                        <h3>Comunidad Activa</h3>
+                        <p>Un ambiente de colaboración entre alumnos, padres y docentes. Porque la educación es un esfuerzo compartido.</p>
                     </div>
                 </div>
             </div>
         </section>
-        <!-- FIN SECCIÓN EDITABLE -->
-        <!-- Sección de Noticias (Dinámica) -->
-        <section class="py-16">
-            <div class="container mx-auto px-4">
-                <h2 class="text-3xl font-bold text-center mb-12">Últimas Noticias</h2>
-                <div id="noticias-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <!-- Las noticias se cargarán aquí desde la API -->
+
+        <!-- ★ TESTIMONIOS (StoryBrand: Student Success) ★ -->
+        <section aria-labelledby="testimonios-heading">
+            <div class="container">
+                <h2 id="testimonios-heading" style="text-align:center; margin-bottom:16px;">Lo Que Dicen Nuestras Familias</h2>
+                <p style="text-align:center; color:#64748b; max-width:600px; margin:0 auto 48px auto;">Nada nos enorgullece más que ver a nuestros estudiantes triunfar. Estas son algunas experiencias de nuestra comunidad.</p>
+                <div class="features-grid">
+                    <div class="testimonial-card">
+                        <blockquote>"Desde que mi hija entró al colegio, su confianza y rendimiento académico se dispararon. Los profesores realmente se preocupan por cada estudiante."</blockquote>
+                        <cite>— María G., madre de familia</cite>
+                    </div>
+                    <div class="testimonial-card">
+                        <blockquote>"Me encanta venir al colegio porque aprendemos jugando y los profesores nos ayudan a ser mejores cada día."</blockquote>
+                        <cite>— Carlos, estudiante de 5to grado</cite>
+                    </div>
+                    <div class="testimonial-card">
+                        <blockquote>"Como docente, encuentro un ambiente de innovación constante. Aquí podemos implementar nuevas metodologías que realmente benefician a los chicos."</blockquote>
+                        <cite>— Lic. Andrea, docente</cite>
+                    </div>
                 </div>
             </div>
         </section>
+
+        <!-- ★ NOTICIAS ★ -->
+        <section aria-labelledby="noticias-heading" style="background:#f8fafc;">
+            <div class="container">
+                <h2 id="noticias-heading" style="text-align:center; margin-bottom:48px;">Últimas Noticias</h2>
+                <div id="noticias-container" class="news-grid">
+                    <!-- Cargadas dinámicamente vía js/main-page.js -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ★ CTA FINAL (StoryBrand: Repeat CTA) ★ -->
+        <section class="cta-section" aria-labelledby="cta-heading">
+            <div class="container">
+                <h2 id="cta-heading">¿Listo para Dar el Primer Paso?</h2>
+                <p style="color:#bfdbfe; font-size:1.125rem; margin-bottom:32px; max-width:600px; margin-left:auto; margin-right:auto;">Agenda una visita, conoce nuestras instalaciones y descubre por qué cientos de familias confían en el Colegio UEPAM.</p>
+                <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap;">
+                    <a href="contacto.html" class="btn btn-primary" style="background:#fff; color:#1e40af;">Solicitar Información</a>
+                    <a href="documentos.html" class="btn btn-outline-light">Descargar Documentos</a>
+                </div>
+            </div>
+        </section>
+
     </main>
 
+    <!-- ── Footer ── -->
     <footer>
-        <p>&copy; 2025 Pagina web educativa demostrativa. Todos los derechos reservados.</p>
+        <p>&copy; 2025 Colegio UEPAM. Todos los derechos reservados.</p>
+        <p style="margin-top:8px; font-size:0.813rem;">Formando líderes para el futuro.</p>
     </footer>
 
-    <!-- Se usa una ruta absoluta desde la raíz del sitio para mayor robustez -->
-    <script src="/js/main-page.js"></script>
+    <!-- Scripts -->
+    <script src="js/accessibility.js" defer></script>
+    <script src="js/main-page.js" defer></script>
 </body>
 </html>

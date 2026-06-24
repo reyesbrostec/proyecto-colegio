@@ -3,74 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Documentos - Pagina web educativa demostrativa</title>
+    <title>Documentos — Colegio UEPAM</title>
+    <meta name="description" content="Descarga documentos importantes del Colegio UEPAM: contrato de servicios, formulario de matrícula, reglamento interno y más.">
+    <meta name="robots" content="index, follow">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <style>
-        /* Estilos adicionales para esta página */
-        .page-container {
-            max-width: 900px;
-            margin: 40px auto;
-            padding: 20px;
-        }
-
-        .document-list {
-            margin-top: 30px;
-            display: grid;
-            gap: 20px;
-        }
-
-        .document-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px;
-            background-color: #fff;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            transition: box-shadow 0.3s ease;
-        }
-
-            .document-item:hover {
-                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            }
-
-        .document-info {
-            display: flex;
-            align-items: center;
-        }
-
-        .document-icon {
-            font-size: 2.5rem;
-            margin-right: 20px;
-            color: #d9534f; /* Un color rojo para asociar con PDF */
-        }
-
-        .document-item h3 {
-            margin: 0 0 5px 0;
-            font-size: 1.2rem;
-        }
-
-        .document-item p {
-            margin: 0;
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        .download-btn {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            font-weight: bold;
-            white-space: nowrap;
-        }
-    </style>
+    <link rel="shortcut icon" href="favicon/favicon.ico">
 </head>
-<body>
+<body style="font-family:'Inter',sans-serif;">
+    <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
+
     <header>
-        <div class="logo">Pagina web educativa demostrativa</div>
-        <nav>
+        <div class="logo">
+            <a href="index.html" aria-label="Colegio UEPAM — Ir al inicio">Colegio UEPAM</a>
+        </div>
+        <nav aria-label="Navegación principal">
             <ul>
                 <li><a href="index.html">Inicio</a></li>
                 <li><a href="quienes-somos.html">¿Quiénes Somos?</a></li>
@@ -83,66 +32,50 @@
         </nav>
     </header>
 
-    <main>
+    <main id="main-content">
         <div class="page-container">
             <h1>Documentos de Interés</h1>
             <p>Encuentre y descargue todos los formularios y documentos importantes para la comunidad educativa.</p>
 
-            <div class="document-list">
-
-                <!-- INICIO SECCIÓN EDITABLE: Documento 1 -->
-                <div class="document-item">
-                    <div class="document-info">
-                        <div class="document-icon">📄</div>
+            <div class="document-list" style="margin-top:32px; display:grid; gap:20px;">
+                <div class="document-item" style="display:flex; justify-content:space-between; align-items:center; padding:24px; background:#fff; border:1px solid #e2e8f0; border-radius:8px;">
+                    <div style="display:flex; align-items:center; gap:20px;">
+                        <span style="font-size:2.5rem; color:#ef4444;" aria-hidden="true">📄</span>
                         <div>
-                            <h3>Contrato de Servicios Educativos 2025-2026</h3>
-                            <p>Documento legal para la matriculación del estudiante.</p>
+                            <h3 style="margin:0 0 4px 0; font-size:1.1rem;">Contrato de Servicios Educativos 2025-2026</h3>
+                            <p style="margin:0; color:#64748b;">Documento legal para la matriculación del estudiante.</p>
                         </div>
                     </div>
-                    <!-- Sustituye el '#' con el enlace real a tu archivo PDF -->
-                    <a href="#" class="download-btn" download>Descargar</a>
+                    <a href="#" class="btn btn-primary" download style="white-space:nowrap;">Descargar</a>
                 </div>
-                <!-- FIN SECCIÓN EDITABLE -->
-                <!-- INICIO SECCIÓN EDITABLE: Documento 2 -->
-                <div class="document-item">
-                    <div class="document-info">
-                        <div class="document-icon">📄</div>
+                <div class="document-item" style="display:flex; justify-content:space-between; align-items:center; padding:24px; background:#fff; border:1px solid #e2e8f0; border-radius:8px;">
+                    <div style="display:flex; align-items:center; gap:20px;">
+                        <span style="font-size:2.5rem; color:#ef4444;" aria-hidden="true">📄</span>
                         <div>
-                            <h3>Formulario de Solicitud de Matrícula</h3>
-                            <p>Requerido para el proceso de admisión de nuevos estudiantes.</p>
+                            <h3 style="margin:0 0 4px 0; font-size:1.1rem;">Formulario de Solicitud de Matrícula</h3>
+                            <p style="margin:0; color:#64748b;">Requerido para el proceso de admisión de nuevos estudiantes.</p>
                         </div>
                     </div>
-                    <!-- Sustituye el '#' con el enlace real a tu archivo PDF -->
-                    <a href="#" class="download-btn" download>Descargar</a>
+                    <a href="#" class="btn btn-primary" download style="white-space:nowrap;">Descargar</a>
                 </div>
-                <!-- FIN SECCIÓN EDITABLE -->
-                <!-- INICIO SECCIÓN EDITABLE: Documento 3 -->
-                <div class="document-item">
-                    <div class="document-info">
-                        <div class="document-icon">📄</div>
+                <div class="document-item" style="display:flex; justify-content:space-between; align-items:center; padding:24px; background:#fff; border:1px solid #e2e8f0; border-radius:8px;">
+                    <div style="display:flex; align-items:center; gap:20px;">
+                        <span style="font-size:2.5rem; color:#ef4444;" aria-hidden="true">📄</span>
                         <div>
-                            <h3>Reglamento Interno de Convivencia</h3>
-                            <p>Normas y directrices para todos los miembros de la comunidad.</p>
+                            <h3 style="margin:0 0 4px 0; font-size:1.1rem;">Reglamento Interno de Convivencia</h3>
+                            <p style="margin:0; color:#64748b;">Normas y directrices para todos los miembros de la comunidad.</p>
                         </div>
                     </div>
-                    <!-- Sustituye el '#' con el enlace real a tu archivo PDF -->
-                    <a href="#" class="download-btn" download>Descargar</a>
+                    <a href="#" class="btn btn-primary" download style="white-space:nowrap;">Descargar</a>
                 </div>
-                <!-- FIN SECCIÓN EDITABLE -->
-                <!-- Para añadir más documentos, simplemente copia y pega una de las secciones "document-item" y modifica su contenido. -->
-
             </div>
         </div>
     </main>
 
     <footer>
-        <p>&copy; 2025 Pagina web educativa demostrativa. Todos los derechos reservados.</p>
+        <p>&copy; 2025 Colegio UEPAM. Todos los derechos reservados.</p>
     </footer>
 
-    <script>
-        // Técnica de Disuasión: Deshabilitar clic derecho
-        document.addEventListener('contextmenu', event => event.preventDefault());
-    </script>
-
+    <script src="js/accessibility.js" defer></script>
 </body>
 </html>
