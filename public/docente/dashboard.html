@@ -3,29 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal del Docente</title>
-    <!-- Usamos los mismos estilos que el dashboard de admin para consistencia -->
-    <link rel="stylesheet" href="../admin/admin-styles.css">
+    <title>Portal del Docente — Colegio UEPAM</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../style.css">
+    <link rel="icon" type="image/svg+xml" href="../favicon/favicon.svg">
+    <style>
+        .dashboard-container { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+        .dashboard-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 32px; }
+        .grades-card { background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-sm); }
+        .grades-card h2 { margin-top: 0; }
+        .search-input { width: 100%; padding: 12px 16px; border: 2px solid var(--gray-200); border-radius: var(--radius-md); font-family: 'Poppins', sans-serif; font-size: 1rem; margin-bottom: 24px; transition: border-color 0.2s; }
+        .search-input:focus { border-color: var(--blue-500); outline: none; }
+        .empty-state { text-align: center; color: var(--gray-500); padding: 40px 0; }
+    </style>
 </head>
 <body>
-    <header class="admin-header">
-        <h1>Portal del Docente</h1>
-        <button id="logout-btn">Cerrar Sesión</button>
+    <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
+
+    <header>
+        <div class="logo">
+            <a href="../index.html" aria-label="Colegio UEPAM — Ir al inicio">Colegio UEPAM</a>
+        </div>
+        <nav aria-label="Navegación del docente">
+            <button id="logout-btn" class="btn btn-secondary" style="padding:8px 16px; font-size:0.875rem;">Cerrar Sesión</button>
+        </nav>
     </header>
 
-    <main class="admin-main">
-        <section id="grades-management">
-            <div class="card">
-                <h2>Gestión de Calificaciones</h2>
-                <input type="text" id="search-grades" placeholder="Buscar estudiante por nombre...">
-                <div id="all-grades-container" class="grades-container-scroll">
-                    <!-- Las tablas de calificaciones se insertarán aquí dinámicamente -->
-                </div>
+    <main id="main-content" class="dashboard-container">
+        <div class="dashboard-header">
+            <h1>Portal del Docente</h1>
+        </div>
+        <section class="grades-card" id="grades-management" aria-labelledby="grades-heading">
+            <h2 id="grades-heading">Gestión de Calificaciones</h2>
+            <label for="search-grades" style="display:block; font-weight:600; margin-bottom:8px; color:var(--gray-700);">Buscar estudiante</label>
+            <input type="text" id="search-grades" class="search-input" placeholder="Buscar estudiante por nombre...">
+            <div id="all-grades-container">
+                <p class="empty-state">Usa el buscador para encontrar estudiantes y gestionar sus calificaciones.</p>
             </div>
         </section>
     </main>
 
-    <div id="toast-notification"></div>
+    <div id="toast-notification" aria-live="polite" style="position:fixed; bottom:24px; right:24px; z-index:1000;"></div>
 
     <script src="docente-script.js"></script>
 </body>
