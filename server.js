@@ -70,8 +70,12 @@ app.use('/api/galeria', galeriaRoutes);
 // archivos del frontend (HTML, CSS, JS del cliente).
 app.use(express.static(path.join(__dirname, 'public')));
 
-// --- 7. INICIAR EL SERVIDOR ---
+// --- 7. INICIAR EL SERVIDOR (solo local; Vercel usa serverless) ---
 const port = process.env.PORT || 3000;
-app.listen(port, () => {
+if (require.main === module) {
+  app.listen(port, () => {
     console.log(`Servidor escuchando en el puerto ${port}`);
-});
+  });
+}
+
+module.exports = app;
