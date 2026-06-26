@@ -85,7 +85,7 @@ router.get('/', async (req, res) => {
     res.json(result.rows);
   } catch (err) {
     console.error('Error al obtener galería:', err);
-    res.status(500).json({ message: 'Error del servidor' });
+    res.status(500).json({ message: 'Error del servidor', error: err.message, stack: err.stack });
   }
 });
 
@@ -98,7 +98,7 @@ router.get('/albums', async (req, res) => {
     res.json(result.rows);
   } catch (err) {
     console.error('Error al obtener álbumes:', err);
-    res.status(500).json({ message: 'Error del servidor' });
+    res.status(500).json({ message: 'Error del servidor', error: err.message, stack: err.stack });
   }
 });
 
