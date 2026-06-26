@@ -11,6 +11,7 @@ const authRoutes = require('./routes/auth');
 const noticiasRoutes = require('./routes/noticias');
 const usuariosRoutes = require('./routes/usuarios');
 const notasRoutes = require('./routes/notas');
+const galeriaRoutes = require('./routes/galeria');
 const pool = require('./db'); // Importamos la conexión centralizada
 
 const app = express();
@@ -62,6 +63,7 @@ app.use('/api', authRoutes); // Cambiamos /api/auth a /api para que coincida con
 app.use('/api/noticias', noticiasRoutes);
 app.use('/api/usuarios', usuariosRoutes);
 app.use('/api/notas', notasRoutes);
+app.use('/api/galeria', galeriaRoutes);
 
 // --- 6. SERVIR ARCHIVOS ESTÁTICOS (Forma Segura) ---
 // Servimos únicamente el contenido de la carpeta 'public', que contiene todos los

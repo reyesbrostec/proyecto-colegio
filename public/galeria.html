@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galería de Actividades — Colegio UEPAM</title>
+    <meta name="description" content="Explora las actividades, eventos y momentos especiales de nuestra comunidad educativa. Galería fotográfica del Colegio UEPAM.">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#1e40af">
+    <link rel="canonical" href="https://proyecto-colegio.vercel.app/galeria.html">
+    <meta property="og:title" content="Galería de Actividades — Colegio UEPAM">
+    <meta property="og:description" content="Descubre la vida en el Colegio UEPAM a través de nuestra galería de fotos.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://proyecto-colegio.vercel.app/galeria.html">
+    <meta property="og:locale" content="es_EC">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/svg+xml" href="favicon/favicon.svg">
+    <style>
+        /* ── Galería ── */
+        .galeria-hero {
+            background: linear-gradient(135deg, var(--blue-900), var(--blue-700));
+            color: var(--white);
+            text-align: center;
+            padding: 80px 24px 64px;
+        }
+        .galeria-hero h1 {
+            color: var(--white);
+            margin-bottom: 12px;
+        }
+        .galeria-hero p {
+            color: var(--blue-100);
+            font-size: 1.125rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .galeria-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 24px 64px;
+        }
+
+        /* ── Filtros de álbum ── */
+        .album-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 32px;
+            justify-content: center;
+        }
+        .album-filter {
+            padding: 8px 20px;
+            border: 2px solid var(--gray-200);
+            border-radius: 50px;
+            background: var(--white);
+            color: var(--gray-600);
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+        .album-filter:hover {
+            border-color: var(--blue-400);
+            color: var(--blue-700);
+        }
+        .album-filter.active {
+            background: var(--blue-700);
+            color: var(--white);
+            border-color: var(--blue-700);
+        }
+
+        /* ── Grid Masonry-like ── */
+        .fotos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .foto-card {
+            position: relative;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            cursor: pointer;
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.3s, box-shadow 0.3s;
+            background: var(--gray-100);
+            aspect-ratio: 4/3;
+        }
+        .foto-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+        .foto-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.4s;
+        }
+        .foto-card:hover img {
+            transform: scale(1.05);
+        }
+        .foto-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 20px;
+            background: linear-gradient(transparent, rgba(0,0,0,0.75));
+            color: var(--white);
+            transform: translateY(100%);
+            transition: transform 0.3s;
+        }
+        .foto-card:hover .foto-overlay {
+            transform: translateY(0);
+        }
+        .foto-overlay h3 {
+            color: var(--white);
+            font-size: 1.05rem;
+            margin: 0 0 4px;
+        }
+        .foto-overlay p {
+            color: var(--gray-200);
+            font-size: 0.8125rem;
+            margin: 0;
+        }
+
+        /* ── Lightbox ── */
+        .lightbox {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: rgba(15,23,42,0.92);
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        .lightbox.open {
+            display: flex;
+        }
+        .lightbox-content {
+            position: relative;
+            max-width: 90vw;
+            max-height: 85vh;
+        }
+        .lightbox-content img {
+            max-width: 100%;
+            max-height: 80vh;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-xl);
+            object-fit: contain;
+        }
+        .lightbox-info {
+            color: var(--white);
+            text-align: center;
+            margin-top: 12px;
+        }
+        .lightbox-info h3 {
+            color: var(--white);
+            margin: 0;
+        }
+        .lightbox-info p {
+            color: var(--gray-300);
+            margin: 4px 0 0;
+            font-size: 0.875rem;
+        }
+        .lightbox-close,
+        .lightbox-prev,
+        .lightbox-next {
+            position: absolute;
+            background: rgba(255,255,255,0.15);
+            border: none;
+            color: var(--white);
+            font-size: 1.5rem;
+            cursor: pointer;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+            z-index: 1001;
+        }
+        .lightbox-close:hover,
+        .lightbox-prev:hover,
+        .lightbox-next:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        .lightbox-close {
+            top: 16px;
+            right: 16px;
+        }
+        .lightbox-prev {
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .lightbox-next {
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        /* ── Estados ── */
+        .galeria-empty {
+            text-align: center;
+            padding: 64px 24px;
+            color: var(--gray-400);
+        }
+        .galeria-empty .icon {
+            font-size: 4rem;
+            margin-bottom: 16px;
+        }
+        .galeria-loading {
+            text-align: center;
+            padding: 64px 24px;
+        }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--gray-200);
+            border-top-color: var(--blue-600);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+            .fotos-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 12px;
+            }
+            .lightbox-close { top: 8px; right: 8px; width: 40px; height: 40px; font-size: 1.25rem; }
+            .lightbox-prev, .lightbox-next { width: 40px; height: 40px; font-size: 1.25rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
+
+    <!-- Header -->
+    <header>
+        <div class="logo">
+            <a href="index.html" aria-label="Colegio UEPAM — Ir al inicio">Colegio UEPAM</a>
+        </div>
+        <nav aria-label="Navegación principal">
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="quienes-somos.html">Quiénes Somos</a></li>
+                <li><a href="oferta-educativa.html">Oferta Educativa</a></li>
+                <li><a href="propuesta-educativa.html">Propuesta</a></li>
+                <li><a href="galeria.html" style="color:var(--blue-600);font-weight:600;">Galería</a></li>
+                <li><a href="documentos.html">Documentos</a></li>
+                <li><a href="contacto.html">Contacto</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main id="main-content">
+        <!-- Hero -->
+        <section class="galeria-hero">
+            <h1>Galería de Actividades</h1>
+            <p>Descubre los momentos que hacen especial a nuestra comunidad educativa.</p>
+        </section>
+
+        <!-- Galería -->
+        <div class="galeria-container">
+            <!-- Filtros de álbum -->
+            <div class="album-filters" id="album-filters">
+                <button class="album-filter active" data-album="">Todos</button>
+                <!-- se llena con JS -->
+            </div>
+
+            <!-- Grid de fotos -->
+            <div class="fotos-grid" id="fotos-grid">
+                <div class="galeria-loading">
+                    <div class="spinner"></div>
+                    <p style="color:var(--gray-400);">Cargando galería...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lightbox -->
+        <div class="lightbox" id="lightbox" aria-hidden="true" role="dialog" aria-label="Visor de imagen">
+            <button class="lightbox-close" id="lightbox-close" aria-label="Cerrar visor">&times;</button>
+            <button class="lightbox-prev" id="lightbox-prev" aria-label="Imagen anterior">&lsaquo;</button>
+            <button class="lightbox-next" id="lightbox-next" aria-label="Imagen siguiente">&rsaquo;</button>
+            <div class="lightbox-content">
+                <img id="lightbox-img" src="" alt="">
+                <div class="lightbox-info">
+                    <h3 id="lightbox-title"></h3>
+                    <p id="lightbox-desc"></p>
+                    <p id="lightbox-album" style="font-size:0.75rem;opacity:0.7;"></p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-brand">Colegio UEPAM</div>
+        <p style="color:var(--gray-400); margin:4px 0 16px 0;">Formando líderes para el futuro</p>
+        <p style="margin:0;">&copy; 2025 Colegio UEPAM. Todos los derechos reservados.</p>
+    </footer>
+
+    <script>
+    (function () {
+        const API = '/api/galeria';
+        let todasLasFotos = [];
+        let albumActual = '';
+        let fotoActualIndex = 0;
+
+        const albumFilters = document.getElementById('album-filters');
+        const fotosGrid = document.getElementById('fotos-grid');
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+        const lightboxTitle = document.getElementById('lightbox-title');
+        const lightboxDesc = document.getElementById('lightbox-desc');
+        const lightboxAlbum = document.getElementById('lightbox-album');
+
+        // ── Cargar fotos ──
+        async function cargarFotos(album) {
+            albumActual = album;
+            fotosGrid.innerHTML = '<div class="galeria-loading"><div class="spinner"></div><p style="color:var(--gray-400);">Cargando...</p></div>';
+
+            try {
+                const url = album ? `${API}?album=${encodeURIComponent(album)}` : API;
+                const res = await fetch(url);
+                if (!res.ok) throw new Error('Error al cargar');
+                todasLasFotos = await res.json();
+                renderizarFotos();
+            } catch (err) {
+                console.error(err);
+                fotosGrid.innerHTML = '<div class="galeria-empty"><div class="icon">⚠️</div><p>Error al cargar la galería. Intenta de nuevo más tarde.</p></div>';
+            }
+        }
+
+        // ── Cargar álbumes ──
+        async function cargarAlbumes() {
+            try {
+                const res = await fetch(`${API}/albums`);
+                if (!res.ok) return;
+                const albums = await res.json();
+                if (!albums.length) return;
+
+                albums.forEach(a => {
+                    const btn = document.createElement('button');
+                    btn.className = 'album-filter';
+                    btn.dataset.album = a.album;
+                    btn.textContent = `${a.album} (${a.total})`;
+                    btn.addEventListener('click', () => {
+                        albumFilters.querySelectorAll('.album-filter').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        cargarFotos(a.album);
+                    });
+                    albumFilters.appendChild(btn);
+                });
+            } catch (err) {
+                console.warn('No se pudieron cargar álbumes:', err);
+            }
+        }
+
+        // ── Renderizar grid ──
+        function renderizarFotos() {
+            if (!todasLasFotos.length) {
+                fotosGrid.innerHTML = '<div class="galeria-empty"><div class="icon">📷</div><p>No hay fotos aún. ¡Pronto compartiremos nuestras actividades!</p></div>';
+                return;
+            }
+
+            fotosGrid.innerHTML = todasLasFotos.map((f, i) => `
+                <div class="foto-card" data-index="${i}" tabindex="0" role="button" aria-label="Ver foto: ${f.titulo || 'Sin título'}">
+                    <img src="${f.url}" alt="${f.titulo || 'Foto de actividad escolar'}" loading="lazy">
+                    <div class="foto-overlay">
+                        <h3>${f.titulo || 'Sin título'}</h3>
+                        ${f.descripcion ? `<p>${f.descripcion}</p>` : ''}
+                    </div>
+                </div>
+            `).join('');
+
+            // Click / teclado para abrir lightbox
+            fotosGrid.querySelectorAll('.foto-card').forEach(card => {
+                card.addEventListener('click', () => abrirLightbox(parseInt(card.dataset.index)));
+                card.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        abrirLightbox(parseInt(card.dataset.index));
+                    }
+                });
+            });
+        }
+
+        // ── Lightbox ──
+        function abrirLightbox(index) {
+            fotoActualIndex = index;
+            const foto = todasLasFotos[index];
+            lightboxImg.src = foto.url;
+            lightboxImg.alt = foto.titulo || 'Foto de actividad escolar';
+            lightboxTitle.textContent = foto.titulo || 'Sin título';
+            lightboxDesc.textContent = foto.descripcion || '';
+            lightboxAlbum.textContent = foto.album || 'General';
+            lightbox.classList.add('open');
+            lightbox.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function cerrarLightbox() {
+            lightbox.classList.remove('open');
+            lightbox.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = '';
+        }
+
+        function fotoAnterior() {
+            fotoActualIndex = (fotoActualIndex - 1 + todasLasFotos.length) % todasLasFotos.length;
+            abrirLightbox(fotoActualIndex);
+        }
+
+        function fotoSiguiente() {
+            fotoActualIndex = (fotoActualIndex + 1) % todasLasFotos.length;
+            abrirLightbox(fotoActualIndex);
+        }
+
+        // ── Eventos Lightbox ──
+        document.getElementById('lightbox-close').addEventListener('click', cerrarLightbox);
+        document.getElementById('lightbox-prev').addEventListener('click', fotoAnterior);
+        document.getElementById('lightbox-next').addEventListener('click', fotoSiguiente);
+
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox) cerrarLightbox();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (!lightbox.classList.contains('open')) return;
+            if (e.key === 'Escape') cerrarLightbox();
+            if (e.key === 'ArrowLeft') fotoAnterior();
+            if (e.key === 'ArrowRight') fotoSiguiente();
+        });
+
+        // ── Filtro "Todos" ──
+        albumFilters.querySelector('[data-album=""]').addEventListener('click', function () {
+            albumFilters.querySelectorAll('.album-filter').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            cargarFotos('');
+        });
+
+        // ── Iniciar ──
+        cargarAlbumes();
+        cargarFotos('');
+    })();
+    </script>
+</body>
+</html>

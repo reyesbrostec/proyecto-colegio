@@ -18,6 +18,29 @@
         .admin-card { background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-sm); }
         .admin-card h2 { margin-top: 0; }
         .admin-stat { font-size: 2.5rem; font-weight: 800; color: var(--blue-600); }
+
+        /* ── Galería Admin ── */
+        .upload-form { display: flex; flex-direction: column; gap: 12px; margin-top: 16px; }
+        .upload-form input[type="file"] { font-family: 'Poppins', sans-serif; font-size: 0.875rem; }
+        .upload-form input[type="text"],
+        .upload-form select { padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius-md); font-family: 'Poppins', sans-serif; font-size: 0.875rem; }
+        .upload-form input:focus,
+        .upload-form select:focus { outline: none; border-color: var(--blue-500); box-shadow: 0 0 0 3px var(--blue-100); }
+        .upload-preview { width: 100%; max-height: 200px; object-fit: cover; border-radius: var(--radius-md); margin-top: 8px; display: none; }
+        .upload-status { padding: 8px 12px; border-radius: var(--radius-sm); font-size: 0.8125rem; margin-top: 8px; display: none; }
+        .upload-status.success { background: var(--green-50); color: var(--green-700); border: 1px solid var(--green-200); display: block; }
+        .upload-status.error { background: var(--red-50); color: var(--red-600); border: 1px solid var(--red-200); display: block; }
+        .mini-galeria { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px; margin-top: 16px; max-height: 300px; overflow-y: auto; }
+        .mini-foto { position: relative; aspect-ratio: 1; border-radius: var(--radius-sm); overflow: hidden; }
+        .mini-foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .mini-foto .delete-btn {
+            position: absolute; top: 2px; right: 2px;
+            background: var(--red-500); color: var(--white); border: none;
+            width: 22px; height: 22px; border-radius: 50%; font-size: 0.75rem;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            opacity: 0; transition: opacity 0.2s;
+        }
+        .mini-foto:hover .delete-btn { opacity: 1; }
     </style>
 </head>
 <body>
@@ -57,6 +80,32 @@
                 <div class="admin-stat">—</div>
                 <p style="color:var(--gray-500);">Administrar documentos institucionales.</p>
             </section>
+            <!-- ── Galería ── -->
+            <section class="admin-card" aria-labelledby="galeria-heading" style="grid-column: 1 / -1;">
+                <h2 id="galeria-heading">📷 Galería de Fotos</h2>
+                <p style="color:var(--gray-500); margin-bottom:12px;">Sube fotos de actividades escolares, eventos y momentos especiales. Se publican automáticamente en la página de galería.</p>
+                <form id="upload-form" class="upload-form" enctype="multipart/form-data">
+                    <input type="file" id="foto-input" name="foto" accept="image/jpeg,image/png,image/webp,image/gif" required>
+                    <img id="upload-preview" class="upload-preview" alt="Vista previa de la foto seleccionada">
+                    <input type="text" id="foto-titulo" name="titulo" placeholder="Título de la foto (ej: Feria de Ciencias 2025)">
+                    <input type="text" id="foto-descripcion" name="descripcion" placeholder="Descripción breve (opcional)">
+                    <select id="foto-album" name="album">
+                        <option value="general">📁 General</option>
+                        <option value="eventos">🎉 Eventos</option>
+                        <option value="deportes">⚽ Deportes</option>
+                        <option value="academico">📚 Académico</option>
+                        <option value="arte">🎨 Arte y Cultura</option>
+                        <option value="graduaciones">🎓 Graduaciones</option>
+                        <option value="instalaciones">🏫 Instalaciones</option>
+                    </select>
+                    <input type="text" id="foto-album-nuevo" name="album_nuevo" placeholder="O crea un álbum nuevo...">
+                    <button type="submit" class="btn btn-primary" style="align-self:flex-start;">Subir Foto</button>
+                </form>
+                <div id="upload-status" class="upload-status"></div>
+                <div id="mini-galeria" class="mini-galeria">
+                    <!-- miniaturas de fotos recientes -->
+                </div>
+            </section>
         </div>
     </main>
 
@@ -74,10 +123,122 @@
                 window.location.href = '../estudiantes.html';
                 return;
             }
+
+            // ── Logout ──
             document.getElementById('logout-btn').addEventListener('click', function () {
                 sessionStorage.removeItem('authToken');
                 window.location.href = '../estudiantes.html';
             });
+
+            // ── Preview de imagen ──
+            var fotoInput = document.getElementById('foto-input');
+            var preview = document.getElementById('upload-preview');
+            fotoInput.addEventListener('change', function () {
+                var file = this.files[0];
+                if (file) {
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        preview.src = e.target.result;
+                        preview.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    preview.style.display = 'none';
+                }
+            });
+
+            // ── Subir foto ──
+            var uploadForm = document.getElementById('upload-form');
+            var uploadStatus = document.getElementById('upload-status');
+            var miniGaleria = document.getElementById('mini-galeria');
+
+            uploadForm.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                uploadStatus.className = 'upload-status';
+                uploadStatus.style.display = 'none';
+
+                var file = fotoInput.files[0];
+                if (!file) {
+                    uploadStatus.textContent = 'Selecciona una imagen.';
+                    uploadStatus.className = 'upload-status error';
+                    return;
+                }
+
+                var formData = new FormData();
+                formData.append('foto', file);
+                formData.append('titulo', document.getElementById('foto-titulo').value.trim());
+                formData.append('descripcion', document.getElementById('foto-descripcion').value.trim());
+
+                var albumNuevo = document.getElementById('foto-album-nuevo').value.trim();
+                var albumSelect = document.getElementById('foto-album').value;
+                formData.append('album', albumNuevo || albumSelect);
+
+                uploadStatus.textContent = 'Subiendo...';
+                uploadStatus.className = 'upload-status';
+                uploadStatus.style.display = 'block';
+
+                try {
+                    var res = await fetch('/api/galeria', {
+                        method: 'POST',
+                        headers: { 'Authorization': 'Bearer ' + token },
+                        body: formData
+                    });
+
+                    if (!res.ok) {
+                        var err = await res.json();
+                        throw new Error(err.message || 'Error al subir');
+                    }
+
+                    uploadStatus.textContent = '✅ ¡Foto subida con éxito! Ya está visible en la galería.';
+                    uploadStatus.className = 'upload-status success';
+                    uploadForm.reset();
+                    preview.style.display = 'none';
+                    cargarFotosMini();
+                } catch (err) {
+                    uploadStatus.textContent = '❌ ' + err.message;
+                    uploadStatus.className = 'upload-status error';
+                }
+            });
+
+            // ── Cargar miniaturas ──
+            async function cargarFotosMini() {
+                try {
+                    var res = await fetch('/api/galeria');
+                    var fotos = await res.json();
+                    if (!fotos.length) {
+                        miniGaleria.innerHTML = '<p style="color:var(--gray-400);font-size:0.8125rem;grid-column:1/-1;text-align:center;">No hay fotos aún. ¡Sube la primera!</p>';
+                        return;
+                    }
+                    miniGaleria.innerHTML = fotos.slice(0, 24).map(function (f) {
+                        return '<div class="mini-foto">' +
+                            '<img src="' + f.url + '" alt="' + (f.titulo || 'Foto') + '" loading="lazy" title="' + (f.titulo || 'Sin título') + ' | ' + (f.album || 'general') + '">' +
+                            '<button class="delete-btn" data-id="' + f.id + '" title="Eliminar foto">×</button>' +
+                            '</div>';
+                    }).join('');
+
+                    // Botones eliminar
+                    miniGaleria.querySelectorAll('.delete-btn').forEach(function (btn) {
+                        btn.addEventListener('click', async function () {
+                            if (!confirm('¿Eliminar esta foto? También se borrará de la galería pública.')) return;
+                            var id = this.dataset.id;
+                            try {
+                                var delRes = await fetch('/api/galeria/' + id, {
+                                    method: 'DELETE',
+                                    headers: { 'Authorization': 'Bearer ' + token }
+                                });
+                                if (!delRes.ok && delRes.status !== 204) throw new Error('Error al eliminar');
+                                cargarFotosMini();
+                            } catch (err) {
+                                alert('Error al eliminar: ' + err.message);
+                            }
+                        });
+                    });
+                } catch (err) {
+                    console.error('Error cargando miniaturas:', err);
+                }
+            }
+
+            cargarFotosMini();
         });
     </script>
 </body>
