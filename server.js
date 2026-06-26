@@ -13,8 +13,12 @@ const usuariosRoutes = require('./routes/usuarios');
 const notasRoutes = require('./routes/notas');
 const galeriaRoutes = require('./routes/galeria');
 const pool = require('./db'); // Importamos la conexión centralizada
+const migrate = require('./migrate'); // Migraciones automáticas
 
 const app = express();
+
+// Ejecutar migraciones al iniciar (crea tablas si no existen)
+migrate();
 
 // --- 3. MIDDLEWARES ---
 const allowedOrigins = [
