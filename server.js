@@ -62,6 +62,16 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 
 // --- 5. RUTAS DE LA API ---
+// Endpoint de diagnóstico (TEMPORAL)
+app.get('/api/health', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT NOW() as now, current_database() as db');
+    res.json({ status: 'ok', db: result.rows[0] });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message, code: err.code });
+  }
+});
+
 // ¡Aquí está la magia! Usamos los routers que importamos.
 app.use('/api', authRoutes); // Cambiamos /api/auth a /api para que coincida con el frontend
 app.use('/api/noticias', noticiasRoutes);
