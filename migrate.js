@@ -1,5 +1,6 @@
 // migrate.js — Crea las tablas automáticamente si no existen
 const pool = require('./db');
+const bcrypt = require('bcryptjs');
 
 async function migrate() {
     console.log('🔧 Ejecutando migraciones...');
@@ -30,6 +31,11 @@ async function migrate() {
             );
         `);
         console.log('✅ Tabla noticias: OK');
+
+        // Añadir columnas de media (si no existen)
+        await pool.query(`ALTER TABLE noticias ADD COLUMN IF NOT EXISTS imagen_url TEXT;`);
+        await pool.query(`ALTER TABLE noticias ADD COLUMN IF NOT EXISTS video_url TEXT;`);
+        console.log('✅ Columnas media (noticias): OK');
 
         // Tabla notas
         await pool.query(`
@@ -62,6 +68,27 @@ async function migrate() {
             );
         `);
         console.log('✅ Tabla galeria: OK');
+
+        // ── Insertar usuarios por defecto (admin + docente) ──
+        const salt = await bcrypt.genSalt(10);
+
+        // Admin
+        const adminHash = await bcrypt.hash('reyesbrostec', salt);
+        await pool.query(`
+            INSERT INTO usuarios (email, password_hash, nombre_completo, username, edad, rol)
+            VALUES ($1, $2, $3, $4, $5, $6)
+            ON CONFLICT (email) DO NOTHING;
+        `, ['rybr0ss@colegio.com', adminHash, 'Administrador', 'admin', 0, 'admin']);
+        console.log('✅ Usuario admin: OK');
+
+        // Docente
+        const docenteHash = await bcrypt.hash('profesor123', salt);
+        await pool.query(`
+            INSERT INTO usuarios (email, password_hash, nombre_completo, username, edad, rol)
+            VALUES ($1, $2, $3, $4, $5, $6)
+            ON CONFLICT (email) DO NOTHING;
+        `, ['docente@colegio.com', docenteHash, 'Docente Principal', 'docente', 0, 'docente']);
+        console.log('✅ Usuario docente: OK');
 
         console.log('🎉 Migraciones completadas.');
     } catch (err) {
