@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- CONFIGURACIÓN Y VERIFICACIÓN INICIAL ---
-    const API_URL = 'https://colegio-backend-6oun.onrender.com/api';
+    const API_URL = '/api';
     const token = sessionStorage.getItem('authToken');
 
     // 1. Verificación de Token

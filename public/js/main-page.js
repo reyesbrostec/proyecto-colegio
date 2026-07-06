@@ -8,7 +8,7 @@
         var noticiasContainer = document.getElementById('noticias-container');
         if (!noticiasContainer) return;
 
-        var API_URL = 'https://colegio-backend-6oun.onrender.com/api';
+        var API_URL = '/api';
 
         // Añadir skeleton loader mientras carga
         noticiasContainer.innerHTML =

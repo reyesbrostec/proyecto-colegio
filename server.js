@@ -79,6 +79,21 @@ app.use('/api/usuarios', usuariosRoutes);
 app.use('/api/notas', notasRoutes);
 app.use('/api/galeria', galeriaRoutes);
 
+// Health-check endpoint (no necesita DB)
+app.get('/api/health', (req, res) => {
+    res.json({ status: 'ok', time: new Date().toISOString(), version: '3.1.0' });
+});
+
+// DB Health-check
+app.get('/api/health-db', async (req, res) => {
+    try {
+        await pool.query('SELECT 1');
+        res.json({ status: 'ok', db: 'connected' });
+    } catch (err) {
+        res.status(500).json({ status: 'error', db: 'disconnected', message: err.message });
+    }
+});
+
 // --- 6. SERVIR ARCHIVOS ESTÁTICOS (Forma Segura) ---
 // Servimos únicamente el contenido de la carpeta 'public', que contiene todos los
 // archivos del frontend (HTML, CSS, JS del cliente).
