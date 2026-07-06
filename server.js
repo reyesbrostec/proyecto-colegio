@@ -11,9 +11,14 @@ const authRoutes = require('./routes/auth');
 const noticiasRoutes = require('./routes/noticias');
 const usuariosRoutes = require('./routes/usuarios');
 const notasRoutes = require('./routes/notas');
+const galeriaRoutes = require('./routes/galeria');
 const pool = require('./db'); // Importamos la conexión centralizada
+const migrate = require('./migrate'); // Migraciones automáticas
 
 const app = express();
+
+// Ejecutar migraciones al iniciar (crea tablas si no existen)
+migrate();
 
 // --- 3. MIDDLEWARES ---
 const allowedOrigins = [
@@ -57,19 +62,34 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 
 // --- 5. RUTAS DE LA API ---
+// Endpoint de diagnóstico (TEMPORAL)
+app.get('/api/health', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT NOW() as now, current_database() as db');
+    res.json({ status: 'ok', db: result.rows[0] });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message, code: err.code });
+  }
+});
+
 // ¡Aquí está la magia! Usamos los routers que importamos.
 app.use('/api', authRoutes); // Cambiamos /api/auth a /api para que coincida con el frontend
 app.use('/api/noticias', noticiasRoutes);
 app.use('/api/usuarios', usuariosRoutes);
 app.use('/api/notas', notasRoutes);
+app.use('/api/galeria', galeriaRoutes);
 
 // --- 6. SERVIR ARCHIVOS ESTÁTICOS (Forma Segura) ---
 // Servimos únicamente el contenido de la carpeta 'public', que contiene todos los
 // archivos del frontend (HTML, CSS, JS del cliente).
 app.use(express.static(path.join(__dirname, 'public')));
 
-// --- 7. INICIAR EL SERVIDOR ---
+// --- 7. INICIAR EL SERVIDOR (solo local; Vercel usa serverless) ---
 const port = process.env.PORT || 3000;
-app.listen(port, () => {
+if (require.main === module) {
+  app.listen(port, () => {
     console.log(`Servidor escuchando en el puerto ${port}`);
-});
+  });
+}
+
+module.exports = app;
