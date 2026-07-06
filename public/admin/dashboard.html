@@ -36,26 +36,62 @@
         <div class="dashboard-header">
             <h1>Panel de Administración</h1>
         </div>
+
+        <!-- ── NOTICIAS: CRUD Completo ── -->
+        <section aria-labelledby="noticias-heading" style="margin-bottom:40px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; margin-bottom:24px;">
+                <h2 id="noticias-heading" style="margin:0;">📰 Noticias</h2>
+                <button id="btn-nueva-noticia" class="btn btn-primary btn-sm">+ Nueva Noticia</button>
+            </div>
+
+            <!-- Formulario crear/editar (oculto por defecto) -->
+            <div id="form-noticia" style="display:none; background:var(--white); border:1px solid var(--gray-200); border-radius:var(--radius-lg); padding:32px; margin-bottom:24px; box-shadow:var(--shadow-md);">
+                <h3 id="form-title" style="margin-top:0;">Nueva Noticia</h3>
+                <form id="noticia-form" novalidate>
+                    <input type="hidden" id="noticia-id" value="">
+                    <div class="form-group">
+                        <label for="noticia-titulo">Título *</label>
+                        <input type="text" id="noticia-titulo" required placeholder="Ej: ¡Inscripciones Abiertas 2026!">
+                    </div>
+                    <div class="form-group">
+                        <label for="noticia-contenido">Contenido *</label>
+                        <textarea id="noticia-contenido" rows="5" required placeholder="Escribe el contenido de la noticia..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="noticia-imagen">🖼️ URL de la Imagen</label>
+                        <input type="url" id="noticia-imagen" placeholder="https://ejemplo.com/foto.jpg">
+                        <small style="color:var(--gray-400);">Pega el enlace de una imagen (jpg, png, webp).</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="noticia-video">🎬 URL del Video (YouTube)</label>
+                        <input type="url" id="noticia-video" placeholder="https://www.youtube.com/watch?v=...">
+                        <small style="color:var(--gray-400);">Pega el enlace de YouTube (se mostrará como video embebido).</small>
+                    </div>
+                    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                        <button type="submit" class="btn btn-primary" id="btn-guardar">💾 Guardar</button>
+                        <button type="button" class="btn btn-secondary" id="btn-cancelar">Cancelar</button>
+                    </div>
+                    <p id="form-error" style="color:var(--red-500); margin-top:16px; display:none;"></p>
+                </form>
+            </div>
+
+            <!-- Lista de noticias -->
+            <div id="noticias-lista" style="display:grid; gap:16px;">
+                <p style="color:var(--gray-500); text-align:center; padding:40px;">Cargando noticias…</p>
+            </div>
+        </section>
+
+        <!-- ── OTRAS SECCIONES ── -->
         <div class="admin-grid">
             <section class="admin-card" aria-labelledby="usuarios-heading">
                 <h2 id="usuarios-heading">Usuarios</h2>
                 <div class="admin-stat">—</div>
                 <p style="color:var(--gray-500);">Gestión de estudiantes, docentes y administradores.</p>
             </section>
-            <section class="admin-card" aria-labelledby="noticias-heading">
-                <h2 id="noticias-heading">Noticias</h2>
-                <div class="admin-stat">—</div>
-                <p style="color:var(--gray-500);">Publicar y gestionar noticias del colegio.</p>
-            </section>
             <section class="admin-card" aria-labelledby="calificaciones-heading">
                 <h2 id="calificaciones-heading">Calificaciones</h2>
                 <div class="admin-stat">—</div>
                 <p style="color:var(--gray-500);">Supervisar rendimiento académico general.</p>
-            </section>
-            <section class="admin-card" aria-labelledby="documentos-heading">
-                <h2 id="documentos-heading">Documentos</h2>
-                <div class="admin-stat">—</div>
-                <p style="color:var(--gray-500);">Administrar documentos institucionales.</p>
             </section>
         </div>
     </main>
@@ -67,18 +103,195 @@
     </footer>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        (function () {
+            'use strict';
+            var API = 'https://colegio-backend-6oun.onrender.com';
             var token = sessionStorage.getItem('authToken');
-            if (!token) {
-                alert('Acceso denegado. Por favor, inicie sesión.');
-                window.location.href = '../estudiantes.html';
-                return;
-            }
+            if (!token) { window.location.href = '../estudiantes.html'; return; }
+
+            // Decode token to verify role
+            try {
+                var payload = JSON.parse(atob(token.split('.')[1]));
+                if (payload.rol !== 'admin') { alert('Acceso denegado.'); window.location.href = '../estudiantes.html'; return; }
+            } catch (e) { window.location.href = '../estudiantes.html'; return; }
+
+            var headers = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token };
+
+            // ── Logout ──
             document.getElementById('logout-btn').addEventListener('click', function () {
                 sessionStorage.removeItem('authToken');
                 window.location.href = '../estudiantes.html';
             });
-        });
+
+            // ── Referencias DOM ──
+            var formDiv = document.getElementById('form-noticia');
+            var form = document.getElementById('noticia-form');
+            var formTitle = document.getElementById('form-title');
+            var noticiaId = document.getElementById('noticia-id');
+            var tituloInput = document.getElementById('noticia-titulo');
+            var contenidoInput = document.getElementById('noticia-contenido');
+            var imagenInput = document.getElementById('noticia-imagen');
+            var videoInput = document.getElementById('noticia-video');
+            var formError = document.getElementById('form-error');
+            var listaDiv = document.getElementById('noticias-lista');
+            var btnGuardar = document.getElementById('btn-guardar');
+
+            // ── Cargar noticias ──
+            function cargarNoticias() {
+                listaDiv.innerHTML = '<p style="color:var(--gray-500); text-align:center; padding:40px;">Cargando…</p>';
+                fetch(API + '/api/noticias')
+                    .then(function (r) { return r.json(); })
+                    .then(function (noticias) {
+                        if (!noticias || noticias.length === 0) {
+                            listaDiv.innerHTML = '<p style="color:var(--gray-500); text-align:center; padding:40px;">No hay noticias aún. ¡Crea la primera!</p>';
+                            return;
+                        }
+                        listaDiv.innerHTML = '';
+                        noticias.forEach(function (n) {
+                            var card = document.createElement('div');
+                            card.style.cssText = 'background:var(--white); border:1px solid var(--gray-200); border-radius:var(--radius-lg); padding:20px 24px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;';
+                            var fecha = n.creado_en ? new Date(n.creado_en).toLocaleDateString('es-EC', { year: 'numeric', month: 'short', day: 'numeric' }) : '';
+                            var mediaBadges = '';
+                            if (n.imagen_url) mediaBadges += ' 🖼️';
+                            if (n.video_url) mediaBadges += ' 🎬';
+                            card.innerHTML =
+                                '<div style="flex:1; min-width:200px;">' +
+                                '<strong style="color:var(--gray-800);">' + escapar(n.titulo) + mediaBadges + '</strong>' +
+                                '<p style="margin:4px 0 0 0; color:var(--gray-400); font-size:0.813rem;">' + fecha + '</p>' +
+                                '</div>' +
+                                '<div style="display:flex; gap:8px;">' +
+                                '<button class="btn-edit btn btn-outline btn-sm" data-id="' + n.id + '">✏️ Editar</button>' +
+                                '<button class="btn-delete btn btn-secondary btn-sm" data-id="' + n.id + '" style="color:var(--red-500); border-color:var(--red-200);">🗑️</button>' +
+                                '</div>';
+                            listaDiv.appendChild(card);
+                        });
+
+                        // Eventos editar
+                        listaDiv.querySelectorAll('.btn-edit').forEach(function (btn) {
+                            btn.addEventListener('click', function () { editarNoticia(this.dataset.id); });
+                        });
+                        // Eventos eliminar
+                        listaDiv.querySelectorAll('.btn-delete').forEach(function (btn) {
+                            btn.addEventListener('click', function () { eliminarNoticia(this.dataset.id); });
+                        });
+                    })
+                    .catch(function () {
+                        listaDiv.innerHTML = '<p style="color:var(--red-500); text-align:center; padding:40px;">Error al cargar noticias. Verifica tu conexión.</p>';
+                    });
+            }
+
+            // ── Mostrar formulario ──
+            document.getElementById('btn-nueva-noticia').addEventListener('click', function () {
+                formTitle.textContent = 'Nueva Noticia';
+                noticiaId.value = '';
+                tituloInput.value = '';
+                contenidoInput.value = '';
+                imagenInput.value = '';
+                videoInput.value = '';
+                formError.style.display = 'none';
+                btnGuardar.textContent = '💾 Publicar Noticia';
+                formDiv.style.display = 'block';
+                tituloInput.focus();
+                formDiv.scrollIntoView({ behavior: 'smooth' });
+            });
+
+            document.getElementById('btn-cancelar').addEventListener('click', function () {
+                formDiv.style.display = 'none';
+                formError.style.display = 'none';
+            });
+
+            // ── Editar noticia ──
+            function editarNoticia(id) {
+                formTitle.textContent = 'Editar Noticia';
+                btnGuardar.textContent = '💾 Actualizar';
+                formError.style.display = 'none';
+                formDiv.style.display = 'block';
+                listaDiv.querySelectorAll('button').forEach(function (b) { b.disabled = true; });
+
+                fetch(API + '/api/noticias/' + id)
+                    .then(function (r) { return r.json(); })
+                    .then(function (n) {
+                        noticiaId.value = n.id;
+                        tituloInput.value = n.titulo;
+                        contenidoInput.value = n.contenido;
+                        imagenInput.value = n.imagen_url || '';
+                        videoInput.value = n.video_url || '';
+                        formDiv.scrollIntoView({ behavior: 'smooth' });
+                    })
+                    .catch(function () {
+                        formError.textContent = 'Error al cargar la noticia.';
+                        formError.style.display = 'block';
+                    })
+                    .finally(function () {
+                        listaDiv.querySelectorAll('button').forEach(function (b) { b.disabled = false; });
+                    });
+            }
+
+            // ── Eliminar noticia ──
+            function eliminarNoticia(id) {
+                if (!confirm('¿Estás seguro de eliminar esta noticia? Esta acción no se puede deshacer.')) return;
+                fetch(API + '/api/noticias/' + id, { method: 'DELETE', headers: headers })
+                    .then(function (r) {
+                        if (r.ok) { cargarNoticias(); }
+                        else { alert('Error al eliminar.'); }
+                    })
+                    .catch(function () { alert('Error de conexión al eliminar.'); });
+            }
+
+            // ── Guardar (Crear/Actualizar) ──
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                var titulo = tituloInput.value.trim();
+                var contenido = contenidoInput.value.trim();
+                if (!titulo || !contenido) {
+                    formError.textContent = 'Título y contenido son obligatorios.';
+                    formError.style.display = 'block';
+                    return;
+                }
+                formError.style.display = 'none';
+                btnGuardar.disabled = true;
+                btnGuardar.textContent = '⏳ Guardando…';
+
+                var body = JSON.stringify({
+                    titulo: titulo,
+                    contenido: contenido,
+                    imagen_url: imagenInput.value.trim() || null,
+                    video_url: videoInput.value.trim() || null
+                });
+
+                var id = noticiaId.value;
+                var method = id ? 'PUT' : 'POST';
+                var url = id ? (API + '/api/noticias/' + id) : (API + '/api/noticias');
+
+                fetch(url, { method: method, headers: headers, body: body })
+                    .then(function (r) {
+                        if (!r.ok) {
+                            return r.json().then(function (d) { throw new Error(d.message || 'Error del servidor'); });
+                        }
+                        return r.json();
+                    })
+                    .then(function () {
+                        formDiv.style.display = 'none';
+                        cargarNoticias();
+                    })
+                    .catch(function (err) {
+                        formError.textContent = err.message;
+                        formError.style.display = 'block';
+                    })
+                    .finally(function () {
+                        btnGuardar.disabled = false;
+                        btnGuardar.textContent = id ? '💾 Actualizar' : '💾 Publicar Noticia';
+                    });
+            });
+
+            function escapar(texto) {
+                var map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+                return String(texto).replace(/[&<>"']/g, function (m) { return map[m]; });
+            }
+
+            // ── Init ──
+            cargarNoticias();
+        })();
     </script>
 </body>
 </html>

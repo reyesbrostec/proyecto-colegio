@@ -31,9 +31,33 @@
                 noticias.forEach(function (noticia) {
                     var article = document.createElement('article');
                     article.className = 'news-item';
-                    article.innerHTML =
+
+                    var html = '';
+
+                    // Imagen
+                    if (noticia.imagen_url) {
+                        html += '<img src="' + escapeHtml(noticia.imagen_url) + '" alt="' + escapeHtml(noticia.titulo) + '" class="news-image" loading="lazy" onerror="this.style.display=\'none\'">';
+                    }
+
+                    // Video YouTube
+                    if (noticia.video_url) {
+                        var videoId = extractYouTubeId(noticia.video_url);
+                        if (videoId) {
+                            html += '<div class="news-video"><iframe src="https://www.youtube.com/embed/' + videoId + '" title="' + escapeHtml(noticia.titulo) + '" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>';
+                        }
+                    }
+
+                    html += '<div class="news-item-content">' +
                         '<h3>' + escapeHtml(noticia.titulo) + '</h3>' +
-                        '<p class="text-gray-600">' + escapeHtml(noticia.contenido) + '</p>';
+                        '<p>' + escapeHtml(noticia.contenido) + '</p>';
+
+                    if (noticia.creado_en) {
+                        var fecha = new Date(noticia.creado_en).toLocaleDateString('es-EC', { year: 'numeric', month: 'long', day: 'numeric' });
+                        html += '<span class="news-date">' + fecha + '</span>';
+                    }
+
+                    html += '</div>';
+                    article.innerHTML = html;
                     noticiasContainer.appendChild(article);
                 });
             })
@@ -45,12 +69,16 @@
                     '<p class="text-gray-600">Estamos muy emocionados de comenzar un nuevo ciclo lleno de aprendizaje y nuevas aventuras. ¡Consulten el calendario para las fechas importantes!</p>' +
                     '</article>' +
                     '<article class="news-item">' +
+                    '<div class="news-item-content">' +
                     '<h3>Reunión de Padres de Familia</h3>' +
-                    '<p class="text-gray-600">La primera reunión de padres de familia se llevará a cabo el próximo viernes a las 18:00 en el auditorio principal. ¡No falten!</p>' +
+                    '<p>La primera reunión de padres de familia se llevará a cabo el próximo viernes a las 18:00 en el auditorio principal. ¡No falten!</p>' +
+                    '</div>' +
                     '</article>' +
                     '<article class="news-item">' +
+                    '<div class="news-item-content">' +
                     '<h3>Inscripciones Abiertas 2025-2026</h3>' +
-                    '<p class="text-gray-600">Ya están abiertas las inscripciones para el próximo año lectivo. Visita nuestra sección de documentos para más información.</p>' +
+                    '<p>Ya están abiertas las inscripciones para el próximo año lectivo. Visita nuestra sección de documentos para más información.</p>' +
+                    '</div>' +
                     '</article>';
             });
     }
@@ -59,6 +87,20 @@
     function escapeHtml(text) {
         var map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
         return String(text).replace(/[&<>"']/g, function (m) { return map[m]; });
+    }
+
+    // Extraer ID de YouTube de varias URL posibles
+    function extractYouTubeId(url) {
+        if (!url) return null;
+        var patterns = [
+            /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/)([^&\s?#]+)/,
+            /youtube\.com\/shorts\/([^&\s?#]+)/
+        ];
+        for (var i = 0; i < patterns.length; i++) {
+            var match = url.match(patterns[i]);
+            if (match && match[1]) return match[1];
+        }
+        return null;
     }
 
     if (document.readyState === 'loading') {
