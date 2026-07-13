@@ -1,5 +1,5 @@
 /* ==========================================================================
-   style.css — Colegio UEPAM (v3 · Rediseño)
+   style.css — Unidad Educativa Particular Aurelio Mosquera (v3 · Rediseño)
    Sistema: azul corporativo + dorado · Poppins · Escala 10 grises · 8px grid
    ========================================================================== */
 
@@ -121,7 +121,6 @@ header {
 }
 .logo {
     font-family: 'Poppins', sans-serif;
-    font-size: 1.35rem;
     font-weight: 700;
     color: var(--blue-800);
     letter-spacing: -0.02em;
@@ -131,16 +130,19 @@ header {
     text-decoration: none;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
 }
-.logo a::before {
-    content: '';
-    display: inline-block;
-    width: 32px;
-    height: 32px;
-    background: linear-gradient(135deg, var(--blue-700), var(--blue-500));
+.logo-img {
+    width: 42px;
+    height: 42px;
     border-radius: var(--radius-sm);
+    object-fit: cover;
     flex-shrink: 0;
+}
+.logo-text {
+    font-size: 1.05rem;
+    white-space: nowrap;
+    line-height: 1.2;
 }
 nav { display: flex; align-items: center; gap: 16px; }
 nav ul {

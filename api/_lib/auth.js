@@ -22,10 +22,17 @@ function requireAdmin(req, res) {
     return user;
 }
 
+function requireSecretaria(req, res) {
+    const user = requireAuth(req, res);
+    if (!user) return null;
+    if (user.rol !== 'secretaria' && user.rol !== 'admin') { res.status(403).json({ message: 'Se requiere rol de secretaría o administrador.' }); return null; }
+    return user;
+}
+
 function requireDocente(req, res) {
     const user = requireAuth(req, res);
     if (!user) return null;
-    if (user.rol !== 'docente' && user.rol !== 'admin') { res.status(403).json({ message: 'Se requiere rol de docente o admin.' }); return null; }
+    if (user.rol !== 'docente' && user.rol !== 'secretaria' && user.rol !== 'admin') { res.status(403).json({ message: 'Se requiere rol de docente, secretaría o admin.' }); return null; }
     return user;
 }
 
@@ -36,4 +43,4 @@ function requireEstudiante(req, res) {
     return user;
 }
 
-module.exports = { verifyToken, requireAuth, requireAdmin, requireDocente, requireEstudiante };
+module.exports = { verifyToken, requireAuth, requireAdmin, requireSecretaria, requireDocente, requireEstudiante };

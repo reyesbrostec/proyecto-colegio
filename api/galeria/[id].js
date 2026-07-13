@@ -1,6 +1,6 @@
-// api/galeria/[id].js — DELETE /api/galeria/:id (admin)
+// api/galeria/[id].js — DELETE /api/galeria/:id (secretaria/admin)
 const { sql } = require('../_lib/db');
-const { requireAdmin } = require('../_lib/auth');
+const { requireSecretaria } = require('../_lib/auth');
 const cloudinary = require('cloudinary').v2;
 
 cloudinary.config({
@@ -12,7 +12,7 @@ cloudinary.config({
 module.exports = async function handler(req, res) {
     if (req.method !== 'DELETE') return res.status(405).json({ message: 'Método no permitido' });
 
-    const user = requireAdmin(req, res);
+    const user = requireSecretaria(req, res);
     if (!user) return;
 
     const { id } = req.query;

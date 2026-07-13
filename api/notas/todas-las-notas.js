@@ -1,11 +1,11 @@
-// api/notas/todas-las-notas.js — GET /api/notas/todas-las-notas (admin/docente)
+// api/notas/todas-las-notas.js — GET /api/notas/todas-las-notas (secretaria/admin/docente)
 const { sql } = require('../_lib/db');
-const { requireDocente } = require('../_lib/auth');
+const { requireSecretaria } = require('../_lib/auth');
 
 module.exports = async function handler(req, res) {
     if (req.method !== 'GET') return res.status(405).json({ message: 'Método no permitido' });
 
-    const user = requireDocente(req, res);
+    const user = requireSecretaria(req, res);
     if (!user) return;
 
     try {

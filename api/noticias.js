@@ -1,6 +1,6 @@
-// api/noticias.js — GET (público) + POST (admin)
+// api/noticias.js — GET (público) + POST (secretaria/admin)
 const { pool } = require('./_lib/db');
-const { requireAdmin } = require('./_lib/auth');
+const { requireSecretaria } = require('./_lib/auth');
 
 module.exports = async function handler(req, res) {
     // ── GET: listar todas ──
@@ -15,9 +15,9 @@ module.exports = async function handler(req, res) {
         return;
     }
 
-    // ── POST: crear (solo admin) ──
+    // ── POST: crear (secretaria o admin) ──
     if (req.method === 'POST') {
-        const user = requireAdmin(req, res);
+        const user = requireSecretaria(req, res);
         if (!user) return;
 
         const { titulo, contenido, imagen_url, video_url } = req.body || {};

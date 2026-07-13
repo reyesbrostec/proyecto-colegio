@@ -24,7 +24,8 @@ module.exports = async function handler(req, res) {
             id SERIAL PRIMARY KEY, estudiante_id INT REFERENCES usuarios(id) ON DELETE CASCADE,
             materia VARCHAR(100) NOT NULL, parcial1 NUMERIC(5,2) DEFAULT 0,
             parcial2 NUMERIC(5,2) DEFAULT 0, examen_final NUMERIC(5,2) DEFAULT 0,
-            nota_final NUMERIC(5,2) DEFAULT 0, editado_por VARCHAR(255), fecha_edicion TIMESTAMPTZ)`);
+            nota_final NUMERIC(5,2) DEFAULT 0, editado_por VARCHAR(255), fecha_edicion TIMESTAMPTZ,
+            UNIQUE(estudiante_id, materia))`);
         results.push('✅ notas');
 
         await pool.query(`CREATE TABLE IF NOT EXISTS galeria (
@@ -34,18 +35,36 @@ module.exports = async function handler(req, res) {
             width INT DEFAULT 0, height INT DEFAULT 0, created_at TIMESTAMPTZ DEFAULT NOW())`);
         results.push('✅ galeria');
 
-        const salt = await bcrypt.genSalt(10);
-        const adminHash = await bcrypt.hash('reyesbrostec', salt);
-        await pool.query(`INSERT INTO usuarios (email, password_hash, nombre_completo, username, edad, rol)
-            VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT (email) DO NOTHING`,
-            ['rybr0ss@colegio.com', adminHash, 'Administrador', 'admin', 0, 'admin']);
-        results.push('✅ admin (rybr0ss@colegio.com / reyesbrostec)');
+        await pool.query(`CREATE TABLE IF NOT EXISTS documentos (
+            id SERIAL PRIMARY KEY, titulo VARCHAR(255) NOT NULL,
+            descripcion TEXT DEFAULT '', categoria VARCHAR(100) DEFAULT 'general',
+            url VARCHAR(500) NOT NULL, created_at TIMESTAMPTZ DEFAULT NOW())`);
+        results.push('✅ documentos');
 
-        const docenteHash = await bcrypt.hash('profesor123', salt);
-        await pool.query(`INSERT INTO usuarios (email, password_hash, nombre_completo, username, edad, rol)
-            VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT (email) DO NOTHING`,
-            ['docente@colegio.com', docenteHash, 'Docente Principal', 'docente', 0, 'docente']);
-        results.push('✅ docente (docente@colegio.com / profesor123)');
+        const salt = await bcrypt.genSalt(10);
+
+        // ── Helper: insertar si no existe (por email y username) ──
+        async function insertarUsuario(email, hash, nombre, username, rol) {
+            const existe = await pool.query(
+                'SELECT id FROM usuarios WHERE email = $1 OR username = $2', [email, username]);
+            if (existe.rows.length > 0) return '⚠️ ya existe';
+            await pool.query(
+                'INSERT INTO usuarios (email, password_hash, nombre_completo, username, edad, rol) VALUES ($1,$2,$3,$4,$5,$6)',
+                [email, hash, nombre, username, 0, rol]);
+            return '✅';
+        }
+
+        const rAdmin = await insertarUsuario('rybr0ss@colegio.com',
+            await bcrypt.hash('reyesbrostec', salt), 'Administrador', 'admin', 'admin');
+        results.push(rAdmin + ' admin (rybr0ss@colegio.com / reyesbrostec)');
+
+        const rDocente = await insertarUsuario('docente@colegio.com',
+            await bcrypt.hash('profesor123', salt), 'Docente Principal', 'docente', 'docente');
+        results.push(rDocente + ' docente (docente@colegio.com / profesor123)');
+
+        const rSecre = await insertarUsuario('secretaria@colegio.com',
+            await bcrypt.hash('secretaria123', salt), 'Secretaría General', 'secretaria', 'secretaria');
+        results.push(rSecre + ' secretaria (secretaria@colegio.com / secretaria123)');
 
         res.json({ ok: true, results });
     } catch (err) {

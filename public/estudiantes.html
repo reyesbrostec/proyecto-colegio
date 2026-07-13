@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal UEPAM — Iniciar Sesión | Colegio UEPAM</title>
-    <meta name="description" content="Accede al Portal UEPAM para consultar calificaciones y recursos académicos. Exclusivo para estudiantes del Colegio UEPAM.">
+    <title>Portal Estudiantil — U.E.P. Aurelio Mosquera</title>
+    <meta name="description" content="Acceda al portal estudiantil de la Unidad Educativa Particular Aurelio Mosquera para consultar calificaciones y recursos académicos.">
     <meta name="robots" content="noindex, nofollow">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,7 +13,7 @@
     <link rel="icon" type="image/svg+xml" href="favicon/favicon.svg">
     <style>
         .login-background {
-            background-image: linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url('https://placehold.co/1920x1080/1e3a5f/ffffff?text=Colegio+UEPAM');
+            background-image: linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url('https://placehold.co/1920x1080/1e3a5f/ffffff?text=U.E.P.+Aurelio+Mosquera');
             background-size: cover;
             background-position: center;
             min-height: 100vh;
@@ -36,23 +36,26 @@
 
     <div class="login-background">
         <header style="padding:24px;">
-            <a href="index.html" style="color:var(--white); font-size:1.25rem; font-weight:800; text-decoration:none; letter-spacing:-0.02em;">Colegio UEPAM</a>
+            <a href="index.html" style="color:var(--white); font-size:1.25rem; font-weight:800; text-decoration:none; letter-spacing:-0.02em; display:flex; align-items:center; gap:10px;">
+                <img src="favicon/logo.jpeg" alt="Logo" style="width:36px; height:36px; border-radius:6px; object-fit:cover;">
+                U.E.P. Aurelio Mosquera
+            </a>
         </header>
 
         <main style="flex:1; display:flex; align-items:center; justify-content:center;" id="main-content">
             <div class="login-card" id="login-card">
                 <div style="text-align:center;">
-                    <h1 style="font-size:1.75rem; font-weight:700; color:var(--gray-900);">Portal UEPAM</h1>
-                    <p style="color:var(--gray-500); margin-top:8px;">Inicia sesión para acceder a tus recursos.</p>
+                    <h1 style="font-size:1.75rem; font-weight:700; color:var(--gray-900);">Portal Estudiantil</h1>
+                    <p style="color:var(--gray-500); margin-top:8px;">Inicie sesión para acceder a sus recursos académicos.</p>
                 </div>
 
                 <form id="login-form" style="margin-top:32px;" novalidate>
                     <div class="form-group">
                         <label for="email">Correo Electrónico</label>
                         <input type="email" id="email" name="email" required
-                               autocomplete="email"
-                               aria-required="true"
-                               placeholder="tu@correo.com">
+                           autocomplete="email"
+                           aria-required="true"
+                           placeholder="usuario@ejemplo.com">
                     </div>
 
                     <div class="form-group">
@@ -80,7 +83,7 @@
                     <a href="#" style="color:var(--gray-300); text-decoration:none;">Twitter</a>
                 </div>
             </div>
-            <p style="font-size:0.813rem; color:var(--gray-400);">&copy; 2025 Colegio UEPAM. Todos los derechos reservados.</p>
+            <p style="font-size:0.813rem; color:var(--gray-400);">&copy; 2025 Unidad Educativa Particular Aurelio Mosquera. Todos los derechos reservados.</p>
         </footer>
     </div>
 
@@ -93,7 +96,7 @@
 
             var email = document.getElementById('email').value;
             var password = document.getElementById('password').value;
-            var liveBackendUrl = 'https://colegio-backend-6oun.onrender.com';
+            var liveBackendUrl = '';
 
             try {
                 var response = await fetch(liveBackendUrl + '/api/login', {

@@ -1,6 +1,6 @@
 // api/noticias/[id].js — GET + PUT + DELETE /api/noticias/:id
 const { sql } = require('../_lib/db');
-const { requireAdmin } = require('../_lib/auth');
+const { requireSecretaria } = require('../_lib/auth');
 
 module.exports = async function handler(req, res) {
     const { id } = req.query;
@@ -19,9 +19,9 @@ module.exports = async function handler(req, res) {
         return;
     }
 
-    // ── PUT: actualizar (solo admin) ──
+    // ── PUT: actualizar (secretaria o admin) ──
     if (req.method === 'PUT') {
-        const user = requireAdmin(req, res);
+        const user = requireSecretaria(req, res);
         if (!user) return;
 
         const { titulo, contenido, imagen_url, video_url } = req.body || {};
@@ -44,9 +44,9 @@ module.exports = async function handler(req, res) {
         return;
     }
 
-    // ── DELETE: eliminar (solo admin) ──
+    // ── DELETE: eliminar (secretaria o admin) ──
     if (req.method === 'DELETE') {
-        const user = requireAdmin(req, res);
+        const user = requireSecretaria(req, res);
         if (!user) return;
 
         try {

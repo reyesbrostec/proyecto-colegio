@@ -1,6 +1,6 @@
 // api/galeria.js — GET (público) + POST (admin, upload foto a Cloudinary)
 const { sql } = require('./_lib/db');
-const { requireAdmin } = require('./_lib/auth');
+const { requireSecretaria } = require('./_lib/auth');
 const cloudinary = require('cloudinary').v2;
 const multer = require('multer');
 
@@ -60,9 +60,9 @@ module.exports = async function handler(req, res) {
         return;
     }
 
-    // ── POST: subir foto ──
+    // ── POST: subir foto (secretaría o admin) ──
     if (req.method === 'POST') {
-        const user = requireAdmin(req, res);
+        const user = requireSecretaria(req, res);
         if (!user) return;
 
         try {

@@ -39,11 +39,11 @@
                         html += '<img src="' + escapeHtml(noticia.imagen_url) + '" alt="' + escapeHtml(noticia.titulo) + '" class="news-image" loading="lazy" onerror="this.style.display=\'none\'">';
                     }
 
-                    // Video YouTube
+                    // Video (YouTube / Vimeo / futuro PeerTube)
                     if (noticia.video_url) {
-                        var videoId = extractYouTubeId(noticia.video_url);
-                        if (videoId) {
-                            html += '<div class="news-video"><iframe src="https://www.youtube.com/embed/' + videoId + '" title="' + escapeHtml(noticia.titulo) + '" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>';
+                        var embedData = getVideoEmbed(noticia.video_url);
+                        if (embedData) {
+                            html += '<div class="news-video"><iframe src="' + embedData.src + '" title="' + escapeHtml(noticia.titulo) + '" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>';
                         }
                     }
 
@@ -77,7 +77,7 @@
                     '<article class="news-item">' +
                     '<div class="news-item-content">' +
                     '<h3>Inscripciones Abiertas 2025-2026</h3>' +
-                    '<p>Ya están abiertas las inscripciones para el próximo año lectivo. Visita nuestra sección de documentos para más información.</p>' +
+                    '<p>Ya están abiertas las inscripciones para el próximo año lectivo. Visite nuestra sección de documentos para más información.</p>' +
                     '</div>' +
                     '</article>';
             });
@@ -89,17 +89,42 @@
         return String(text).replace(/[&<>"']/g, function (m) { return map[m]; });
     }
 
-    // Extraer ID de YouTube de varias URL posibles
-    function extractYouTubeId(url) {
+    /**
+     * Obtener URL de embed para video.
+     * Soporta: YouTube (watch, embed, shorts, youtu.be, nocookie),
+     *          Vimeo (vimeo.com/ID),
+     *          PeerTube (listo para futuro: /w/ID o /videos/embed/ID)
+     * @param {string} url - URL del video
+     * @returns {{src: string}|null}
+     */
+    function getVideoEmbed(url) {
         if (!url) return null;
-        var patterns = [
-            /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/)([^&\s?#]+)/,
+
+        // ── YouTube (modo nocookie para privacidad LOPDD) ──
+        var ytPatterns = [
+            /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/|youtube-nocookie\.com\/embed\/)([^&\s?#]+)/,
             /youtube\.com\/shorts\/([^&\s?#]+)/
         ];
-        for (var i = 0; i < patterns.length; i++) {
-            var match = url.match(patterns[i]);
-            if (match && match[1]) return match[1];
+        for (var i = 0; i < ytPatterns.length; i++) {
+            var ytMatch = url.match(ytPatterns[i]);
+            if (ytMatch && ytMatch[1]) {
+                return { src: 'https://www.youtube-nocookie.com/embed/' + ytMatch[1] };
+            }
         }
+
+        // ── Vimeo ──
+        var vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+        if (vimeoMatch && vimeoMatch[1]) {
+            return { src: 'https://player.vimeo.com/video/' + vimeoMatch[1] + '?dnt=1' };
+        }
+
+        // ── PeerTube (futuro) — placeholder para cuando se implemente ──
+        // Ejemplo: https://peertube.ejemplo.ec/w/abc123 → /videos/embed/abc123
+        // var peertubeMatch = url.match(/peertube\.[^/]+\/w\/([^&\s?#]+)/);
+        // if (peertubeMatch && peertubeMatch[1]) {
+        //     return { src: url.replace(/\/w\//, '/videos/embed/') };
+        // }
+
         return null;
     }
 

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preguntas Frecuentes — U.E.P. Aurelio Mosquera</title>
+    <meta name="description" content="Encuentre respuesta a las preguntas más comunes sobre la Unidad Educativa Particular Aurelio Mosquera: pensión, becas, transporte, cuidado infantil, programas extracurriculares e inglés.">
+    <meta name="robots" content="index, follow">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/svg+xml" href="favicon/favicon.svg">
+    <style>
+        .faq-list { margin-top: 32px; display: flex; flex-direction: column; gap: 16px; }
+        .faq-item {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            transition: box-shadow 0.3s;
+        }
+        .faq-item:hover { box-shadow: var(--shadow-md); }
+        .faq-question {
+            width: 100%;
+            text-align: left;
+            padding: 20px 24px;
+            background: none;
+            border: none;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--gray-800);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+        }
+        .faq-question::after {
+            content: '+';
+            font-size: 1.5rem;
+            font-weight: 400;
+            color: var(--blue-600);
+            flex-shrink: 0;
+            transition: transform 0.3s;
+        }
+        .faq-item.open .faq-question::after {
+            content: '−';
+            transform: rotate(180deg);
+        }
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease, padding 0.4s ease;
+        }
+        .faq-item.open .faq-answer {
+            max-height: 600px;
+        }
+        .faq-answer-content {
+            padding: 0 24px 24px;
+            color: var(--gray-600);
+            line-height: 1.8;
+        }
+        .faq-cta {
+            margin-top: 48px;
+            text-align: center;
+            background: var(--blue-50);
+            padding: 40px 24px;
+            border-radius: var(--radius-lg);
+        }
+    </style>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
+
+    <header>
+        <div class="logo">
+            <a href="index.html" aria-label="Unidad Educativa Particular Aurelio Mosquera — Ir al inicio">
+                <img src="favicon/logo.jpeg" alt="Logo U.E.P. Aurelio Mosquera" class="logo-img">
+                <span class="logo-text">U.E.P. Aurelio Mosquera</span>
+            </a>
+        </div>
+        <nav aria-label="Navegación principal">
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="quienes-somos.html">Quiénes Somos</a></li>
+                <li><a href="oferta-educativa.html">Oferta Educativa</a></li>
+                <li><a href="propuesta-educativa.html">Propuesta</a></li>
+                <li><a href="faq.html">FAQ</a></li>
+                <li><a href="documentos.html">Documentos</a></li>
+                <li><a href="contacto.html">Contacto</a></li>
+            </ul>
+            <a href="contacto.html" class="nav-cta">Solicitar Información</a>
+        </nav>
+    </header>
+
+    <main id="main-content">
+        <div class="page-container">
+            <h1>Preguntas Frecuentes</h1>
+            <p>A continuación, encontrará respuesta a las consultas más habituales de las familias interesadas en formar parte de nuestra comunidad educativa. Si su pregunta no aparece aquí, no dude en <a href="contacto.html">contactarnos</a>.</p>
+
+            <div class="faq-list">
+                <!-- Pregunta 1 -->
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false">¿Cuál es el costo de la pensión mensual?</button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>El valor de la pensión se ajusta anualmente conforme a la normativa emitida por el Ministerio de Educación del Ecuador y es comunicado oportunamente a las familias durante el proceso de matriculación. Para conocer el valor actualizado, le invitamos a <a href="contacto.html">solicitar información</a> directamente a nuestra secretaría, donde con gusto le atenderemos.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pregunta 2 -->
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false">¿Disponen de becas para hermanos o hermanas?</button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>Sí. Reconocemos el esfuerzo de las familias que confían en nosotros para la educación de más de uno de sus hijos. Ofrecemos un descuento especial por hermano/a adicional matriculado en nuestra institución. Las condiciones específicas y porcentajes de descuento se informan durante el proceso de admisión. Le recomendamos consultar directamente en secretaría para conocer los detalles aplicables al presente año lectivo.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pregunta 3 -->
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false">¿El colegio dispone de servicio de recorrido (transporte escolar)?</button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>Sí, contamos con servicio de transporte escolar (recorrido) que cubre diversas rutas dentro del área metropolitana de Quito. Las rutas, paradas y horarios se definen al inicio de cada año lectivo en función de la ubicación de los estudiantes inscritos. Para mayor información sobre las rutas disponibles y el costo asociado, por favor comuníquese con nuestra secretaría.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pregunta 4 -->
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false">¿Cómo es el cuidado de los niños más pequeños en Inicial y Educación Básica?</button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>La seguridad y el bienestar de nuestros estudiantes más pequeños son nuestra máxima prioridad. En los niveles de Educación Inicial y Básica Elemental, contamos con:</p>
+                            <ul>
+                                <li><strong>Personal docente especializado</strong> en pedagogía infantil, capacitado para atender las necesidades físicas, emocionales y cognitivas de cada etapa del desarrollo.</li>
+                                <li><strong>Grupos reducidos</strong> que permiten una atención personalizada y un acompañamiento cercano.</li>
+                                <li><strong>Espacios físicos seguros y adecuados</strong>, diseñados para niños pequeños, con mobiliario ergonómico, áreas de juego supervisadas y protocolos de seguridad.</li>
+                                <li><strong>Protocolos de entrada y salida estrictos</strong>, que garantizan que cada niño sea entregado únicamente a sus padres o representantes autorizados.</li>
+                                <li><strong>Comunicación constante</strong> con las familias mediante agendas escolares, reuniones periódicas y canales de mensajería institucional.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pregunta 5 -->
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false">¿Qué programas extracurriculares ofrece la institución?</button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>Creemos firmemente en la formación integral de nuestros estudiantes. Por ello, ofrecemos programas extracurriculares que complementan la experiencia académica y permiten a los jóvenes desarrollar sus talentos:</p>
+                            <ul>
+                                <li><strong>🎺 Banda Institucional:</strong> Espacio de formación musical donde los estudiantes aprenden a ejecutar instrumentos de viento y percusión. La banda participa en presentaciones cívicas, eventos institucionales y desfiles, fomentando la disciplina, el trabajo en equipo y el sentido de pertenencia.</li>
+                                <li><strong>💃 Bastoneras:</strong> Grupo de expresión corporal y coreografía que desarrolla la coordinación motriz, la elegancia y el liderazgo. Nuestras bastoneras representan a la institución en desfiles, ceremonias solemnes y encuentros intercolegiales con gran orgullo y distinción.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pregunta 6 -->
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false">¿Cómo se maneja la enseñanza del idioma inglés?</button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>El dominio del inglés es un componente fundamental en la formación de nuestros estudiantes. Nuestro programa se rige por los siguientes principios:</p>
+                            <ul>
+                                <li><strong>Cumplimiento ministerial:</strong> Impartimos la carga horaria de inglés establecida por el Ministerio de Educación del Ecuador para cada nivel educativo, garantizando que nuestros estudiantes alcancen las competencias requeridas por el currículo nacional.</li>
+                                <li><strong>Enfoque comunicativo:</strong> Nuestras clases priorizan el uso activo del idioma en situaciones reales de comunicación, desarrollando las cuatro destrezas: comprensión auditiva, expresión oral, lectura y escritura.</li>
+                                <li><strong>Docentes calificados:</strong> Contamos con profesionales con formación específica en la enseñanza del inglés como lengua extranjera, comprometidos con la actualización pedagógica permanente.</li>
+                                <li><strong>Progresión por niveles:</strong> El programa se estructura para que los estudiantes desarrollen sus competencias de manera progresiva desde Educación Inicial hasta Bachillerato, culminando con un nivel que les permita desenvolverse con confianza en contextos académicos y cotidianos.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pregunta 7 -->
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false">¿Cómo puedo iniciar el proceso de admisión?</button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>El proceso de admisión es sencillo y está diseñado para acompañar a las familias en cada paso:</p>
+                            <ol>
+                                <li><strong>Solicitud de información:</strong> Complete el formulario en nuestra página de <a href="contacto.html">Contacto</a> o llámenos directamente.</li>
+                                <li><strong>Entrevista informativa:</strong> Coordinamos una visita a nuestras instalaciones para que conozca de primera mano nuestro proyecto educativo.</li>
+                                <li><strong>Entrega de documentos:</strong> Una vez decidida la incorporación, le indicaremos los documentos requeridos para formalizar la matrícula.</li>
+                                <li><strong>Confirmación:</strong> Tras la revisión de la documentación, confirmamos el cupo y damos la bienvenida a su hijo o hija a nuestra comunidad educativa.</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CTA Final -->
+            <div class="faq-cta">
+                <h2 style="margin-top:0;">¿No encontró lo que buscaba?</h2>
+                <p style="max-width:500px; margin:0 auto 24px;">Estaremos encantados de resolver sus inquietudes de manera personalizada. No dude en comunicarse con nosotros.</p>
+                <a href="contacto.html" class="btn btn-primary btn-lg">Contactar Ahora</a>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-brand">U.E.P. Aurelio Mosquera</div>
+        <p style="color:var(--gray-400); margin:4px 0 16px 0;">Formando líderes para el futuro.</p>
+        <p style="margin:0;">&copy; 2025 Unidad Educativa Particular Aurelio Mosquera. Todos los derechos reservados.</p>
+    </footer>
+
+    <script src="js/accessibility.js" defer></script>
+    <script>
+        // Acordeón FAQ
+        (function () {
+            'use strict';
+            var faqItems = document.querySelectorAll('.faq-item');
+            faqItems.forEach(function (item) {
+                var btn = item.querySelector('.faq-question');
+                btn.addEventListener('click', function () {
+                    var isOpen = item.classList.contains('open');
+                    // Cerrar todos
+                    faqItems.forEach(function (other) { other.classList.remove('open'); });
+                    // Toggle actual
+                    if (!isOpen) {
+                        item.classList.add('open');
+                        btn.setAttribute('aria-expanded', 'true');
+                    } else {
+                        btn.setAttribute('aria-expanded', 'false');
+                    }
+                });
+            });
+        })();
+    </script>
+</body>
+</html>
