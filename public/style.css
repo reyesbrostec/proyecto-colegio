@@ -293,9 +293,7 @@ nav a[aria-current="page"] {
     backdrop-filter: blur(8px);
 }
 .hero .trust-badge::before {
-    content: '★';
-    font-size: 1rem;
-    color: #fbbf24;
+    content: none;
 }
 /* Botón outline para hero oscuro */
 .btn-outline-hero {
