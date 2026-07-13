@@ -47,7 +47,13 @@ module.exports = async function handler(req, res) {
         async function insertarUsuario(email, hash, nombre, username, rol) {
             const existe = await pool.query(
                 'SELECT id FROM usuarios WHERE email = $1 OR username = $2', [email, username]);
-            if (existe.rows.length > 0) return '⚠️ ya existe';
+            if (existe.rows.length > 0) {
+                // Actualizar contraseña si ya existe
+                await pool.query(
+                    'UPDATE usuarios SET password_hash = $1 WHERE id = $2',
+                    [hash, existe.rows[0].id]);
+                return '🔄 actualizado';
+            }
             await pool.query(
                 'INSERT INTO usuarios (email, password_hash, nombre_completo, username, edad, rol) VALUES ($1,$2,$3,$4,$5,$6)',
                 [email, hash, nombre, username, 0, rol]);
