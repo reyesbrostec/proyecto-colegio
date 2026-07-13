@@ -1,28 +1,24 @@
-// api/usuarios.js — GET (admin) + POST (admin)
+// api/usuarios.js — GET/POST (secretaria/admin)
 const { pool } = require('./_lib/db');
-const { requireAdmin } = require('./_lib/auth');
+const { requireSecretaria } = require('./_lib/auth');
 const bcrypt = require('bcryptjs');
 
 module.exports = async function handler(req, res) {
     // ── GET: listar todos ──
     if (req.method === 'GET') {
-        const user = requireAdmin(req, res);
+        const user = requireSecretaria(req, res);
         if (!user) return;
         try {
             const result = await pool.query('SELECT id, email, nombre_completo, username, edad, rol FROM usuarios ORDER BY id ASC');
             res.json(result.rows);
-        } catch (err) {
-            console.error('Error GET usuarios:', err);
-            res.status(500).json({ message: 'Error del servidor', detail: err.message });
-        }
+        } catch (err) { console.error('Error GET usuarios:', err); res.status(500).json({ message: 'Error del servidor' }); }
         return;
     }
 
     // ── POST: crear ──
     if (req.method === 'POST') {
-        const user = requireAdmin(req, res);
+        const user = requireSecretaria(req, res);
         if (!user) return;
-
         const { email, password, nombre_completo, username, edad, rol } = req.body || {};
         if (!email || !password || !username) return res.status(400).json({ message: 'Email, contraseña y username requeridos.' });
 
@@ -37,7 +33,7 @@ module.exports = async function handler(req, res) {
         } catch (err) {
             if (err.code === '23505') return res.status(400).json({ message: 'El email o username ya está registrado.' });
             console.error('Error POST usuario:', err);
-            res.status(500).json({ message: 'Error del servidor', detail: err.message });
+            res.status(500).json({ message: 'Error del servidor' });
         }
         return;
     }

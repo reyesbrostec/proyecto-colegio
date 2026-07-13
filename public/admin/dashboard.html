@@ -299,7 +299,7 @@
                 document.getElementById('form-noticia-title').textContent = 'Editar Noticia';
                 document.getElementById('btn-guardar-noticia').textContent = '💾 Actualizar';
                 formNoticia.style.display = 'block'; formErrorN.style.display = 'none';
-                fetch(API + '/api/noticias/' + id).then(function (r) { return r.json(); }).then(function (n) {
+                fetch(API + '/api/noticias?id=' + id).then(function (r) { return r.json(); }).then(function (n) {
                     document.getElementById('noticia-id').value = n.id;
                     document.getElementById('noticia-titulo').value = n.titulo;
                     document.getElementById('noticia-contenido').value = n.contenido;
@@ -311,7 +311,7 @@
 
             function eliminarNoticia(id) {
                 if (!confirm('¿Está seguro de eliminar esta noticia?')) return;
-                fetch(API + '/api/noticias/' + id, { method: 'DELETE', headers: headers })
+                fetch(API + '/api/noticias?id=' + id, { method: 'DELETE', headers: headers })
                     .then(function (r) { if (r.ok || r.status === 204) cargarNoticias(); else alert('Error al eliminar.'); })
                     .catch(function () { alert('Error de conexión.'); });
             }
@@ -330,7 +330,7 @@
                     video_url: document.getElementById('noticia-video').value.trim() || null
                 });
                 var id = document.getElementById('noticia-id').value;
-                fetch(id ? (API + '/api/noticias/' + id) : (API + '/api/noticias'), { method: id ? 'PUT' : 'POST', headers: headers, body: body })
+                fetch(id ? (API + '/api/noticias?id=' + id) : (API + '/api/noticias'), { method: id ? 'PUT' : 'POST', headers: headers, body: body })
                     .then(function (r) { if (!r.ok) return r.json().then(function (d) { throw new Error(d.message || 'Error'); }); return r.json(); })
                     .then(function () { formNoticia.style.display = 'none'; cargarNoticias(); })
                     .catch(function (err) { formErrorN.textContent = err.message; formErrorN.style.display = 'block'; })
@@ -481,7 +481,7 @@
                 formNota.style.display = 'block';
                 document.getElementById('form-error-nota').style.display = 'none';
                 cargarEstudiantes();
-                fetch(API + '/api/notas/' + id, { headers: headers })
+                fetch(API + '/api/notas?id=' + id, { headers: headers })
                     .then(function (r) { return r.json(); })
                     .then(function (n) {
                         document.getElementById('nota-id').value = n.id;
@@ -579,7 +579,7 @@
                         miniGaleria.querySelectorAll('.delete-foto').forEach(function (btn) {
                             btn.addEventListener('click', function () {
                                 if (!confirm('¿Eliminar esta foto de la galería?')) return;
-                                fetch(API + '/api/galeria/' + this.dataset.id, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + token } })
+                                fetch(API + '/api/galeria?id=' + this.dataset.id, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + token } })
                                     .then(function (r) { if (r.ok || r.status === 204) cargarFotosMini(); else alert('Error al eliminar.'); })
                                     .catch(function () { alert('Error de conexión.'); });
                             });
