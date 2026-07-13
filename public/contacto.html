@@ -4,8 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contacto — U.E.P. Aurelio Mosquera</title>
-    <meta name="description" content="Contacte a la Unidad Educativa Particular Aurelio Mosquera. Solicite información, visite nuestras instalaciones o escríbanos. Estamos aquí para ayudarle.">
+    <meta name="description" content="Contacte a la Unidad Educativa Particular Aurelio Mosquera. Visítenos en Obrero Independiente, Quito. Solicite información, escríbanos por WhatsApp o envíenos un mensaje.">
     <meta name="robots" content="index, follow">
+    <meta name="contact:email" content="17H01247@gmail.com">
+    <!-- Cloudflare Turnstile: reemplazar SITE_KEY cuando esté disponible -->
+    <meta name="turnstile:sitekey" content="">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -16,9 +19,66 @@
         @media (min-width: 768px) { .contact-grid { grid-template-columns: 1fr 1fr; } }
         .info-item { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 20px; }
         .info-item .icon { font-size: 1.5rem; color: var(--blue-600); flex-shrink: 0; }
-        .info-item strong { display: block; margin-bottom: 2px; }
-        .map-placeholder { width:100%; height:300px; background: var(--gray-200); border-radius: var(--radius-lg); display:flex; align-items:center; justify-content:center; color:var(--gray-500); font-weight:500; }
+        .info-item strong { display: block; margin-bottom: 2px; color: var(--gray-800); }
+        .info-item a { color: var(--blue-600); text-decoration: none; font-weight: 500; }
+        .info-item a:hover { text-decoration: underline; }
+        .whatsapp-link { 
+            display: inline-flex; align-items: center; gap: 8px; 
+            background: #25D366; color: #fff !important; padding: 10px 20px; 
+            border-radius: var(--radius-md); font-weight: 600; text-decoration: none !important;
+            transition: transform 0.15s, box-shadow 0.2s; margin-top: 8px;
+        }
+        .whatsapp-link:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .whatsapp-link svg { width: 22px; height: 22px; fill: #fff; }
+        .map-container { width:100%; height:300px; border-radius: var(--radius-lg); overflow:hidden; border:1px solid var(--gray-200); }
+        .map-container iframe { width:100%; height:100%; border:none; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display:block; margin-bottom:4px; font-weight:600; color:var(--gray-700); font-size:0.9rem; }
+        .form-group input, .form-group textarea {
+            width:100%; padding:10px 14px; border:2px solid var(--gray-200); border-radius: var(--radius-md);
+            font-family: 'Poppins', sans-serif; font-size:0.95rem; transition: border-color 0.2s;
+            background: var(--white); color: var(--gray-800);
+        }
+        .form-group input:focus, .form-group textarea:focus {
+            border-color: var(--blue-500); outline: none; box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+        }
+        .form-group input[aria-invalid="true"], .form-group textarea[aria-invalid="true"] {
+            border-color: var(--red-500); background: var(--red-50);
+        }
+        .form-error { color: var(--red-600); font-size: 0.813rem; margin: 4px 0 0 0; font-weight: 500; }
+        .form-error-summary { 
+            background: var(--red-50); border: 2px solid var(--red-500); border-radius: var(--radius-md);
+            padding: 16px 20px; margin-bottom: 20px;
+        }
+        .form-error-summary h3 { color: var(--red-600); margin:0 0 8px 0; font-size:1rem; }
+        .form-error-summary ul { margin:0; padding-left:20px; }
+        .form-error-summary a { color: var(--red-600); font-weight:600; }
+        .form-success { 
+            background: var(--green-50); border: 2px solid var(--green-700); border-radius: var(--radius-md);
+            padding: 16px 20px; margin-top: 20px; color: var(--green-700); font-weight:500;
+        }
+        .honeypot { position: absolute; left: -9999px; top: -9999px; opacity: 0; height: 0; width: 0; overflow: hidden; }
+        .btn { 
+            display: inline-block; padding: 12px 28px; font-weight: 600; font-size: 0.95rem;
+            border: none; border-radius: var(--radius-md); cursor: pointer; transition: transform 0.15s, box-shadow 0.2s;
+        }
+        .btn-primary { background: linear-gradient(135deg, var(--blue-700), var(--blue-600)); color: var(--white); }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+        .btn-primary:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
+        .turnstile-container { margin-bottom: 16px; min-height: 65px; }
     </style>
+    <!-- Cloudflare Turnstile JS (carga condicional) -->
+    <script>
+    (function(){
+        var sitekey = document.querySelector('meta[name="turnstile:sitekey"]')?.getAttribute('content') || '';
+        if (sitekey) {
+            var s = document.createElement('script');
+            s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+            s.async = true; s.defer = true;
+            document.head.appendChild(s);
+        }
+    })();
+    </script>
 </head>
 <body>
     <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
@@ -48,82 +108,130 @@
     <main id="main-content">
         <div class="page-container">
             <h1>Contacto y Ubicación</h1>
-            <p>Estamos aquí para ayudarle. No dude en visitarnos, llamarnos o enviarnos un mensaje. Su consulta es importante para nosotros y será atendida a la brevedad por nuestro equipo.</p>
+            <p>Estamos aquí para ayudarle. Visítenos, escríbanos por WhatsApp o envíenos un mensaje. Su consulta será atendida a la brevedad por nuestro equipo.</p>
 
             <div class="contact-grid">
                 <!-- Columna de Información -->
                 <div>
-                    <h2>Nuestra Ubicación</h2>
+                    <h2>Información de Contacto</h2>
 
                     <div class="info-item">
                         <span class="icon" aria-hidden="true">📍</span>
                         <div>
                             <strong>Dirección:</strong>
-                            <p style="margin:0;">[Avenida Principal 123, Ciudad, País]</p>
+                            <p style="margin:0;">Obrero Independiente: Suárez, S5 y E20E 327<br>Quito, Ecuador 170145</p>
                         </div>
                     </div>
                     <div class="info-item">
                         <span class="icon" aria-hidden="true">📞</span>
                         <div>
                             <strong>Teléfono:</strong>
-                            <p style="margin:0;">[+123 456 7890]</p>
+                            <p style="margin:0;"><a href="tel:+593984807509">098 480 7509</a></p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <span class="icon" aria-hidden="true">💬</span>
+                        <div>
+                            <strong>WhatsApp:</strong>
+                            <p style="margin:0;"><a href="tel:+593984807509">098 480 7509</a></p>
+                            <a href="https://wa.me/593984807509?text=Hola%2C%20quisiera%20informaci%C3%B3n%20sobre%20la%20Unidad%20Educativa%20Particular%20Aurelio%20Mosquera" 
+                               class="whatsapp-link" target="_blank" rel="noopener noreferrer" aria-label="Escribir por WhatsApp">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+                                Chatear por WhatsApp
+                            </a>
                         </div>
                     </div>
                     <div class="info-item">
                         <span class="icon" aria-hidden="true">✉️</span>
                         <div>
                             <strong>Email:</strong>
-                            <p style="margin:0;">[info@colegiouepam.edu.ec]</p>
+                            <p style="margin:0;"><a href="mailto:17H01247@gmail.com">17H01247@gmail.com</a></p>
                         </div>
                     </div>
                     <div class="info-item">
                         <span class="icon" aria-hidden="true">🕒</span>
                         <div>
                             <strong>Horario de Atención:</strong>
-                            <p style="margin:0;">Lunes a Viernes: 8:00 AM - 5:00 PM</p>
+                            <p style="margin:0;">Lunes a Viernes: 7:00 AM — 12:30 PM</p>
                         </div>
                     </div>
 
                     <div style="margin-top: 24px;">
-                        <div class="map-placeholder" aria-label="Mapa de ubicación del colegio">
-                            📍 Mapa de Ubicación
+                        <h3 style="font-size:1.1rem;">Nuestra Ubicación</h3>
+                        <div class="map-container" aria-label="Mapa de ubicación del colegio U.E.P. Aurelio Mosquera">
+                            <iframe 
+                                src="https://www.google.com/maps?q=Obrero+Independiente+Suarez+S5+y+E20E+327+Quito+Ecuador&output=embed"
+                                allowfullscreen="" 
+                                loading="lazy" 
+                                referrerpolicy="no-referrer-when-downgrade"
+                                title="Ubicación de la Unidad Educativa Particular Aurelio Mosquera en Quito">
+                            </iframe>
                         </div>
+                        <p style="margin-top:8px; font-size:0.85rem;">
+                            <a href="https://maps.app.goo.gl/xT9s3QZbB1vDC15w8" target="_blank" rel="noopener noreferrer">
+                                📍 Ver mapa más grande en Google Maps
+                            </a>
+                        </p>
                     </div>
                 </div>
 
                 <!-- Columna de Formulario -->
                 <div>
                     <h2>Envíenos un Mensaje</h2>
+                    <p style="font-size:0.9rem; color:var(--gray-500);">Todos los campos marcados con * son obligatorios.</p>
 
-                    <!-- Formspree: reemplaza TU_CODIGO_UNICO con tu ID real -->
                     <form id="contact-form" novalidate>
+                        <!-- Honeypot: campo invisible para bots -->
+                        <div class="honeypot" aria-hidden="true">
+                            <label for="website">No llenar este campo</label>
+                            <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+                        </div>
+
                         <div class="form-group">
-                            <label for="name">Nombre Completo</label>
+                            <label for="name">Nombre Completo *</label>
                             <input type="text" id="name" name="name" required
-                                   autocomplete="name"
-                                   aria-required="true">
+                                   autocomplete="name" minlength="3" maxlength="100"
+                                   aria-required="true" placeholder="Ej: María García">
                         </div>
                         <div class="form-group">
-                            <label for="email">Correo Electrónico</label>
+                            <label for="phone">Teléfono</label>
+                            <input type="tel" id="phone" name="phone"
+                                   autocomplete="tel" maxlength="20"
+                                   placeholder="Ej: 099 876 5432">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Correo Electrónico *</label>
                             <input type="email" id="email" name="email" required
-                                   autocomplete="email"
-                                   aria-required="true">
+                                   autocomplete="email" maxlength="150"
+                                   aria-required="true" placeholder="Ej: maria@ejemplo.com">
                         </div>
                         <div class="form-group">
-                            <label for="subject">Asunto</label>
+                            <label for="subject">Asunto *</label>
                             <input type="text" id="subject" name="subject" required
-                                   aria-required="true">
+                                   aria-required="true" minlength="3" maxlength="200"
+                                   placeholder="Ej: Información sobre matrículas">
                         </div>
                         <div class="form-group">
-                            <label for="message">Mensaje</label>
+                            <label for="message">Mensaje *</label>
                             <textarea id="message" name="message" rows="5" required
-                                      minlength="10"
-                                      aria-required="true"></textarea>
+                                      minlength="10" maxlength="2000"
+                                      aria-required="true" placeholder="Escriba su consulta aquí..."></textarea>
                         </div>
+
+                        <!-- Turnstile Widget (visible solo si hay SITE_KEY configurada) -->
+                        <div id="turnstile-widget" class="turnstile-container"></div>
+
                         <div class="form-group">
-                            <button type="submit" class="btn btn-primary" style="width:100%;">Enviar Mensaje</button>
+                            <button type="submit" class="btn btn-primary" style="width:100%;">
+                                <span class="btn-text">Enviar Mensaje</span>
+                                <span class="btn-loading" style="display:none;">Enviando…</span>
+                            </button>
                         </div>
                     </form>
+
+                    <p style="font-size:0.78rem; color:var(--gray-400); margin-top:12px;">
+                        🔒 Sus datos están protegidos. No compartimos su información con terceros.
+                    </p>
                 </div>
             </div>
         </div>
@@ -137,5 +245,6 @@
 
     <script src="js/accessibility.js" defer></script>
     <script src="js/contact.js" defer></script>
+    <script src="js/whatsapp.js" defer></script>
 </body>
 </html>

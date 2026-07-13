@@ -41,6 +41,14 @@ module.exports = async function handler(req, res) {
             url VARCHAR(500) NOT NULL, created_at TIMESTAMPTZ DEFAULT NOW())`);
         results.push('✅ documentos');
 
+        await pool.query(`CREATE TABLE IF NOT EXISTS contactos (
+            id SERIAL PRIMARY KEY, nombre VARCHAR(255) NOT NULL,
+            email VARCHAR(255) NOT NULL, telefono VARCHAR(50) DEFAULT '',
+            asunto VARCHAR(255) NOT NULL, mensaje TEXT NOT NULL,
+            ip_origen VARCHAR(50) DEFAULT '', pagina VARCHAR(255) DEFAULT '',
+            leido BOOLEAN DEFAULT FALSE, created_at TIMESTAMPTZ DEFAULT NOW())`);
+        results.push('✅ contactos');
+
         const salt = await bcrypt.genSalt(10);
 
         // ── Helper: insertar si no existe (por email y username) ──

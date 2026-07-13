@@ -1,32 +1,32 @@
-/* contact.js — Validación del formulario de contacto
-   - Validación en tiempo real (blur)
+/* contact.js — Validación del formulario de contacto (v2 · Seguridad)
+   - Validación en tiempo real (blur) con feedback accesible
    - Resumen de errores con enlaces a campos
-   - Envío a Formspree o FormSubmit
-   - Feedback accesible con aria-invalid y aria-describedby
+   - Turnstile CAPTCHA (Cloudflare — invisible, sin fricción)
+   - Honeypot detection (campo oculto anti-bots)
+   - Envío a /api/contacto con verificación server-side
+   - Phone validation + XSS sanitization
    ========================================================================== */
 
 (function () {
     'use strict';
 
-    // Configuración — cambiar FORMSPREE_ID por tu ID real de Formspree
-    var FORMSPREE_ID = 'TU_CODIGO_UNICO';
-
-    function getFormspreeEndpoint() {
-        var meta = document.querySelector('meta[name="contact:formspree"]');
-        if (meta) return meta.getAttribute('content');
-        if (FORMSPREE_ID && FORMSPREE_ID !== 'TU_CODIGO_UNICO') {
-            return 'https://formspree.io/f/' + FORMSPREE_ID;
-        }
-        return '';
-    }
-
-    function getContactEmail() {
-        var meta = document.querySelector('meta[name="contact:email"]');
+    // ── Config ──
+    var TURNSTILE_SITEKEY = (function () {
+        var meta = document.querySelector('meta[name="turnstile:sitekey"]');
         return meta ? meta.getAttribute('content') : '';
-    }
+    })();
 
     function validEmail(email) {
-        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        return /^[^\s@<>]{1,150}@[^\s@<>]{1,100}\.[^\s@<>]{1,50}$/.test(email);
+    }
+
+    function validPhone(phone) {
+        if (!phone) return true; // optional
+        return /^[\d\s\-\+\(\)]{7,20}$/.test(phone);
+    }
+
+    function sanitize(val) {
+        return val.replace(/[<>]/g, '').trim();
     }
 
     // ── Mostrar/ocultar error de campo ──
@@ -93,24 +93,28 @@
     function validateField(field) {
         var value = field.value.trim();
         var id = field.id;
-        if (!value) {
+        if (field.hasAttribute('required') && !value) {
             return { id: id, message: 'Este campo es obligatorio.' };
         }
+        if (!value) return null; // optional field, empty is OK
         if (field.type === 'email' && !validEmail(value)) {
             return { id: id, message: 'Ingresa un correo electrónico válido.' };
+        }
+        if (id === 'phone' && !validPhone(value)) {
+            return { id: id, message: 'Ingresa un número de teléfono válido.' };
         }
         if (id === 'message' && value.length < 10) {
             return { id: id, message: 'El mensaje debe tener al menos 10 caracteres.' };
         }
-        if (id === 'name' && value.length < 2) {
-            return { id: id, message: 'El nombre debe tener al menos 2 caracteres.' };
+        if ((id === 'name' || id === 'subject') && value.length < 3) {
+            return { id: id, message: 'Este campo debe tener al menos 3 caracteres.' };
         }
         return null;
     }
 
     // ── Validar formulario completo ──
     function validateForm(form) {
-        var fields = form.querySelectorAll('input[required], textarea[required]');
+        var fields = form.querySelectorAll('input[required], textarea[required], input#phone');
         var errors = [];
         fields.forEach(function (field) {
             var error = validateField(field);
@@ -172,6 +176,14 @@
             e.preventDefault();
             hideErrorSummary();
 
+            // Honeypot check (client-side early detection)
+            var honeypot = form.querySelector('#website');
+            if (honeypot && honeypot.value.trim() !== '') {
+                // Bot detected — silently "succeed"
+                showSuccess(form, '¡Mensaje enviado con éxito! Nos pondremos en contacto pronto.');
+                return;
+            }
+
             var errors = validateForm(form);
             if (errors.length > 0) {
                 showErrorSummary(errors, form);
@@ -179,64 +191,62 @@
             }
 
             var payload = {
-                nombre: form.querySelector('#name').value.trim(),
-                email: form.querySelector('#email').value.trim(),
-                asunto: form.querySelector('#subject') ? form.querySelector('#subject').value.trim() : '',
-                mensaje: form.querySelector('#message').value.trim(),
+                nombre: sanitize(form.querySelector('#name').value),
+                email: sanitize(form.querySelector('#email').value),
+                telefono: sanitize(form.querySelector('#phone') ? form.querySelector('#phone').value : ''),
+                asunto: sanitize(form.querySelector('#subject').value),
+                mensaje: sanitize(form.querySelector('#message').value),
+                website: '', // honeypot
                 page: location.pathname
             };
 
-            if (submitBtn) {
-                submitBtn.disabled = true;
-                submitBtn.textContent = 'Enviando…';
-            }
+            var btnText = submitBtn ? submitBtn.querySelector('.btn-text') : null;
+            var btnLoading = submitBtn ? submitBtn.querySelector('.btn-loading') : null;
+            if (btnText) btnText.style.display = 'none';
+            if (btnLoading) btnLoading.style.display = 'inline';
+            if (submitBtn) submitBtn.disabled = true;
 
-            var formspreeEndpoint = getFormspreeEndpoint();
-            var contactEmail = getContactEmail();
+            // Get Turnstile token if widget is present
+            function doSubmit(turnstileToken) {
+                if (turnstileToken) payload.turnstileToken = turnstileToken;
 
-            var sendPromise;
-            if (formspreeEndpoint) {
-                sendPromise = fetch(formspreeEndpoint, {
+                fetch('/api/contacto', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
-                });
-            } else if (contactEmail) {
-                var formsubmitUrl = 'https://formsubmit.co/ajax/' + encodeURIComponent(contactEmail);
-                sendPromise = fetch(formsubmitUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                    body: JSON.stringify({
-                        name: payload.nombre,
-                        email: payload.email,
-                        message: payload.mensaje,
-                        page: payload.page,
-                        _subject: 'Nuevo contacto desde Colegio UEPAM',
-                        _template: 'table',
-                        _captcha: 'false'
-                    })
-                });
-            } else {
-                // Fallback: simular envío (demo)
-                sendPromise = new Promise(function (resolve) {
-                    setTimeout(function () { resolve({ ok: true }); }, 800);
+                })
+                .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
+                .then(function (result) {
+                    if (!result.ok) throw new Error(result.data.error || 'Error del servidor');
+                    showSuccess(form, result.data.message || '¡Mensaje enviado con éxito! Nos pondremos en contacto pronto.');
+                })
+                .catch(function (err) {
+                    var errorMsg = err.message || 'Hubo un problema al enviar tu mensaje. Intenta de nuevo más tarde.';
+                    showErrorSummary([{ id: 'name', message: errorMsg }], form);
+                })
+                .finally(function () {
+                    if (btnText) btnText.style.display = 'inline';
+                    if (btnLoading) btnLoading.style.display = 'none';
+                    if (submitBtn) submitBtn.disabled = false;
+                    // Reset Turnstile if present
+                    if (typeof turnstile !== 'undefined' && turnstile.reset) {
+                        try { turnstile.reset(); } catch (e) {}
+                    }
                 });
             }
 
-            sendPromise.then(function (res) {
-                if (!res.ok) throw new Error('Error del servidor');
-                showSuccess(form, '¡Mensaje enviado con éxito! Nos pondremos en contacto pronto.');
-            }).catch(function (err) {
-                var errorMsg = err.message === 'Error del servidor'
-                    ? 'Hubo un problema al enviar tu mensaje. Intenta de nuevo más tarde.'
-                    : 'No se pudo conectar con el servidor. Verifica tu conexión.';
-                showErrorSummary([{ id: 'name', message: errorMsg }], form);
-            }).finally(function () {
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = 'Enviar Mensaje';
+            // If Turnstile is configured, execute and get token
+            if (TURNSTILE_SITEKEY && typeof turnstile !== 'undefined' && turnstile.execute) {
+                try {
+                    turnstile.execute(function (token) {
+                        doSubmit(token);
+                    });
+                } catch (e) {
+                    doSubmit('');
                 }
-            });
+            } else {
+                doSubmit('');
+            }
         });
     }
 
