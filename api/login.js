@@ -1,5 +1,5 @@
 // api/login.js — POST /api/login
-const { sql } = require('./_lib/db');
+const { pool } = require('./_lib/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -10,10 +10,10 @@ module.exports = async function handler(req, res) {
     if (!email || !password) return res.status(400).json({ message: 'Email y contraseña requeridos.' });
 
     try {
-        const { rows } = await sql`SELECT * FROM usuarios WHERE email = ${email}`;
-        if (rows.length === 0) return res.status(401).json({ message: 'Credenciales inválidas' });
+        const result = await pool.query('SELECT * FROM usuarios WHERE email = $1', [email]);
+        if (result.rows.length === 0) return res.status(401).json({ message: 'Credenciales inválidas' });
 
-        const user = rows[0];
+        const user = result.rows[0];
         const isMatch = await bcrypt.compare(password, user.password_hash);
         if (!isMatch) return res.status(401).json({ message: 'Credenciales inválidas' });
 
@@ -26,6 +26,6 @@ module.exports = async function handler(req, res) {
         res.json({ message: 'Login exitoso', token });
     } catch (err) {
         console.error('Error en login:', err);
-        res.status(500).json({ message: 'Error del servidor' });
+        res.status(500).json({ message: 'Error del servidor', detail: err.message });
     }
 };

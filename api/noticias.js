@@ -1,16 +1,16 @@
 // api/noticias.js — GET (público) + POST (admin)
-const { sql } = require('./_lib/db');
+const { pool } = require('./_lib/db');
 const { requireAdmin } = require('./_lib/auth');
 
 module.exports = async function handler(req, res) {
     // ── GET: listar todas ──
     if (req.method === 'GET') {
         try {
-            const { rows } = await sql`SELECT * FROM noticias ORDER BY id DESC`;
-            res.json(rows);
+            const result = await pool.query('SELECT * FROM noticias ORDER BY id DESC');
+            res.json(result.rows);
         } catch (err) {
             console.error('Error GET noticias:', err);
-            res.status(500).json({ message: 'Error del servidor' });
+            res.status(500).json({ message: 'Error del servidor', detail: err.message });
         }
         return;
     }
@@ -24,15 +24,14 @@ module.exports = async function handler(req, res) {
         if (!titulo || !contenido) return res.status(400).json({ message: 'Título y contenido requeridos.' });
 
         try {
-            const { rows } = await sql`
-                INSERT INTO noticias (titulo, contenido, imagen_url, video_url)
-                VALUES (${titulo}, ${contenido}, ${imagen_url || null}, ${video_url || null})
-                RETURNING *
-            `;
-            res.status(201).json(rows[0]);
+            const result = await pool.query(
+                'INSERT INTO noticias (titulo, contenido, imagen_url, video_url) VALUES ($1,$2,$3,$4) RETURNING *',
+                [titulo, contenido, imagen_url || null, video_url || null]
+            );
+            res.status(201).json(result.rows[0]);
         } catch (err) {
             console.error('Error POST noticia:', err);
-            res.status(500).json({ message: 'Error del servidor' });
+            res.status(500).json({ message: 'Error del servidor', detail: err.message });
         }
         return;
     }
