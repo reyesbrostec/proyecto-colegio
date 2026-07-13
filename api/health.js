@@ -4,7 +4,8 @@ const bcrypt = require('bcryptjs');
 
 module.exports = async function handler(req, res) {
     // ── One-time setup activado con ?setup=1 ──
-    if (req.query && req.query.setup === '1') {
+    const url = new URL(req.url, 'https://proyecto-colegio.vercel.app');
+    if (url.searchParams.get('setup') === '1') {
         const results = [];
         try {
             await pool.query(`CREATE TABLE IF NOT EXISTS usuarios (
