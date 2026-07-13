@@ -57,8 +57,8 @@ module.exports = async function handler(req, res) {
     // ── Normal health check ──
     try {
         const result = await pool.query('SELECT NOW() as ahora, current_database() as db');
-        res.json({ status: 'ok', db: result.rows[0] });
+        res.json({ status: 'ok', db: result.rows[0], version: 'v2-setup' });
     } catch (err) {
-        res.status(500).json({ status: 'error', message: err.message, code: err.code });
+        res.status(500).json({ status: 'error', message: err.message, code: err.code, version: 'v2-setup' });
     }
 };
