@@ -2,6 +2,14 @@
 const { pool } = require('./_lib/db');
 const { requireSecretaria } = require('./_lib/auth');
 
+function validarURL(url) {
+    if (!url || typeof url !== 'string') return false;
+    try {
+        var u = new URL(url);
+        return u.protocol === 'http:' || u.protocol === 'https:';
+    } catch (e) { return false; }
+}
+
 module.exports = async function handler(req, res) {
     // ── Asegurar tabla ──
     try {
@@ -26,7 +34,7 @@ module.exports = async function handler(req, res) {
             res.json(result.rows);
         } catch (err) {
             console.error('Error GET documentos:', err);
-            res.status(500).json({ message: 'Error del servidor', detail: err.message });
+            res.status(500).json({ message: 'Error del servidor' });
         }
         return;
     }
@@ -38,6 +46,7 @@ module.exports = async function handler(req, res) {
 
         const { titulo, descripcion, categoria, url } = req.body || {};
         if (!titulo || !url) return res.status(400).json({ message: 'Título y URL requeridos.' });
+        if (!validarURL(url)) return res.status(400).json({ message: 'URL inválida. Debe comenzar con http:// o https://' });
 
         try {
             const result = await pool.query(
@@ -47,7 +56,7 @@ module.exports = async function handler(req, res) {
             res.status(201).json(result.rows[0]);
         } catch (err) {
             console.error('Error POST documento:', err);
-            res.status(500).json({ message: 'Error del servidor', detail: err.message });
+            res.status(500).json({ message: 'Error del servidor' });
         }
         return;
     }
@@ -65,7 +74,7 @@ module.exports = async function handler(req, res) {
             res.status(204).send('');
         } catch (err) {
             console.error('Error DELETE documento:', err);
-            res.status(500).json({ message: 'Error del servidor', detail: err.message });
+            res.status(500).json({ message: 'Error del servidor' });
         }
         return;
     }

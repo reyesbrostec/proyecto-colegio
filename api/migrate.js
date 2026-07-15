@@ -1,9 +1,13 @@
-// api/migrate.js — POST /api/migrate (one-time DB setup)
+// api/migrate.js — POST /api/migrate (one-time DB setup, ADMIN ONLY)
 const { pool } = require('./_lib/db');
+const { requireAdmin } = require('./_lib/auth');
 const bcrypt = require('bcryptjs');
 
 module.exports = async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ message: 'Usa POST para ejecutar migración' });
+
+    const admin = requireAdmin(req, res);
+    if (!admin) return;
 
     const results = [];
     try {
@@ -68,21 +72,28 @@ module.exports = async function handler(req, res) {
             return '✅';
         }
 
-        const rAdmin = await insertarUsuario('rybr0ss@colegio.com',
-            await bcrypt.hash('reyesbrostec', salt), 'Administrador', 'admin', 'admin');
-        results.push(rAdmin + ' admin (rybr0ss@colegio.com / reyesbrostec)');
+        var adminEmail = process.env.SEED_ADMIN_EMAIL || 'rybr0ss@colegio.com';
+        var adminPass = process.env.SEED_ADMIN_PASS || 'reyesbrostec';
+        var docenteEmail = process.env.SEED_DOCENTE_EMAIL || 'docente@colegio.com';
+        var docentePass = process.env.SEED_DOCENTE_PASS || 'profesor123';
+        var secreEmail = process.env.SEED_SECRE_EMAIL || 'secretaria@colegio.com';
+        var secrePass = process.env.SEED_SECRE_PASS || 'secretaria123';
 
-        const rDocente = await insertarUsuario('docente@colegio.com',
-            await bcrypt.hash('profesor123', salt), 'Docente Principal', 'docente', 'docente');
-        results.push(rDocente + ' docente (docente@colegio.com / profesor123)');
+        const rAdmin = await insertarUsuario(adminEmail,
+            await bcrypt.hash(adminPass, salt), 'Administrador', 'admin', 'admin');
+        results.push(rAdmin + ' admin');
 
-        const rSecre = await insertarUsuario('secretaria@colegio.com',
-            await bcrypt.hash('secretaria123', salt), 'Secretaría General', 'secretaria', 'secretaria');
-        results.push(rSecre + ' secretaria (secretaria@colegio.com / secretaria123)');
+        const rDocente = await insertarUsuario(docenteEmail,
+            await bcrypt.hash(docentePass, salt), 'Docente Principal', 'docente', 'docente');
+        results.push(rDocente + ' docente');
 
-        res.json({ ok: true, results });
+        const rSecre = await insertarUsuario(secreEmail,
+            await bcrypt.hash(secrePass, salt), 'Secretaría General', 'secretaria', 'secretaria');
+        results.push(rSecre + ' secretaria');
+
+        res.json({ ok: true, results, tables: results.slice(0, 6) });
     } catch (err) {
         console.error('Error en migración:', err);
-        res.status(500).json({ ok: false, message: err.message, results });
+        res.status(500).json({ ok: false, message: 'Error del servidor' });
     }
 };

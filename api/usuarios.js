@@ -22,6 +22,10 @@ module.exports = async function handler(req, res) {
         const { email, password, nombre_completo, username, edad, rol } = req.body || {};
         if (!email || !password || !username) return res.status(400).json({ message: 'Email, contraseña y username requeridos.' });
 
+        // Validación de fortaleza de contraseña
+        var passErr = validarPassword(password);
+        if (passErr) return res.status(400).json({ message: passErr });
+
         try {
             const salt = await bcrypt.genSalt(10);
             const password_hash = await bcrypt.hash(password, salt);
@@ -40,3 +44,10 @@ module.exports = async function handler(req, res) {
 
     res.status(405).json({ message: 'Método no permitido' });
 };
+
+function validarPassword(pw) {
+    if (typeof pw !== 'string' || pw.length < 8) return 'La contraseña debe tener al menos 8 caracteres.';
+    if (!/[A-Z]/.test(pw)) return 'La contraseña debe contener al menos una mayúscula.';
+    if (!/[0-9]/.test(pw)) return 'La contraseña debe contener al menos un número.';
+    return null;
+}

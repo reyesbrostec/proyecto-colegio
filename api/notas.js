@@ -60,6 +60,8 @@ module.exports = async function handler(req, res) {
         if (isNaN(parcial1) || isNaN(parcial2) || isNaN(examen_final))
             return res.status(400).json({ message: 'Las calificaciones deben ser valores numéricos.' });
         const p1 = parseFloat(parcial1), p2 = parseFloat(parcial2), ef = parseFloat(examen_final);
+        var fuera = [p1, p2, ef].filter(function(v){ return v < 0 || v > 10; });
+        if (fuera.length > 0) return res.status(400).json({ message: 'Las calificaciones deben estar entre 0 y 10.' });
         const nf = ((p1 + p2 + ef) / 3).toFixed(2);
         try {
             const result = await pool.query(
@@ -78,6 +80,8 @@ module.exports = async function handler(req, res) {
         const { estudiante_id, materia, parcial1, parcial2, examen_final } = req.body || {};
         if (!estudiante_id || !materia) return res.status(400).json({ message: 'ID de estudiante y materia requeridos.' });
         const p1 = parseFloat(parcial1) || 0, p2 = parseFloat(parcial2) || 0, ef = parseFloat(examen_final) || 0;
+        var fuera = [p1, p2, ef].filter(function(v){ return v < 0 || v > 10; });
+        if (fuera.length > 0) return res.status(400).json({ message: 'Las calificaciones deben estar entre 0 y 10.' });
         const nf = ((p1 + p2 + ef) / 3).toFixed(2);
         try {
             const result = await pool.query(

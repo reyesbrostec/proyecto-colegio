@@ -1,4 +1,7 @@
 // api/_lib/db.js — Helper de base de datos (pg Pool directo)
+// NOTA: Neon PostgreSQL requiere SSL sin verificación de CA en entornos serverless.
+// rejectUnauthorized: false es necesario para Neon; en producción con PostgreSQL
+// propio, cambiar a rejectUnauthorized: true con CA proporcionada.
 const { Pool } = require('pg');
 
 const pool = new Pool({

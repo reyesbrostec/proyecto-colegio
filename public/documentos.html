@@ -42,38 +42,12 @@
             <h1>Documentos de Interés</h1>
             <p>Encuentre y descargue todos los formularios y documentos importantes para la comunidad educativa.</p>
 
-            <div class="document-list" style="margin-top:32px; display:grid; gap:20px;">
-                <div class="document-item" style="display:flex; justify-content:space-between; align-items:center; padding:24px; background:var(--white); border:1px solid var(--gray-200); border-radius:var(--radius-md);">
-                    <div style="display:flex; align-items:center; gap:20px;">
-                        <span style="font-size:2.5rem; color:var(--red-500);" aria-hidden="true">📄</span>
-                        <div>
-                            <h3 style="margin:0 0 4px 0; font-size:1.1rem;">Contrato de Servicios Educativos 2025-2026</h3>
-                            <p style="margin:0; color:var(--gray-500);">Documento legal para la matriculación del estudiante.</p>
-                        </div>
-                    </div>
-                    <a href="#" class="btn btn-primary" download style="white-space:nowrap;">Descargar</a>
+            <!-- Documentos cargados dinámicamente desde /api/documentos -->
+            <div id="document-list" class="document-list" style="margin-top:32px; display:grid; gap:20px;">
+                <div id="docs-loading" style="text-align:center; padding:40px; color:var(--gray-400);">
+                    <span class="skeleton" style="display:block; height:80px; width:100%; margin-bottom:16px;"></span>
+                    <span class="skeleton" style="display:block; height:80px; width:100%; margin-bottom:16px;"></span>
                 </div>
-                <div class="document-item" style="display:flex; justify-content:space-between; align-items:center; padding:24px; background:var(--white); border:1px solid var(--gray-200); border-radius:var(--radius-md);">
-                    <div style="display:flex; align-items:center; gap:20px;">
-                        <span style="font-size:2.5rem; color:var(--red-500);" aria-hidden="true">📄</span>
-                        <div>
-                            <h3 style="margin:0 0 4px 0; font-size:1.1rem;">Formulario de Solicitud de Matrícula</h3>
-                            <p style="margin:0; color:var(--gray-500);">Requerido para el proceso de admisión de nuevos estudiantes.</p>
-                        </div>
-                    </div>
-                    <a href="#" class="btn btn-primary" download style="white-space:nowrap;">Descargar</a>
-                </div>
-                <div class="document-item" style="display:flex; justify-content:space-between; align-items:center; padding:24px; background:var(--white); border:1px solid var(--gray-200); border-radius:var(--radius-md);">
-                    <div style="display:flex; align-items:center; gap:20px;">
-                        <span style="font-size:2.5rem; color:var(--red-500);" aria-hidden="true">📄</span>
-                        <div>
-                            <h3 style="margin:0 0 4px 0; font-size:1.1rem;">Reglamento Interno de Convivencia</h3>
-                            <p style="margin:0; color:var(--gray-500);">Normas y directrices para todos los miembros de la comunidad.</p>
-                        </div>
-                    </div>
-                    <a href="#" class="btn btn-primary" download style="white-space:nowrap;">Descargar</a>
-                </div>
-            </div>
         </div>
     </main>
 
@@ -85,5 +59,61 @@
 
     <script src="js/accessibility.js" defer></script>
     <script src="js/whatsapp.js" defer></script>
+    <script>
+    (function(){
+        'use strict';
+        var list = document.getElementById('document-list');
+        if (!list) return;
+
+        function renderEmpty() {
+            var now = new Date();
+            list.innerHTML = '<div style="text-align:center; padding:48px 24px; background:var(--white); border:1px solid var(--gray-200); border-radius:var(--radius-lg);">'+
+                '<div style="font-size:3rem; margin-bottom:12px;">📭</div>'+
+                '<h3 style="margin:0 0 8px 0; color:var(--gray-600);">No hay documentos disponibles</h3>'+
+                '<p style="color:var(--gray-400); margin:0; font-size:0.9rem;">La institución publicará documentos importantes próximamente. Vuelva a consultar más tarde.</p>'+
+                '</div>';
+        }
+
+        fetch('/api/documentos')
+        .then(function(r){ return r.json(); })
+        .then(function(docs){
+            if (!Array.isArray(docs) || docs.length === 0) {
+                renderEmpty();
+                return;
+            }
+            var html = '';
+            var iconos = { matricula: '📝', reglamento: '📜', academico: '📚', administrativo: '📋', general: '📄' };
+            docs.forEach(function(doc){
+                var icono = iconos[doc.categoria] || '📄';
+                var fecha = doc.created_at ? new Date(doc.created_at).toLocaleDateString('es-EC',{year:'numeric',month:'long',day:'numeric'}) : '';
+                var url = doc.url || '#';
+                var valido = url && url !== '#' && (url.startsWith('http://') || url.startsWith('https://'));
+                html += '<div class="document-item" style="display:flex; justify-content:space-between; align-items:center; padding:24px; background:var(--white); border:1px solid var(--gray-200); border-radius:var(--radius-md); flex-wrap:wrap; gap:12px;">'+
+                    '<div style="display:flex; align-items:center; gap:20px; flex:1; min-width:200px;">'+
+                        '<span style="font-size:2.5rem;" aria-hidden="true">'+icono+'</span>'+
+                        '<div>'+
+                            '<h3 style="margin:0 0 4px 0; font-size:1.1rem;">'+escapeHtml(doc.titulo)+'</h3>'+
+                            '<p style="margin:0 0 4px 0; color:var(--gray-500);">'+escapeHtml(doc.descripcion || '')+'</p>'+
+                            (fecha ? '<p style="margin:0; font-size:0.78rem; color:var(--gray-400);">📅 '+fecha+'</p>' : '')+
+                        '</div>'+
+                    '</div>'+
+                    (valido
+                        ? '<a href="'+url+'" class="btn btn-primary" target="_blank" rel="noopener noreferrer" style="white-space:nowrap;">📥 Descargar</a>'
+                        : '<button class="btn" style="white-space:nowrap; background:var(--gray-200); color:var(--gray-400); cursor:not-allowed; border:none;" disabled>🔒 No disponible</button>')
+                    +'</div>';
+            });
+            list.innerHTML = html;
+        })
+        .catch(function(){
+            renderEmpty();
+        });
+
+        function escapeHtml(text) {
+            var d = document.createElement('div');
+            d.textContent = text;
+            return d.innerHTML;
+        }
+    })();
+    </script>
 </body>
 </html>

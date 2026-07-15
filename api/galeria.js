@@ -1,5 +1,5 @@
 // api/galeria.js — GET público + POST/DELETE (secretaria/admin) + subida a Cloudinary
-const { sql } = require('./_lib/db');
+const { pool } = require('./_lib/db');
 const { requireSecretaria } = require('./_lib/auth');
 const cloudinary = require('cloudinary').v2;
 const multer = require('multer');
@@ -39,6 +39,11 @@ function uploadToCloudinary(buffer, folder) {
 }
 
 module.exports = async function handler(req, res) {
+    // ── Asegurar tabla ──
+    try {
+        await pool.query("CREATE TABLE IF NOT EXISTS galeria (id SERIAL PRIMARY KEY, titulo VARCHAR(255) NOT NULL DEFAULT '', descripcion TEXT DEFAULT '', album VARCHAR(100) DEFAULT 'general', url VARCHAR(500) NOT NULL, public_id VARCHAR(200) NOT NULL, width INT DEFAULT 0, height INT DEFAULT 0, created_at TIMESTAMPTZ DEFAULT NOW())");
+    } catch (err) { console.error('Error creando tabla galeria:', err); }
+
     const { id, album } = req.query;
 
     // ── DELETE /api/galeria?id=X ──
@@ -46,10 +51,10 @@ module.exports = async function handler(req, res) {
         const user = requireSecretaria(req, res);
         if (!user) return;
         try {
-            const { rows } = await sql`SELECT public_id FROM galeria WHERE id = ${id}`;
-            if (rows.length === 0) return res.status(404).json({ message: 'Foto no encontrada' });
-            try { await cloudinary.uploader.destroy(rows[0].public_id); } catch (e) { console.warn('Cloudinary:', e.message); }
-            await sql`DELETE FROM galeria WHERE id = ${id}`;
+            const result = await pool.query('SELECT public_id FROM galeria WHERE id = $1', [id]);
+            if (result.rows.length === 0) return res.status(404).json({ message: 'Foto no encontrada' });
+            try { await cloudinary.uploader.destroy(result.rows[0].public_id); } catch (e) { console.warn('Cloudinary:', e.message); }
+            await pool.query('DELETE FROM galeria WHERE id = $1', [id]);
             res.status(204).send('');
         } catch (err) { console.error('Error DELETE galeria:', err); res.status(500).json({ message: 'Error del servidor' }); }
         return;
@@ -58,10 +63,10 @@ module.exports = async function handler(req, res) {
     // ── GET /api/galeria?album=X ──
     if (req.method === 'GET') {
         try {
-            const { rows } = album
-                ? await sql`SELECT * FROM galeria WHERE album = ${album} ORDER BY created_at DESC LIMIT 100`
-                : await sql`SELECT * FROM galeria ORDER BY created_at DESC LIMIT 100`;
-            res.json(rows);
+            const result = album
+                ? await pool.query('SELECT id, titulo, descripcion, album, url, width, height, created_at FROM galeria WHERE album = $1 ORDER BY created_at DESC LIMIT 100', [album])
+                : await pool.query('SELECT id, titulo, descripcion, album, url, width, height, created_at FROM galeria ORDER BY created_at DESC LIMIT 100');
+            res.json(result.rows);
         } catch (err) { console.error('Error GET galeria:', err); res.status(500).json({ message: 'Error del servidor' }); }
         return;
     }
@@ -76,11 +81,10 @@ module.exports = async function handler(req, res) {
             const titulo = req.body.titulo || '', descripcion = req.body.descripcion || '';
             const albumName = req.body.album || 'general';
             const result = await uploadToCloudinary(file.buffer, albumName);
-            const { rows } = await sql`
-                INSERT INTO galeria (titulo, descripcion, album, url, public_id, width, height)
-                VALUES (${titulo}, ${descripcion}, ${albumName}, ${result.secure_url}, ${result.public_id}, ${result.width}, ${result.height})
-                RETURNING *`;
-            res.status(201).json(rows[0]);
+            const insertResult = await pool.query(
+                'INSERT INTO galeria (titulo, descripcion, album, url, public_id, width, height) VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *',
+                [titulo, descripcion, albumName, result.secure_url, result.public_id, result.width, result.height]);
+            res.status(201).json(insertResult.rows[0]);
         } catch (err) {
             console.error('Error POST galeria:', err);
             if (err.message && err.message.includes('Solo se permiten')) return res.status(400).json({ message: err.message });
