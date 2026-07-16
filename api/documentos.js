@@ -1,6 +1,7 @@
 // api/documentos.js — GET (público) + POST/DELETE (secretaria/admin)
 const { pool } = require('./_lib/db');
 const { requireSecretaria } = require('./_lib/auth');
+const { applyRateLimit } = require('./_lib/rateLimit');
 
 function validarURL(url) {
     if (!url || typeof url !== 'string') return false;
@@ -11,6 +12,9 @@ function validarURL(url) {
 }
 
 module.exports = async function handler(req, res) {
+    // ── Rate limit: 30 req/min por IP ──
+    if (!applyRateLimit(req, res, 30, 60)) return;
+
     // ── Asegurar tabla ──
     try {
         await pool.query(`

@@ -53,7 +53,7 @@ module.exports = async function handler(req, res) {
             leido BOOLEAN DEFAULT FALSE, created_at TIMESTAMPTZ DEFAULT NOW())`);
         results.push('✅ contactos');
 
-        const salt = await bcrypt.genSalt(10);
+        const salt = await bcrypt.genSalt(12);
 
         // ── Helper: insertar si no existe (por email y username) ──
         async function insertarUsuario(email, hash, nombre, username, rol) {

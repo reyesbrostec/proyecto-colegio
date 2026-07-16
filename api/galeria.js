@@ -1,6 +1,7 @@
 // api/galeria.js — GET público + POST/DELETE (secretaria/admin) + subida a Cloudinary
 const { pool } = require('./_lib/db');
 const { requireSecretaria } = require('./_lib/auth');
+const { applyRateLimit } = require('./_lib/rateLimit');
 const cloudinary = require('cloudinary').v2;
 const multer = require('multer');
 
@@ -39,6 +40,9 @@ function uploadToCloudinary(buffer, folder) {
 }
 
 module.exports = async function handler(req, res) {
+    // ── Rate limit: 20 req/min por IP ──
+    if (!applyRateLimit(req, res, 20, 60)) return;
+
     // ── Asegurar tabla ──
     try {
         await pool.query("CREATE TABLE IF NOT EXISTS galeria (id SERIAL PRIMARY KEY, titulo VARCHAR(255) NOT NULL DEFAULT '', descripcion TEXT DEFAULT '', album VARCHAR(100) DEFAULT 'general', url VARCHAR(500) NOT NULL, public_id VARCHAR(200) NOT NULL, width INT DEFAULT 0, height INT DEFAULT 0, created_at TIMESTAMPTZ DEFAULT NOW())");

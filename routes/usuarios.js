@@ -6,6 +6,9 @@ const { verifyToken, isAdmin, isEditor } = require('../middleware/auth');
 const router = express.Router();
 const BCRYPT_ROUNDS = 12;
 
+// ── Sanitizador inline ──
+const clean = (v, max) => (typeof v === 'string' ? v.replace(/<[^>]*>/g, '').replace(/javascript:/gi, '').substring(0, max || 500).trim() : '');
+
 // GET todos los usuarios (admin, secretaria, docente)
 router.get('/', verifyToken, isEditor, async (req, res) => {
     try {
@@ -27,7 +30,11 @@ router.get('/:id', verifyToken, isEditor, async (req, res) => {
         res.status(500).json({ message: "Error del servidor" });
     }
 });
-
+email = req.body.email;
+    const password = req.body.password;
+    const nombre_completo = clean(req.body.nombre_completo, 255);
+    const username = clean(req.body.username, 100);
+    const {
 // POST crear un nuevo usuario (solo admin)
 router.post('/', verifyToken, isAdmin, async (req, res) => {
     const { email, password, nombre_completo, username, edad, rol } = req.body;

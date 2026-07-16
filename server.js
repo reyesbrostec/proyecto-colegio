@@ -54,7 +54,19 @@ app.set('trust proxy', 1);
 
 app.use(cors(corsOptions));
 app.use(express.json());
-app.use(helmet({ contentSecurityPolicy: false }));
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "https://challenges.cloudflare.com", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
+      imgSrc: ["'self'", "data:", "https://res.cloudinary.com"],
+      connectSrc: ["'self'"],
+      fontSrc: ["'self'", "https://cdn.jsdelivr.net"]
+    }
+  },
+  crossOriginEmbedderPolicy: false
+}));
 
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,

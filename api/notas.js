@@ -7,8 +7,11 @@
 // DELETE /api/notas            → eliminar por body.id (secretaria/admin)
 const { pool } = require('./_lib/db');
 const { requireSecretaria, requireEstudiante } = require('./_lib/auth');
+const { applyRateLimit } = require('./_lib/rateLimit');
 
 module.exports = async function handler(req, res) {
+    // ── Rate limit: 60 req/min por IP ──
+    if (!applyRateLimit(req, res, 60, 60)) return;
     const { id, mis } = req.query;
 
     // ── GET /api/notas?mis=1 ──

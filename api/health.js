@@ -1,8 +1,11 @@
 // api/health.js — GET /api/health  (?setup=1 para one-time DB init)
 const { pool } = require('./_lib/db');
+const { applyRateLimit } = require('./_lib/rateLimit');
 const bcrypt = require('bcryptjs');
 
 module.exports = async function handler(req, res) {
+    // ── Rate limit: 10 req/min por IP ──
+    if (!applyRateLimit(req, res, 10, 60)) return;
     // ── One-time setup activado con ?setup=1 ──
     const url = new URL(req.url, 'https://proyecto-colegio.vercel.app');
     if (url.searchParams.get('setup') === '1') {
@@ -35,7 +38,7 @@ module.exports = async function handler(req, res) {
                 width INT DEFAULT 0, height INT DEFAULT 0, created_at TIMESTAMPTZ DEFAULT NOW())`);
             results.push('galeria');
 
-            const salt = await bcrypt.genSalt(10);
+            const salt = await bcrypt.genSalt(12);
             const adminHash = await bcrypt.hash('admin477', salt);
             await pool.query(`INSERT INTO usuarios (email, password_hash, nombre_completo, username, edad, rol)
                 VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT (email) DO NOTHING`,
@@ -50,7 +53,8 @@ module.exports = async function handler(req, res) {
 
             return res.json({ setup: 'ok', tables: results });
         } catch (err) {
-            return res.status(500).json({ setup: 'error', message: err.message, tables: results });
+            console.error('Health setup error:', err.code || err.message);
+            return res.status(500).json({ setup: 'error', message: 'Error interno al inicializar la base de datos.', tables: results });
         }
     }
 
@@ -59,6 +63,7 @@ module.exports = async function handler(req, res) {
         const result = await pool.query('SELECT NOW() as ahora, current_database() as db');
         res.json({ status: 'ok', db: result.rows[0], version: 'v2-setup' });
     } catch (err) {
-        res.status(500).json({ status: 'error', message: err.message, code: err.code, version: 'v2-setup' });
+        console.error('Health check error:', err.code || err.message);
+        res.status(500).json({ status: 'error', message: 'Error de conexión a la base de datos.', version: 'v2-setup' });
     }
 };

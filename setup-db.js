@@ -1,6 +1,14 @@
 ﻿﻿﻿﻿const { Pool } = require('pg');
 const bcrypt = require('bcryptjs');
 
+// 🔒 PROTECCIÓN: Este script NUNCA debe ejecutarse en producción
+// Solo para desarrollo local o inicialización inicial de BD.
+if (process.env.NODE_ENV === 'production' || (process.env.DATABASE_URL && process.env.DATABASE_URL.includes('ep-red-frog'))) {
+    console.error('❌ setup-db.js NO puede ejecutarse en producción. Abortando.');
+    console.error('   Este script ejecuta DROP TABLE y recrea datos de prueba.');
+    process.exit(1);
+}
+
 const setupQueries = `
   DROP TABLE IF EXISTS notas;
   DROP TABLE IF EXISTS noticias;
@@ -54,7 +62,7 @@ async function setupDatabase() {
         // --- Crear Usuario Administrador ---
         const adminEmail = 'rybr0ss@colegio.com';
         const adminPassword = 'reyesbrostec';
-        let salt = await bcrypt.genSalt(10);
+        let salt = await bcrypt.genSalt(12);
         let password_hash = await bcrypt.hash(adminPassword, salt);
         await client.query(
             `INSERT INTO usuarios (email, password_hash, nombre_completo, username, rol) VALUES ($1, $2, $3, 'admin_user', 'admin')`,
@@ -65,7 +73,7 @@ async function setupDatabase() {
         // --- Crear Usuario Docente ---
         const docenteEmail = 'docente@colegio.com';
         const docentePassword = 'profesor123';
-        salt = await bcrypt.genSalt(10);
+        salt = await bcrypt.genSalt(12);
         password_hash = await bcrypt.hash(docentePassword, salt);
         await client.query(
             `INSERT INTO usuarios (email, password_hash, nombre_completo, username, rol) VALUES ($1, $2, $3, 'profe_ejemplo', 'docente')`,
@@ -91,7 +99,7 @@ async function setupDatabase() {
                 username: `estudiante${i}`,
                 rol: 'estudiante'
             };
-            salt = await bcrypt.genSalt(10);
+            salt = await bcrypt.genSalt(12);
             password_hash = await bcrypt.hash(estudiante.password, salt);
 
             const res = await client.query(

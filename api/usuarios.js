@@ -1,9 +1,13 @@
 // api/usuarios.js — GET/POST (secretaria/admin)
 const { pool } = require('./_lib/db');
 const { requireSecretaria } = require('./_lib/auth');
+const { applyRateLimit } = require('./_lib/rateLimit');
+const { cleanStr } = require('./_lib/sanitize');
 const bcrypt = require('bcryptjs');
 
 module.exports = async function handler(req, res) {
+    // ── Rate limit: 30 req/min por IP ──
+    if (!applyRateLimit(req, res, 30, 60)) return;
     // ── GET: listar todos ──
     if (req.method === 'GET') {
         const user = requireSecretaria(req, res);
@@ -19,7 +23,9 @@ module.exports = async function handler(req, res) {
     if (req.method === 'POST') {
         const user = requireSecretaria(req, res);
         if (!user) return;
-        const { email, password, nombre_completo, username, edad, rol } = req.body || {};
+        const { email, password, nombre_completo: rawNombre, username: rawUser, edad, rol } = req.body || {};
+        const nombre_completo = cleanStr(rawNombre, 255);
+        const username = cleanStr(rawUser, 100);
         if (!email || !password || !username) return res.status(400).json({ message: 'Email, contraseña y username requeridos.' });
 
         // Validación de fortaleza de contraseña
@@ -27,7 +33,7 @@ module.exports = async function handler(req, res) {
         if (passErr) return res.status(400).json({ message: passErr });
 
         try {
-            const salt = await bcrypt.genSalt(10);
+            const salt = await bcrypt.genSalt(12);
             const password_hash = await bcrypt.hash(password, salt);
             const result = await pool.query(
                 'INSERT INTO usuarios (email, password_hash, nombre_completo, username, edad, rol) VALUES ($1,$2,$3,$4,$5,$6) RETURNING id, email, rol',

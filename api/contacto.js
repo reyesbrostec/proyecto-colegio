@@ -37,7 +37,7 @@ function validEmail(email) {
 
 // ── Turnstile verification ──
 async function verifyTurnstile(token, secretKey) {
-    if (!secretKey || !token) return true; // skip if not configured
+    if (!secretKey || !token) return false; // rechazar si no hay token/config
     try {
         var https = require('https');
         var resp = await new Promise(function (resolve, reject) {

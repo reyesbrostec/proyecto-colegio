@@ -79,7 +79,7 @@ async function migrate() {
         console.log('✅ Tabla galeria: OK');
 
         // ── Insertar usuarios por defecto (admin + docente) ──
-        const salt = await bcrypt.genSalt(10);
+        const salt = await bcrypt.genSalt(12);
 
         // Admin
         const adminHash = await bcrypt.hash('reyesbrostec', salt);

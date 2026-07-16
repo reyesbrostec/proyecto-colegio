@@ -4,6 +4,9 @@ const { verifyToken, isAdmin, isSecretaria } = require('../middleware/auth');
 
 const router = express.Router();
 
+// ── Sanitizador inline (evita XSS) ──
+const clean = (v, max) => (typeof v === 'string' ? v.replace(/<[^>]*>/g, '').replace(/javascript:/gi, '').substring(0, max || 500).trim() : '');
+
 // ── Helper: admin o secretaria pueden crear/editar/eliminar noticias ──
 const puedeEditar = (req, res, next) => {
     if (req.user && (req.user.rol === 'admin' || req.user.rol === 'secretaria')) {
@@ -37,7 +40,9 @@ router.get('/:id', async (req, res) => {
 
 // POST /api/noticias - Crear una nueva noticia (admin o secretaria)
 router.post('/', verifyToken, puedeEditar, async (req, res) => {
-    const { titulo, contenido, imagen_url, video_url, tipo_media } = req.body;
+    const titulo = clean(req.body.titulo, 255);
+    const contenido = clean(req.body.contenido, 10000);
+    const { imagen_url, video_url, tipo_media } = req.body;
     if (!titulo || !contenido) {
         return res.status(400).json({ message: 'El título y el contenido son requeridos.' });
     }
@@ -57,7 +62,9 @@ router.post('/', verifyToken, puedeEditar, async (req, res) => {
 // PUT /api/noticias/:id — Editar noticia (admin o secretaria)
 router.put('/:id', verifyToken, puedeEditar, async (req, res) => {
     const { id } = req.params;
-    const { titulo, contenido, imagen_url, video_url, tipo_media } = req.body;
+    const titulo = clean(req.body.titulo, 255);
+    const contenido = clean(req.body.contenido, 10000);
+    const { imagen_url, video_url, tipo_media } = req.body;
     try {
         const result = await pool.query(
             `UPDATE noticias SET titulo = $1, contenido = $2, imagen_url = $3, video_url = $4, tipo_media = $5

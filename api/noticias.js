@@ -1,8 +1,12 @@
 // api/noticias.js — GET público + GET/:id + POST + PUT + DELETE (secretaria/admin)
 const { pool } = require('./_lib/db');
 const { requireSecretaria } = require('./_lib/auth');
+const { applyRateLimit } = require('./_lib/rateLimit');
+const { cleanStr } = require('./_lib/sanitize');
 
 module.exports = async function handler(req, res) {
+    // ── Rate limit: 60 req/min por IP ──
+    if (!applyRateLimit(req, res, 60, 60)) return;
     const { id } = req.query;
 
     // ── GET /api/noticias?id=X ──
@@ -28,7 +32,9 @@ module.exports = async function handler(req, res) {
     if (req.method === 'PUT' && id) {
         const user = requireSecretaria(req, res);
         if (!user) return;
-        const { titulo, contenido, imagen_url, video_url } = req.body || {};
+        const { titulo: rawTitulo, contenido: rawContenido, imagen_url, video_url } = req.body || {};
+        const titulo = cleanStr(rawTitulo, 255);
+        const contenido = cleanStr(rawContenido, 10000);
         if (!titulo || !contenido) return res.status(400).json({ message: 'Título y contenido requeridos.' });
         try {
             const result = await pool.query(
@@ -54,7 +60,9 @@ module.exports = async function handler(req, res) {
     if (req.method === 'POST') {
         const user = requireSecretaria(req, res);
         if (!user) return;
-        const { titulo, contenido, imagen_url, video_url } = req.body || {};
+        const { titulo: rawTitulo, contenido: rawContenido, imagen_url, video_url } = req.body || {};
+        const titulo = cleanStr(rawTitulo, 255);
+        const contenido = cleanStr(rawContenido, 10000);
         if (!titulo || !contenido) return res.status(400).json({ message: 'Título y contenido requeridos.' });
         try {
             const result = await pool.query(

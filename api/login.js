@@ -1,9 +1,12 @@
 // api/login.js — POST /api/login
 const { pool } = require('./_lib/db');
+const { applyRateLimit } = require('./_lib/rateLimit');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 module.exports = async function handler(req, res) {
+    // ── Rate limit: 10 intentos por IP cada 15 min ──
+    if (!applyRateLimit(req, res, 10, 900)) return;
     if (req.method !== 'POST') return res.status(405).json({ message: 'Método no permitido' });
 
     const { email, password } = req.body || {};
