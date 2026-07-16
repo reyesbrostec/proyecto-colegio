@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Noticias y Comunicados — Colegio UEPAM</title>
+    <meta name="description" content="Mantente informado con las últimas noticias, eventos y comunicados del Colegio UEPAM.">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#1e40af">
+    <link rel="canonical" href="https://proyecto-colegio.vercel.app/noticias.html">
+    <meta property="og:title" content="Noticias y Comunicados — Colegio UEPAM">
+    <meta property="og:description" content="Últimas noticias del Colegio UEPAM.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://proyecto-colegio.vercel.app/noticias.html">
+    <meta property="og:locale" content="es_EC">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="favicon/favicon.png">
+    <style>
+        .noticias-hero {
+            background: linear-gradient(135deg, var(--blue-900), var(--blue-700));
+            color: var(--white); text-align: center; padding: 80px 24px 64px;
+        }
+        .noticias-hero h1 { color: var(--white); margin-bottom: 12px; }
+        .noticias-hero p { color: var(--blue-100); font-size: 1.125rem; max-width: 600px; margin: 0 auto; }
+        .noticias-container { max-width: 900px; margin: 0 auto; padding: 40px 24px 64px; }
+
+        .noticia-card {
+            background: var(--white); border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg); margin-bottom: 28px; overflow: hidden;
+            box-shadow: var(--shadow-sm); transition: box-shadow 0.2s;
+        }
+        .noticia-card:hover { box-shadow: var(--shadow-md); }
+        .noticia-media { width: 100%; max-height: 420px; object-fit: cover; display: block; background: var(--gray-100); }
+        .noticia-media.video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; }
+        .noticia-media.video-wrapper iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; }
+        .noticia-body { padding: 24px; }
+        .noticia-body h2 { margin: 0 0 8px; font-size: 1.25rem; }
+        .noticia-body .fecha { color: var(--gray-400); font-size: 0.8125rem; margin-bottom: 12px; }
+        .noticia-body .contenido { color: var(--gray-700); line-height: 1.7; white-space: pre-wrap; }
+
+        .noticias-empty { text-align: center; padding: 80px 24px; color: var(--gray-400); }
+        .noticias-empty .icon { font-size: 4rem; margin-bottom: 16px; }
+        .noticias-loading { text-align: center; padding: 80px 24px; }
+        .spinner { width: 40px; height: 40px; border: 4px solid var(--gray-200); border-top-color: var(--blue-600); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 768px) {
+            .noticia-body { padding: 16px; }
+            .noticia-body h2 { font-size: 1.1rem; }
+        }
+    </style>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
+    <header>
+        <div class="logo">
+            <a href="index.html" aria-label="Colegio UEPAM — Ir al inicio">Colegio UEPAM</a>
+        </div>
+        <nav aria-label="Navegación principal">
+            <a href="index.html">Inicio</a>
+            <a href="noticias.html" aria-current="page">Noticias</a>
+            <a href="galeria.html">Galería</a>
+            <a href="documentos.html">Documentos</a>
+            <a href="estudiantes.html">Portal</a>
+        </nav>
+    </header>
+
+    <section class="noticias-hero">
+        <h1>📰 Noticias y Comunicados</h1>
+        <p>Mantente al día con los eventos, anuncios y actividades de nuestra comunidad educativa.</p>
+    </section>
+
+    <main id="main-content" class="noticias-container">
+        <div id="noticias-lista">
+            <div class="noticias-loading">
+                <div class="spinner"></div>
+                <p style="color:var(--gray-400);">Cargando noticias...</p>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-brand">Colegio UEPAM</div>
+        <p style="color:var(--gray-400); margin:4px 0 16px 0;">Noticias y Comunicados</p>
+        <p style="margin:0;">&copy; 2025 Colegio UEPAM. Todos los derechos reservados.</p>
+    </footer>
+
+    <script>
+        async function cargarNoticias() {
+            var container = document.getElementById('noticias-lista');
+            try {
+                var res = await fetch('/api/noticias');
+                if (!res.ok) throw new Error('Error');
+                var noticias = await res.json();
+
+                if (!noticias.length) {
+                    container.innerHTML = '<div class="noticias-empty"><div class="icon">📭</div><h3 style="color:var(--gray-500);">No hay noticias aún</h3><p style="color:var(--gray-400);">Vuelve pronto para ver las novedades.</p></div>';
+                    return;
+                }
+
+                container.innerHTML = noticias.map(function(n) {
+                    var mediaHTML = '';
+                    if (n.video_url) {
+                        // Detectar si es URL de YouTube y convertirla a embed
+                        var embedUrl = n.video_url;
+                        var ytMatch = n.video_url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]+)/);
+                        if (ytMatch) embedUrl = 'https://www.youtube.com/embed/' + ytMatch[1];
+                        mediaHTML = '<div class="noticia-media video-wrapper"><iframe src="' + embedUrl + '" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe></div>';
+                    } else if (n.imagen_url) {
+                        mediaHTML = '<img class="noticia-media" src="' + n.imagen_url + '" alt="' + n.titulo + '" loading="lazy">';
+                    }
+
+                    var fecha = new Date(n.created_at).toLocaleDateString('es-EC', { year:'numeric', month:'long', day:'numeric' });
+
+                    return '<article class="noticia-card">' +
+                        mediaHTML +
+                        '<div class="noticia-body">' +
+                        '<h2>' + n.titulo + '</h2>' +
+                        '<div class="fecha">📅 ' + fecha + '</div>' +
+                        '<div class="contenido">' + n.contenido + '</div>' +
+                        '</div></article>';
+                }).join('');
+            } catch(e) {
+                container.innerHTML = '<div class="noticias-empty"><div class="icon">⚠️</div><h3 style="color:var(--gray-500);">Error al cargar</h3><p style="color:var(--gray-400);">Intenta de nuevo más tarde.</p></div>';
+            }
+        }
+        cargarNoticias();
+    </script>
+</body>
+</html>

@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calificaciones — Admin Colegio UEPAM</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../style.css">
+    <link rel="icon" type="image/png" href="../favicon/favicon.png">
+    <style>
+        .grades-container { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+        .grades-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 24px; }
+        .tabs { display: flex; gap: 4px; margin-bottom: 24px; border-bottom: 2px solid var(--gray-200); flex-wrap: wrap; }
+        .tab {
+            padding: 10px 20px; border: none; background: none; cursor: pointer;
+            font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 0.8125rem;
+            color: var(--gray-500); border-bottom: 2px solid transparent; margin-bottom: -2px;
+            transition: all 0.2s; white-space: nowrap;
+        }
+        .tab:hover { color: var(--gray-700); }
+        .tab.active { color: var(--blue-600); border-bottom-color: var(--blue-600); }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        .card { background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-sm); margin-bottom: 20px; }
+        .card h2 { margin-top: 0; font-size: 1.125rem; }
+        .card h3 { font-size: 1rem; margin: 16px 0 8px; color: var(--gray-700); }
+
+        .inline-form { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 12px; }
+        .inline-form input, .inline-form select {
+            padding: 8px 12px; border: 1px solid var(--gray-300); border-radius: var(--radius-sm);
+            font-family: 'Poppins', sans-serif; font-size: 0.8125rem;
+        }
+        .inline-form input:focus, .inline-form select:focus { outline: none; border-color: var(--blue-500); }
+        .inline-form label { font-size: 0.75rem; font-weight: 600; color: var(--gray-600); display: block; margin-bottom: 2px; }
+
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.8125rem; }
+        .data-table th { background: var(--gray-100); padding: 10px 12px; text-align: left; font-weight: 600; font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--gray-600); }
+        .data-table td { padding: 8px 12px; border-top: 1px solid var(--gray-100); }
+        .data-table .btn-xs { padding: 3px 10px; font-size: 0.6875rem; border-radius: var(--radius-sm); border: none; cursor: pointer; }
+        .btn-danger-xs { background: var(--red-500); color: var(--white); }
+        .btn-danger-xs:hover { background: var(--red-600); }
+        .btn-success-xs { background: var(--green-500); color: var(--white); }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 0.6875rem; font-weight: 600; }
+        .badge.activo { background: var(--green-100); color: var(--green-700); }
+        .badge.inactivo { background: var(--gray-100); color: var(--gray-500); }
+
+        .sabana-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; overflow-x: auto; display: block; }
+        .sabana-table th { background: var(--gray-100); padding: 8px 10px; font-weight: 600; white-space: nowrap; position: sticky; top: 0; }
+        .sabana-table td { padding: 6px 10px; border: 1px solid var(--gray-200); text-align: center; }
+
+        .msg { padding: 8px 14px; border-radius: var(--radius-sm); font-size: 0.8125rem; margin: 8px 0; display: none; }
+        .msg.success { display: block; background: var(--green-50); color: var(--green-700); border: 1px solid var(--green-200); }
+        .msg.error { display: block; background: var(--red-50); color: var(--red-600); border: 1px solid var(--red-200); }
+
+        .loading { text-align: center; padding: 40px; color: var(--gray-400); }
+    </style>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
+
+    <header>
+        <div class="logo">
+            <a href="../index.html" aria-label="Colegio UEPAM — Ir al inicio">Colegio UEPAM</a>
+        </div>
+        <nav aria-label="Navegación admin">
+            <a href="dashboard.html" style="font-size:0.875rem; color:var(--gray-600); margin-right:16px; text-decoration:none;">← Dashboard</a>
+            <button id="logout-btn" class="btn btn-secondary" style="padding:8px 16px; font-size:0.875rem;">Cerrar Sesión</button>
+        </nav>
+    </header>
+
+    <main id="main-content" class="grades-container">
+        <div class="grades-header">
+            <h1>📊 Gestión de Calificaciones</h1>
+            <span id="user-info" style="font-size:0.875rem; color:var(--gray-500);"></span>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" data-tab="config">⚙️ Configuración</button>
+            <button class="tab" data-tab="cursos">📅 Cursos</button>
+            <button class="tab" data-tab="grados">🎓 Grados</button>
+            <button class="tab" data-tab="asignaturas">📖 Asignaturas</button>
+            <button class="tab" data-tab="asignaciones">👨‍🏫 Asignaciones</button>
+            <button class="tab" data-tab="estudiantes">👨‍🎓 Estudiantes</button>
+            <button class="tab" data-tab="sabana">📋 Sábana</button>
+        </div>
+
+        <!-- CONFIG -->
+        <div id="tab-config" class="tab-panel active">
+            <div class="card">
+                <h2>Fórmula de Calificación por Grado</h2>
+                <div id="config-list" class="loading">Cargando...</div>
+                <div class="inline-form" style="margin-top:16px;">
+                    <div><label>Curso</label><select id="cfg-curso"></select></div>
+                    <div><label>Grado</label><select id="cfg-grado"></select></div>
+                    <div><label>Nº Trimestres</label><input type="number" id="cfg-trim" value="3" min="1" max="4" style="width:60px;"></div>
+                    <div><label>Pond. Trim (P90%)</label><input type="number" id="cfg-ptrim" value="0.9" step="0.01" min="0" max="1" style="width:70px;"></div>
+                    <div><label>Pond. Examen (P10%)</label><input type="number" id="cfg-pex" value="0.1" step="0.01" min="0" max="1" style="width:70px;"></div>
+                    <div><label>Nota Máx</label><input type="number" id="cfg-max" value="10" style="width:60px;"></div>
+                    <div><label>Nota Mín Aprob</label><input type="number" id="cfg-min" value="7" style="width:60px;"></div>
+                    <div><button class="btn btn-primary" id="cfg-save" style="padding:8px 16px;">Guardar</button></div>
+                </div>
+                <div id="cfg-msg" class="msg"></div>
+            </div>
+        </div>
+
+        <!-- CURSOS -->
+        <div id="tab-cursos" class="tab-panel">
+            <div class="card">
+                <h2>Años Lectivos</h2>
+                <div class="inline-form">
+                    <div><label>Nombre</label><input type="text" id="curso-nombre" placeholder="2025-2026"></div>
+                    <div><label>Activo</label><select id="curso-activo"><option value="1">Sí</option><option value="0">No</option></select></div>
+                    <div><button class="btn btn-primary" id="curso-save" style="padding:8px 16px;">Crear</button></div>
+                </div>
+                <div id="cursos-list" class="loading">Cargando...</div>
+            </div>
+        </div>
+
+        <!-- GRADOS -->
+        <div id="tab-grados" class="tab-panel">
+            <div class="card">
+                <h2>Grados / Niveles</h2>
+                <div class="inline-form">
+                    <div><label>Nombre</label><input type="text" id="grado-nombre" placeholder="8º EGB"></div>
+                    <div><label>Clave</label><input type="text" id="grado-clave" placeholder="OCTAVO_DE_BASICA"></div>
+                    <div><label>Orden</label><input type="number" id="grado-orden" value="0" style="width:60px;"></div>
+                    <div><button class="btn btn-primary" id="grado-save" style="padding:8px 16px;">Crear</button></div>
+                </div>
+                <div id="grados-list" class="loading">Cargando...</div>
+            </div>
+        </div>
+
+        <!-- ASIGNATURAS -->
+        <div id="tab-asignaturas" class="tab-panel">
+            <div class="card">
+                <h2>Asignaturas</h2>
+                <div class="inline-form">
+                    <div><label>Abreviatura</label><input type="text" id="asig-abr" placeholder="MAT" style="width:70px;"></div>
+                    <div><label>Nombre</label><input type="text" id="asig-nombre" placeholder="Matemática"></div>
+                    <div><label>Vincular a Grado</label><select id="asig-grado"><option value="">— Opcional —</option></select></div>
+                    <div><button class="btn btn-primary" id="asig-save" style="padding:8px 16px;">Crear</button></div>
+                </div>
+                <div id="asig-list" class="loading">Cargando...</div>
+            </div>
+        </div>
+
+        <!-- ASIGNACIONES -->
+        <div id="tab-asignaciones" class="tab-panel">
+            <div class="card">
+                <h2>Asignar Docente → Materia → Grado</h2>
+                <div class="inline-form">
+                    <div><label>Docente</label><select id="asgn-docente"></select></div>
+                    <div><label>Curso</label><select id="asgn-curso"></select></div>
+                    <div><label>Grado</label><select id="asgn-grado"></select></div>
+                    <div><label>Asignatura</label><select id="asgn-asignatura"></select></div>
+                    <div><button class="btn btn-primary" id="asgn-save" style="padding:8px 16px;">Asignar</button></div>
+                </div>
+                <div id="asgn-msg" class="msg"></div>
+                <h3>Asignaciones actuales</h3>
+                <div id="asgn-list" class="loading">Cargando...</div>
+            </div>
+        </div>
+
+        <!-- ESTUDIANTES -->
+        <div id="tab-estudiantes" class="tab-panel">
+            <div class="card">
+                <h2>Estudiantes por Curso</h2>
+                <div class="inline-form">
+                    <div><label>Curso</label><select id="est-curso"></select></div>
+                    <div><label>Grado</label><select id="est-grado"></select></div>
+                    <div><button class="btn btn-primary" id="est-load" style="padding:8px 16px;">Cargar</button></div>
+                </div>
+                <div class="card" style="margin-top:12px; background:var(--gray-50);">
+                    <h3 style="font-size:0.875rem;">📤 Subir Excel de Nómina</h3>
+                    <div class="inline-form">
+                        <input type="file" id="excel-file" accept=".xlsx,.xls" style="font-family:Poppins,sans-serif;font-size:0.8125rem;">
+                        <button class="btn btn-secondary" id="excel-upload" style="padding:8px 16px;">Subir</button>
+                    </div>
+                    <div id="excel-msg" class="msg"></div>
+                    <p style="font-size:0.6875rem; color:var(--gray-400); margin-top:4px;">El Excel debe tener hoja "NOMINA" con columnas: N°, CÉDULA, APELLIDOS Y NOMBRES</p>
+                </div>
+                <div id="est-list" class="loading">Selecciona curso y grado para ver estudiantes</div>
+            </div>
+        </div>
+
+        <!-- SÁBANA -->
+        <div id="tab-sabana" class="tab-panel">
+            <div class="card">
+                <h2>Generar Sábana de Notas</h2>
+                <div class="inline-form">
+                    <div><label>Curso</label><select id="sab-curso"></select></div>
+                    <div><label>Grado</label><select id="sab-grado"></select></div>
+                    <div><button class="btn btn-primary" id="sab-load" style="padding:8px 16px;">Cargar Sábana</button></div>
+                </div>
+                <div id="sabana-container" style="overflow-x:auto;"></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const API = '/api/calificaciones';
+        const token = localStorage.getItem('token');
+        if (!token) { window.location.href = '../estudiantes.html'; }
+
+        const user = (() => { try { return JSON.parse(atob(token.split('.')[1])); } catch(e) { return null; } })();
+        if (user) document.getElementById('user-info').textContent = `👤 ${user.nombre_completo || user.email} (${user.rol})`;
+
+        document.getElementById('logout-btn').addEventListener('click', () => { localStorage.clear(); window.location.href = '../estudiantes.html'; });
+
+        const headers = { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' };
+
+        // ── TABS ──
+        document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
+            document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+            document.querySelectorAll('.tab-panel').forEach(x => x.classList.remove('active'));
+            t.classList.add('active');
+            document.getElementById('tab-' + t.dataset.tab).classList.add('active');
+            loadTabData(t.dataset.tab);
+        }));
+
+        async function loadTabData(tab) {
+            switch(tab) {
+                case 'config': loadConfig(); loadSelects('cfg'); break;
+                case 'cursos': loadCursos(); break;
+                case 'grados': loadGrados(); break;
+                case 'asignaturas': loadAsignaturas(); loadSelects('asig'); break;
+                case 'asignaciones': loadAsignaciones(); loadSelects('asgn'); break;
+                case 'estudiantes': loadSelects('est'); break;
+                case 'sabana': loadSelects('sab'); break;
+            }
+        }
+
+        // ── SELECTS COMUNES ──
+        async function loadSelects(prefix) {
+            try {
+                const [cursos, grados] = await Promise.all([
+                    fetch(API + '/cursos', { headers }).then(r => r.json()),
+                    fetch(API + '/grados', { headers }).then(r => r.json())
+                ]);
+                fillSelect(prefix + '-curso', cursos);
+                fillSelect(prefix + '-grado', grados);
+
+                if (prefix === 'asgn') {
+                    const users = await fetch('/api/usuarios', { headers }).then(r => r.json());
+                    const docentes = users.filter(u => u.rol === 'docente');
+                    fillSelect('asgn-docente', docentes, 'nombre_completo');
+                    const asignaturas = await fetch(API + '/asignaturas', { headers }).then(r => r.json());
+                    fillSelect('asgn-asignatura', asignaturas);
+                }
+                if (prefix === 'asig') {
+                    fillSelect('asig-grado', [{ id: '', nombre: '— Opcional —' }, ...grados]);
+                }
+            } catch(e) { console.error(e); }
+        }
+
+        function fillSelect(id, items, labelField = 'nombre') {
+            const sel = document.getElementById(id);
+            if (!sel) return;
+            const current = sel.value;
+            sel.innerHTML = items.map(i => `<option value="${i.id}" ${i.activo === false ? 'disabled' : ''}>${i[labelField] || i.nombre}${i.activo === false ? ' (inactivo)' : ''}</option>`).join('');
+            if (current) sel.value = current;
+        }
+
+        // ── CONFIG ──
+        async function loadConfig() {
+            const div = document.getElementById('config-list');
+            try {
+                const data = await fetch(API + '/config', { headers }).then(r => r.json());
+                div.innerHTML = data.length === 0 ? '<p style="color:var(--gray-400);">Sin configuraciones</p>' :
+                    `<table class="data-table"><thead><tr><th>Curso</th><th>Grado</th><th>Trim</th><th>P.Trim</th><th>P.Ex</th><th>N.Max</th><th>N.Min</th></tr></thead>
+                    <tbody>${data.map(c => `<tr><td>${c.curso_nombre}</td><td>${c.grado_nombre}</td><td>${c.num_trimestres}</td><td>${c.ponderacion_trim}</td><td>${c.ponderacion_examen}</td><td>${c.nota_max}</td><td>${c.nota_min_aprob}</td></tr>`).join('')}</tbody></table>`;
+            } catch(e) { div.innerHTML = '<p style="color:var(--red-500);">Error al cargar</p>'; }
+        }
+
+        document.getElementById('cfg-save').addEventListener('click', async () => {
+            const curso_id = document.getElementById('cfg-curso').value;
+            const grado_id = document.getElementById('cfg-grado').value;
+            if (!curso_id || !grado_id) return showMsg('cfg-msg', 'Selecciona curso y grado', 'error');
+            try {
+                const res = await fetch(API + '/config', {
+                    method: 'POST', headers,
+                    body: JSON.stringify({
+                        curso_id, grado_id,
+                        num_trimestres: parseInt(document.getElementById('cfg-trim').value),
+                        ponderacion_trim: parseFloat(document.getElementById('cfg-ptrim').value),
+                        ponderacion_examen: parseFloat(document.getElementById('cfg-pex').value),
+                        nota_max: parseFloat(document.getElementById('cfg-max').value),
+                        nota_min_aprob: parseFloat(document.getElementById('cfg-min').value)
+                    })
+                });
+                const data = await res.json();
+                showMsg('cfg-msg', res.ok ? '✅ Configuración guardada' : '❌ ' + data.message, res.ok ? 'success' : 'error');
+                if (res.ok) loadConfig();
+            } catch(e) { showMsg('cfg-msg', 'Error', 'error'); }
+        });
+
+        // ── CURSOS ──
+        async function loadCursos() {
+            const div = document.getElementById('cursos-list');
+            try {
+                const data = await fetch(API + '/cursos', { headers }).then(r => r.json());
+                div.innerHTML = `<table class="data-table"><thead><tr><th>ID</th><th>Nombre</th><th>Estado</th></tr></thead>
+                    <tbody>${data.map(c => `<tr><td>${c.id}</td><td>${c.nombre}</td><td><span class="badge ${c.activo ? 'activo' : 'inactivo'}">${c.activo ? 'Activo' : 'Inactivo'}</span></td></tr>`).join('')}</tbody></table>`;
+            } catch(e) { div.innerHTML = '<p style="color:var(--red-500);">Error</p>'; }
+        }
+
+        document.getElementById('curso-save').addEventListener('click', async () => {
+            const nombre = document.getElementById('curso-nombre').value.trim();
+            const activo = document.getElementById('curso-activo').value === '1';
+            if (!nombre) return;
+            await fetch(API + '/cursos', { method: 'POST', headers, body: JSON.stringify({ nombre, activo }) });
+            document.getElementById('curso-nombre').value = '';
+            loadCursos();
+            loadSelects('cfg'); loadSelects('asgn'); loadSelects('est'); loadSelects('sab');
+        });
+
+        // ── GRADOS ──
+        async function loadGrados() {
+            const div = document.getElementById('grados-list');
+            try {
+                const data = await fetch(API + '/grados', { headers }).then(r => r.json());
+                div.innerHTML = `<table class="data-table"><thead><tr><th>ID</th><th>Nombre</th><th>Clave</th><th>Orden</th></tr></thead>
+                    <tbody>${data.map(g => `<tr><td>${g.id}</td><td>${g.nombre}</td><td><code>${g.clave}</code></td><td>${g.orden}</td></tr>`).join('')}</tbody></table>`;
+            } catch(e) { div.innerHTML = '<p style="color:var(--red-500);">Error</p>'; }
+        }
+
+        document.getElementById('grado-save').addEventListener('click', async () => {
+            const nombre = document.getElementById('grado-nombre').value.trim();
+            const clave = document.getElementById('grado-clave').value.trim().toUpperCase().replace(/\s/g, '_');
+            const orden = parseInt(document.getElementById('grado-orden').value) || 0;
+            if (!nombre || !clave) return;
+            await fetch(API + '/grados', { method: 'POST', headers, body: JSON.stringify({ nombre, clave, orden }) });
+            document.getElementById('grado-nombre').value = '';
+            document.getElementById('grado-clave').value = '';
+            loadGrados();
+            loadSelects('cfg'); loadSelects('asgn'); loadSelects('asig'); loadSelects('est'); loadSelects('sab');
+        });
+
+        // ── ASIGNATURAS ──
+        async function loadAsignaturas() {
+            const div = document.getElementById('asig-list');
+            try {
+                const data = await fetch(API + '/asignaturas', { headers }).then(r => r.json());
+                div.innerHTML = data.length === 0 ? '<p style="color:var(--gray-400);">Sin asignaturas</p>' :
+                    `<table class="data-table"><thead><tr><th>Abr</th><th>Nombre</th></tr></thead>
+                    <tbody>${data.map(a => `<tr><td><strong>${a.abr}</strong></td><td>${a.nombre}</td></tr>`).join('')}</tbody></table>`;
+            } catch(e) { div.innerHTML = '<p style="color:var(--red-500);">Error</p>'; }
+        }
+
+        document.getElementById('asig-save').addEventListener('click', async () => {
+            const abr = document.getElementById('asig-abr').value.trim().toUpperCase();
+            const nombre = document.getElementById('asig-nombre').value.trim();
+            const grado_id = document.getElementById('asig-grado').value;
+            if (!abr || !nombre) return;
+            await fetch(API + '/asignaturas', { method: 'POST', headers, body: JSON.stringify({ abr, nombre, grado_id: grado_id || undefined }) });
+            document.getElementById('asig-abr').value = '';
+            document.getElementById('asig-nombre').value = '';
+            loadAsignaturas();
+        });
+
+        // ── ASIGNACIONES ──
+        async function loadAsignaciones() {
+            const div = document.getElementById('asgn-list');
+            try {
+                const data = await fetch(API + '/asignaciones', { headers }).then(r => r.json());
+                div.innerHTML = data.length === 0 ? '<p style="color:var(--gray-400);">Sin asignaciones</p>' :
+                    `<table class="data-table"><thead><tr><th>Docente</th><th>Asignatura</th><th>Grado</th><th>Curso</th><th></th></tr></thead>
+                    <tbody>${data.map(a => `<tr>
+                        <td>${a.docente_nombre}</td><td>${a.asignatura_nombre}</td><td>${a.grado_nombre}</td><td>${a.curso_nombre}</td>
+                        <td><button class="btn-xs btn-danger-xs" onclick="delAsignacion(${a.id})">✕</button></td>
+                    </tr>`).join('')}</tbody></table>`;
+            } catch(e) { div.innerHTML = '<p style="color:var(--red-500);">Error</p>'; }
+        }
+
+        document.getElementById('asgn-save').addEventListener('click', async () => {
+            const docente_id = document.getElementById('asgn-docente').value;
+            const asignatura_id = document.getElementById('asgn-asignatura').value;
+            const grado_id = document.getElementById('asgn-grado').value;
+            const curso_id = document.getElementById('asgn-curso').value;
+            if (!docente_id || !asignatura_id || !grado_id || !curso_id) return showMsg('asgn-msg', 'Completa todos los campos', 'error');
+            try {
+                const res = await fetch(API + '/asignaciones', {
+                    method: 'POST', headers,
+                    body: JSON.stringify({ docente_id, asignatura_id, grado_id, curso_id })
+                });
+                const data = await res.json();
+                showMsg('asgn-msg', res.ok ? '✅ Asignación creada' : '⚠️ ' + data.message, res.ok ? 'success' : 'error');
+                if (res.ok) loadAsignaciones();
+            } catch(e) { showMsg('asgn-msg', 'Error', 'error'); }
+        });
+
+        async function delAsignacion(id) {
+            if (!confirm('¿Eliminar esta asignación?')) return;
+            await fetch(API + '/asignaciones/' + id, { method: 'DELETE', headers });
+            loadAsignaciones();
+        }
+
+        // ── ESTUDIANTES ──
+        document.getElementById('est-load').addEventListener('click', loadEstudiantes);
+
+        async function loadEstudiantes() {
+            const div = document.getElementById('est-list');
+            const grado_id = document.getElementById('est-grado').value;
+            const curso_id = document.getElementById('est-curso').value;
+            if (!grado_id || !curso_id) { div.innerHTML = '<p style="color:var(--gray-400);">Selecciona curso y grado</p>'; return; }
+            div.innerHTML = '<div class="loading">Cargando...</div>';
+            try {
+                const data = await fetch(`${API}/estudiantes?grado_id=${grado_id}&curso_id=${curso_id}`, { headers }).then(r => r.json());
+                div.innerHTML = data.length === 0 ? '<p style="color:var(--gray-400);">Sin estudiantes en este curso/grado</p>' :
+                    `<table class="data-table"><thead><tr><th>#</th><th>Nombre</th><th>Matrícula</th></tr></thead>
+                    <tbody>${data.map(e => `<tr><td>${e.numero_lista}</td><td>${e.nombre_completo}</td><td>${e.numero_matricula}</td></tr>`).join('')}</tbody></table>`;
+            } catch(e) { div.innerHTML = '<p style="color:var(--red-500);">Error</p>'; }
+        }
+
+        document.getElementById('excel-upload').addEventListener('click', async () => {
+            const fileInput = document.getElementById('excel-file');
+            const file = fileInput.files[0];
+            const grado_id = document.getElementById('est-grado').value;
+            const curso_id = document.getElementById('est-curso').value;
+            if (!file) return showMsg('excel-msg', 'Selecciona un archivo Excel', 'error');
+            if (!grado_id || !curso_id) return showMsg('excel-msg', 'Selecciona curso y grado primero', 'error');
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('grado_id', grado_id);
+            formData.append('curso_id', curso_id);
+
+            try {
+                const res = await fetch(API + '/estudiantes/upload-excel', {
+                    method: 'POST',
+                    headers: { Authorization: 'Bearer ' + token },
+                    body: formData
+                });
+                const data = await res.json();
+                showMsg('excel-msg', `✅ ${data.importados} estudiantes importados. ${data.errores.length ? 'Errores: ' + data.errores.join(', ') : ''}`, 'success');
+                fileInput.value = '';
+                loadEstudiantes();
+            } catch(e) { showMsg('excel-msg', 'Error al procesar', 'error'); }
+        });
+
+        // ── SÁBANA ──
+        document.getElementById('sab-load').addEventListener('click', async () => {
+            const grado_id = document.getElementById('sab-grado').value;
+            const curso_id = document.getElementById('sab-curso').value;
+            if (!grado_id || !curso_id) return;
+            const container = document.getElementById('sabana-container');
+            container.innerHTML = '<div class="loading">Generando sábana...</div>';
+            try {
+                const data = await fetch(`${API}/sabana?grado_id=${grado_id}&curso_id=${curso_id}`, { headers }).then(r => r.json());
+                const asigNombres = data.asignaturas.map(a => a.abr);
+                let html = `<h3>${data.grado} — ${data.curso}</h3>
+                    <div style="overflow-x:auto;"><table class="sabana-table"><thead><tr>
+                    <th>#</th><th>Estudiante</th>`;
+                asigNombres.forEach(a => { html += `<th>${a} 1T</th><th>${a} 2T</th><th>${a} 3T</th><th>${a} Ex</th><th>${a} Pond</th><th>${a} Final</th>`; });
+                html += `<th>Comp.</th><th>Prom.Gral</th><th>Estado</th></tr></thead><tbody>`;
+
+                data.sabana.forEach(fila => {
+                    html += `<tr><td>${fila.numero_lista}</td><td style="text-align:left;white-space:nowrap;">${fila.nombre}</td>`;
+                    asigNombres.forEach(abr => {
+                        const m = fila.materias[abr];
+                        if (m) {
+                            html += `<td>${m.T1 ?? '—'}</td><td>${m.T2 ?? '—'}</td><td>${m.T3 ?? '—'}</td>`;
+                            html += `<td>${m.examen ?? '—'}</td><td>${m.ponderado ?? '—'}</td><td><strong>${m.nota_final ?? '—'}</strong></td>`;
+                        } else {
+                            html += '<td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td>';
+                        }
+                    });
+                    html += `<td>${fila.comportamiento || '—'}</td>`;
+                    html += `<td><strong>${fila.promedio_general}</strong></td>`;
+                    html += `<td><span class="badge ${fila.estado === 'APROBADO' ? 'activo' : 'inactivo'}">${fila.estado}</span></td></tr>`;
+                });
+                html += '</tbody></table></div>';
+                container.innerHTML = html;
+            } catch(e) { container.innerHTML = '<p style="color:var(--red-500);">Error al cargar sábana</p>'; }
+        });
+
+        function showMsg(id, text, type) {
+            const el = document.getElementById(id);
+            el.textContent = text;
+            el.className = 'msg ' + type;
+            setTimeout(() => { el.className = 'msg'; }, 4000);
+        }
+
+        // Init
+        loadConfig();
+        loadSelects('cfg');
+        loadSelects('est');
+        loadSelects('sab');
+    </script>
+</body>
+</html>
