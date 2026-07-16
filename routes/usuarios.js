@@ -30,14 +30,14 @@ router.get('/:id', verifyToken, isEditor, async (req, res) => {
         res.status(500).json({ message: "Error del servidor" });
     }
 });
-email = req.body.email;
+
+// POST crear un nuevo usuario (solo admin)
+router.post('/', verifyToken, isAdmin, async (req, res) => {
+    const email = req.body.email;
     const password = req.body.password;
     const nombre_completo = clean(req.body.nombre_completo, 255);
     const username = clean(req.body.username, 100);
-    const {
-// POST crear un nuevo usuario (solo admin)
-router.post('/', verifyToken, isAdmin, async (req, res) => {
-    const { email, password, nombre_completo, username, edad, rol } = req.body;
+    const { edad, rol } = req.body;
     if (!email || !password || !username) return res.status(400).json({ message: 'Email, contraseña y nombre de usuario son requeridos.' });
     if (password.length < 6) return res.status(400).json({ message: 'La contraseña debe tener al menos 6 caracteres.' });
     try {
