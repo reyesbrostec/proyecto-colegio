@@ -62,16 +62,16 @@ async function ensureDatabase() {
         console.log('✅ Columnas imagen_url y video_url verificadas en noticias.');
 
         // 3. Create admin user if not exists
-        const adminCheck = await client.query('SELECT id FROM usuarios WHERE email = $1', ['rybr0ss@colegio.com']);
+        const adminCheck = await client.query('SELECT id FROM usuarios WHERE email = $1', ['admin@colegio.com']);
         if (adminCheck.rows.length === 0) {
             const salt = await bcrypt.genSalt(10);
             const password_hash = await bcrypt.hash('reyesbrostec', salt);
             await client.query(
                 `INSERT INTO usuarios (email, password_hash, nombre_completo, username, rol)
                  VALUES ($1, $2, $3, $4, $5)`,
-                ['rybr0ss@colegio.com', password_hash, 'Administrador Principal', 'admin_user', 'admin']
+                ['admin@colegio.com', password_hash, 'Administrador', 'admin', 'admin']
             );
-            console.log('✅ Usuario administrador creado: rybr0ss@colegio.com / reyesbrostec');
+            console.log('✅ Usuario administrador creado: admin@colegio.com / admin477');
         } else {
             console.log('✅ Usuario administrador ya existe.');
         }

@@ -36,10 +36,10 @@ module.exports = async function handler(req, res) {
             results.push('galeria');
 
             const salt = await bcrypt.genSalt(10);
-            const adminHash = await bcrypt.hash('reyesbrostec', salt);
+            const adminHash = await bcrypt.hash('admin477', salt);
             await pool.query(`INSERT INTO usuarios (email, password_hash, nombre_completo, username, edad, rol)
                 VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT (email) DO NOTHING`,
-                ['rybr0ss@colegio.com', adminHash, 'Administrador', 'admin', 0, 'admin']);
+                ['admin@colegio.com', adminHash, 'Administrador', 'admin', 0, 'admin']);
             results.push('admin');
 
             const docenteHash = await bcrypt.hash('profesor123', salt);
