@@ -71,7 +71,7 @@ proyecto-colegio/
 ## 🗄️ Base de datos
 
 - **Proveedor**: Neon PostgreSQL
-- **Connection string**: `postgresql://neondb_owner:REDACTED@ep-red-frog-at01cilp-pooler.c-9.us-east-1.aws.neon.tech/neondb?sslmode=require`
+- **Connection string**: ⚠️ **NO GUARDAR AQUÍ** — usar `process.env.DATABASE_URL` en `.env` local y en variables de entorno de Vercel/Render
 - **Tablas**: usuarios, noticias, notas, galeria, cursos, grados, asignaturas, asignatura_grado, config_calificaciones, docente_asignacion, estudiantes_curso, calificaciones
 
 ---
