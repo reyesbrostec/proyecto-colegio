@@ -53,6 +53,15 @@ async function migrate() {
         `);
         console.log('✅ Tabla notas: OK');
 
+        // Constraint UNIQUE para upsert (ON CONFLICT en api/notas.js)
+        await pool.query(`
+            DO $$ BEGIN
+                ALTER TABLE notas ADD CONSTRAINT uq_notas_estudiante_materia UNIQUE (estudiante_id, materia);
+            EXCEPTION WHEN duplicate_table THEN NULL;
+            END $$;
+        `);
+        console.log('✅ Constraint notas UNIQUE: OK');
+
         // Tabla galeria
         await pool.query(`
             CREATE TABLE IF NOT EXISTS galeria (
