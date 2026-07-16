@@ -93,15 +93,27 @@
             transform: translateY(-4px);
             box-shadow: var(--shadow-lg);
         }
-        .foto-card img {
+        .foto-card img, .foto-card video {
             width: 100%;
             height: 100%;
             object-fit: cover;
             display: block;
             transition: transform 0.4s;
         }
-        .foto-card:hover img {
+        .foto-card:hover img, .foto-card:hover video {
             transform: scale(1.05);
+        }
+        .foto-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(0,0,0,0.65);
+            color: var(--white);
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            border-radius: 4px;
+            pointer-events: none;
+            z-index: 2;
         }
         .foto-overlay {
             position: absolute;
@@ -147,12 +159,22 @@
             max-width: 90vw;
             max-height: 85vh;
         }
-        .lightbox-content img {
+        .lightbox-content img, .lightbox-content video {
             max-width: 100%;
             max-height: 80vh;
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-xl);
             object-fit: contain;
+        }
+        .lightbox-content video {
+            display: none;
+            outline: none;
+        }
+        .lightbox-content video.active {
+            display: block;
+        }
+        .lightbox-content img.hidden {
+            display: none;
         }
         .lightbox-info {
             color: var(--white);
@@ -299,6 +321,7 @@
             <button class="lightbox-next" id="lightbox-next" aria-label="Imagen siguiente">&rsaquo;</button>
             <div class="lightbox-content">
                 <img id="lightbox-img" src="" alt="">
+                <video id="lightbox-video" controls playsinline preload="metadata"></video>
                 <div class="lightbox-info">
                     <h3 id="lightbox-title"></h3>
                     <p id="lightbox-desc"></p>
@@ -325,9 +348,20 @@
         const fotosGrid = document.getElementById('fotos-grid');
         const lightbox = document.getElementById('lightbox');
         const lightboxImg = document.getElementById('lightbox-img');
+        const lightboxVideo = document.getElementById('lightbox-video');
         const lightboxTitle = document.getElementById('lightbox-title');
         const lightboxDesc = document.getElementById('lightbox-desc');
         const lightboxAlbum = document.getElementById('lightbox-album');
+
+        // ── Helper: detectar si es video por la URL de Cloudinary ──
+        function esVideo(url) {
+            return url && url.includes('/video/upload/');
+        }
+        // ── Helper: thumbnail para video (frame del medio con Cloudinary)
+        function videoThumb(url) {
+            // Cloudinary: /video/upload/.../file.mp4 → /video/upload/so_auto/.../file.jpg
+            return url.replace('/video/upload/', '/video/upload/so_auto/').replace(/\.(mp4|webm|mov|avi)$/i, '.jpg');
+        }
 
         // ── Cargar fotos ──
         async function cargarFotos(album) {
@@ -379,8 +413,9 @@
             }
 
             fotosGrid.innerHTML = todasLasFotos.map((f, i) => `
-                <div class="foto-card" data-index="${i}" tabindex="0" role="button" aria-label="Ver foto: ${f.titulo || 'Sin título'}">
-                    <img src="${f.url}" alt="${f.titulo || 'Foto de actividad escolar'}" loading="lazy">
+                <div class="foto-card" data-index="${i}" tabindex="0" role="button" aria-label="Ver: ${f.titulo || 'Sin título'}">
+                    ${esVideo(f.url) ? '<span class="foto-badge">▶️ Video</span>' : ''}
+                    <img src="${esVideo(f.url) ? videoThumb(f.url) : f.url}" alt="${f.titulo || 'Archivo multimedia'}" loading="lazy">
                     <div class="foto-overlay">
                         <h3>${f.titulo || 'Sin título'}</h3>
                         ${f.descripcion ? `<p>${f.descripcion}</p>` : ''}
@@ -404,8 +439,23 @@
         function abrirLightbox(index) {
             fotoActualIndex = index;
             const foto = todasLasFotos[index];
-            lightboxImg.src = foto.url;
-            lightboxImg.alt = foto.titulo || 'Foto de actividad escolar';
+            const isVid = esVideo(foto.url);
+
+            if (isVid) {
+                lightboxVideo.src = foto.url;
+                lightboxVideo.style.display = 'block';
+                lightboxVideo.classList.add('active');
+                lightboxImg.classList.add('hidden');
+                lightboxImg.src = '';
+            } else {
+                lightboxImg.src = foto.url;
+                lightboxImg.alt = foto.titulo || 'Archivo multimedia';
+                lightboxImg.classList.remove('hidden');
+                lightboxVideo.style.display = 'none';
+                lightboxVideo.classList.remove('active');
+                lightboxVideo.src = '';
+            }
+
             lightboxTitle.textContent = foto.titulo || 'Sin título';
             lightboxDesc.textContent = foto.descripcion || '';
             lightboxAlbum.textContent = foto.album || 'General';
@@ -418,6 +468,9 @@
             lightbox.classList.remove('open');
             lightbox.setAttribute('aria-hidden', 'true');
             document.body.style.overflow = '';
+            // Pausar video si está reproduciéndose
+            lightboxVideo.pause();
+            lightboxVideo.src = '';
         }
 
         function fotoAnterior() {

@@ -12,6 +12,7 @@ const noticiasRoutes = require('./routes/noticias');
 const usuariosRoutes = require('./routes/usuarios');
 const notasRoutes = require('./routes/notas');
 const galeriaRoutes = require('./routes/galeria');
+const calificacionesRoutes = require('./routes/calificaciones');
 const pool = require('./db'); // Importamos la conexión centralizada
 const migrate = require('./migrate'); // Migraciones automáticas
 
@@ -78,6 +79,7 @@ app.use('/api/noticias', noticiasRoutes);
 app.use('/api/usuarios', usuariosRoutes);
 app.use('/api/notas', notasRoutes);
 app.use('/api/galeria', galeriaRoutes);
+app.use('/api/calificaciones', calificacionesRoutes);
 
 // Health-check endpoint (no necesita DB)
 app.get('/api/health', (req, res) => {

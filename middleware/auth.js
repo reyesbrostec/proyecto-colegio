@@ -25,6 +25,24 @@ function isAdmin(req, res, next) {
     }
 }
 
+// ── secretaria: puede gestionar contenido, notas y multimedia ──
+function isSecretaria(req, res, next) {
+    if (req.user && (req.user.rol === 'secretaria' || req.user.rol === 'admin')) {
+        next();
+    } else {
+        res.status(403).json({ message: 'Acceso denegado. Se requiere rol de secretaria o administrador.' });
+    }
+}
+
+// ── editor: admin, docente o secretaria pueden gestionar contenido ──
+function isEditor(req, res, next) {
+    if (req.user && (req.user.rol === 'admin' || req.user.rol === 'docente' || req.user.rol === 'secretaria')) {
+        next();
+    } else {
+        res.status(403).json({ message: 'Acceso denegado. Se requiere rol editorial.' });
+    }
+}
+
 function isDocente(req, res, next) {
     if (req.user && (req.user.rol === 'docente' || req.user.rol === 'admin')) {
         next();
@@ -45,5 +63,7 @@ module.exports = {
     verifyToken,
     isAdmin,
     isDocente,
-    isEstudiante
+    isEstudiante,
+    isSecretaria,
+    isEditor
 };

@@ -11,13 +11,54 @@
     <link rel="stylesheet" href="../style.css">
     <link rel="icon" type="image/svg+xml" href="../favicon/favicon.svg">
     <style>
-        .dashboard-container { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
-        .dashboard-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 32px; }
-        .grades-card { background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-sm); }
-        .grades-card h2 { margin-top: 0; }
-        .search-input { width: 100%; padding: 12px 16px; border: 2px solid var(--gray-200); border-radius: var(--radius-md); font-family: 'Poppins', sans-serif; font-size: 1rem; margin-bottom: 24px; transition: border-color 0.2s; }
-        .search-input:focus { border-color: var(--blue-500); outline: none; }
-        .empty-state { text-align: center; color: var(--gray-500); padding: 40px 0; }
+        .docente-container { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+        .docente-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 32px; }
+        .materias-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .materia-card {
+            background: var(--white); border: 2px solid var(--gray-200); border-radius: var(--radius-lg);
+            padding: 24px; cursor: pointer; transition: all 0.2s; box-shadow: var(--shadow-sm);
+        }
+        .materia-card:hover { border-color: var(--blue-400); box-shadow: var(--shadow-md); transform: translateY(-2px); }
+        .materia-card.selected { border-color: var(--blue-600); background: var(--blue-50); }
+        .materia-card .asignatura { font-size: 1.25rem; font-weight: 700; color: var(--blue-700); margin-bottom: 4px; }
+        .materia-card .grado { font-size: 0.875rem; color: var(--gray-600); }
+        .materia-card .curso { font-size: 0.75rem; color: var(--gray-500); }
+        .materia-card .est-count { display: inline-block; background: var(--blue-100); color: var(--blue-700); padding: 2px 10px; border-radius: 999px; font-size: 0.75rem; margin-top: 8px; }
+
+        .notas-panel { display: none; margin-top: 24px; }
+        .notas-panel.open { display: block; }
+        .trimestre-tabs { display: flex; gap: 8px; margin-bottom: 24px; }
+        .trimestre-tab {
+            padding: 10px 24px; border: 2px solid var(--gray-300); border-radius: var(--radius-md);
+            background: var(--white); cursor: pointer; font-family: 'Poppins', sans-serif; font-weight: 600;
+            font-size: 0.875rem; transition: all 0.2s;
+        }
+        .trimestre-tab.active { background: var(--blue-600); color: var(--white); border-color: var(--blue-600); }
+
+        .notas-table { width: 100%; border-collapse: collapse; background: var(--white); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); }
+        .notas-table th { background: var(--gray-100); padding: 12px 14px; text-align: left; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--gray-600); }
+        .notas-table td { padding: 10px 14px; border-top: 1px solid var(--gray-100); font-size: 0.875rem; }
+        .notas-table input[type="number"] {
+            width: 70px; padding: 6px 8px; border: 1px solid var(--gray-300); border-radius: var(--radius-sm);
+            font-family: 'Poppins', sans-serif; font-size: 0.875rem; text-align: center;
+        }
+        .notas-table input:focus { outline: none; border-color: var(--blue-500); box-shadow: 0 0 0 3px var(--blue-100); }
+        .notas-table .nota-final { font-weight: 700; color: var(--blue-700); }
+        .nota-badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 0.6875rem; font-weight: 600; }
+        .nota-badge.aprobado { background: var(--green-100); color: var(--green-700); }
+        .nota-badge.reprobado { background: var(--red-100); color: var(--red-600); }
+
+        .save-bar {
+            display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-top: 20px;
+            padding: 16px; background: var(--white); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);
+        }
+        .save-msg { font-size: 0.8125rem; padding: 8px 16px; border-radius: var(--radius-sm); display: none; }
+        .save-msg.success { display: block; background: var(--green-50); color: var(--green-700); border: 1px solid var(--green-200); }
+        .save-msg.error { display: block; background: var(--red-50); color: var(--red-600); border: 1px solid var(--red-200); }
+
+        .loading-spinner { text-align: center; padding: 40px; color: var(--gray-400); }
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--gray-400); }
+        .empty-state .icon { font-size: 3rem; margin-bottom: 16px; }
     </style>
 </head>
 <body>
@@ -28,26 +69,211 @@
             <a href="../index.html" aria-label="Colegio UEPAM — Ir al inicio">Colegio UEPAM</a>
         </div>
         <nav aria-label="Navegación del docente">
+            <span id="user-info" style="font-size:0.875rem; color:var(--gray-600); margin-right:16px;"></span>
             <button id="logout-btn" class="btn btn-secondary" style="padding:8px 16px; font-size:0.875rem;">Cerrar Sesión</button>
         </nav>
     </header>
 
-    <main id="main-content" class="dashboard-container">
-        <div class="dashboard-header">
-            <h1>Portal del Docente</h1>
+    <main id="main-content" class="docente-container">
+        <div class="docente-header">
+            <h1>📚 Mis Materias</h1>
+            <button id="refresh-btn" class="btn btn-secondary" style="padding:8px 16px; font-size:0.875rem;">🔄 Actualizar</button>
         </div>
-        <section class="grades-card" id="grades-management" aria-labelledby="grades-heading">
-            <h2 id="grades-heading">Gestión de Calificaciones</h2>
-            <label for="search-grades" style="display:block; font-weight:600; margin-bottom:8px; color:var(--gray-700);">Buscar estudiante</label>
-            <input type="text" id="search-grades" class="search-input" placeholder="Buscar estudiante por nombre...">
-            <div id="all-grades-container">
-                <p class="empty-state">Usa el buscador para encontrar estudiantes y gestionar sus calificaciones.</p>
+
+        <div id="materias-container">
+            <div class="loading-spinner">Cargando materias...</div>
+        </div>
+
+        <div id="notas-panel" class="notas-panel">
+            <div class="trimestre-tabs">
+                <button class="trimestre-tab active" data-trim="1">Primer Trimestre</button>
+                <button class="trimestre-tab" data-trim="2">Segundo Trimestre</button>
+                <button class="trimestre-tab" data-trim="3">Tercer Trimestre</button>
             </div>
-        </section>
+            <div id="notas-table-container"></div>
+            <div class="save-bar">
+                <div>
+                    <button id="save-notas-btn" class="btn btn-primary">💾 Guardar Notas</button>
+                    <span id="save-msg" class="save-msg"></span>
+                </div>
+                <span id="formula-info" style="font-size:0.75rem; color:var(--gray-500);"></span>
+            </div>
+        </div>
     </main>
 
     <div id="toast-notification" aria-live="polite" style="position:fixed; bottom:24px; right:24px; z-index:1000;"></div>
 
-    <script src="docente-script.js"></script>
+    <script>
+        const API = '/api/calificaciones';
+        const token = sessionStorage.getItem('authToken');
+        let selectedMateria = null;
+        let currentTrimestre = 1;
+        let configData = null;
+
+        if (!token) { window.location.href = '../estudiantes.html'; }
+
+        function getUser() {
+            try { return JSON.parse(atob(token.split('.')[1])); } catch(e) { return null; }
+        }
+        const user = getUser();
+        if (user) document.getElementById('user-info').textContent = `👤 ${user.nombre_completo || user.email}`;
+
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            sessionStorage.removeItem('authToken'); window.location.href = '../estudiantes.html';
+        });
+
+        document.getElementById('refresh-btn').addEventListener('click', loadMaterias);
+
+        async function loadMaterias() {
+            const container = document.getElementById('materias-container');
+            container.innerHTML = '<div class="loading-spinner">Cargando materias...</div>';
+            try {
+                const res = await fetch(API + '/mis-materias', { headers: { Authorization: 'Bearer ' + token } });
+                if (!res.ok) throw new Error('Error al cargar materias');
+                const materias = await res.json();
+                if (materias.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><div class="icon">📭</div><p>No tienes materias asignadas aún.</p><p style="font-size:0.75rem;">Contacta al administrador para que te asigne materias.</p></div>';
+                    return;
+                }
+                container.innerHTML = `<div class="materias-grid">${materias.map(m => `
+                    <div class="materia-card" data-asignatura="${m.asignatura_id}" data-grado="${m.grado_id}" data-curso="${m.curso_id}">
+                        <div class="asignatura">${m.asignatura_nombre}</div>
+                        <div class="grado">${m.grado_nombre} — ${m.curso_nombre}</div>
+                        <div class="est-count">👨‍🎓 ${m.total_estudiantes} estudiantes</div>
+                    </div>
+                `).join('')}</div>`;
+
+                document.querySelectorAll('.materia-card').forEach(card => {
+                    card.addEventListener('click', () => selectMateria(card));
+                });
+            } catch(err) {
+                container.innerHTML = `<div class="empty-state">❌ Error: ${err.message}</div>`;
+            }
+        }
+
+        async function selectMateria(card) {
+            document.querySelectorAll('.materia-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            selectedMateria = {
+                asignatura_id: card.dataset.asignatura,
+                grado_id: card.dataset.grado,
+                curso_id: card.dataset.curso,
+                nombre: card.querySelector('.asignatura').textContent,
+                grado_nombre: card.querySelector('.grado').textContent
+            };
+
+            try {
+                const cRes = await fetch(`${API}/config?curso_id=${selectedMateria.curso_id}&grado_id=${selectedMateria.grado_id}`, {
+                    headers: { Authorization: 'Bearer ' + token }
+                });
+                const configs = await cRes.json();
+                configData = configs[0] || { num_trimestres: 3, ponderacion_trim: 0.9, ponderacion_examen: 0.1, nota_max: 10, nota_min_aprob: 7 };
+                document.getElementById('formula-info').textContent =
+                    `Fórmula: P90% (prom. trim) + P10% (examen) | Nota mín: ${configData.nota_min_aprob} | Máx: ${configData.nota_max}`;
+            } catch(e) { configData = { num_trimestres: 3, ponderacion_trim: 0.9, ponderacion_examen: 0.1, nota_max: 10, nota_min_aprob: 7 }; }
+
+            document.getElementById('notas-panel').classList.add('open');
+            document.querySelectorAll('.trimestre-tab').forEach(t => t.classList.remove('active'));
+            document.querySelector('.trimestre-tab[data-trim="1"]').classList.add('active');
+            currentTrimestre = 1;
+            loadNotas();
+        }
+
+        document.querySelectorAll('.trimestre-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.trimestre-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentTrimestre = parseInt(tab.dataset.trim);
+                loadNotas();
+            });
+        });
+
+        async function loadNotas() {
+            if (!selectedMateria) return;
+            const container = document.getElementById('notas-table-container');
+            container.innerHTML = '<div class="loading-spinner">Cargando...</div>';
+            try {
+                const [estRes, notasRes] = await Promise.all([
+                    fetch(`${API}/estudiantes?grado_id=${selectedMateria.grado_id}&curso_id=${selectedMateria.curso_id}`, {
+                        headers: { Authorization: 'Bearer ' + token }
+                    }),
+                    fetch(`${API}/notas?asignatura_id=${selectedMateria.asignatura_id}&grado_id=${selectedMateria.grado_id}&curso_id=${selectedMateria.curso_id}&trimestre=${currentTrimestre}`, {
+                        headers: { Authorization: 'Bearer ' + token }
+                    })
+                ]);
+                const estudiantes = await estRes.json();
+                const notasData = await notasRes.json();
+                const notaMap = {};
+                notasData.forEach(n => { notaMap[n.estudiante_curso_id] = n; });
+                const config = configData || { nota_max: 10, ponderacion_trim: 0.9, ponderacion_examen: 0.1 };
+                container.innerHTML = `
+                    <table class="notas-table">
+                        <thead><tr>
+                            <th>#</th><th>Estudiante</th>
+                            <th>Nota Trimestre</th><th>Examen (P${Math.round(config.ponderacion_examen*100)}%)</th>
+                            <th>Supletorio</th><th>Prom. Ponderado</th><th>Nota Final</th><th>Cualitativa</th><th>Comport.</th>
+                        </tr></thead>
+                        <tbody>${estudiantes.map(est => {
+                            const n = notaMap[est.id];
+                            const np = n ? parseFloat(n.nota_parcial) : '';
+                            const ex = n ? parseFloat(n.examen) : '';
+                            const sup = n ? (n.supletorio ? parseFloat(n.supletorio) : '') : '';
+                            const pp = n ? parseFloat(n.promedio_ponderado) : null;
+                            const nf = n ? parseFloat(n.nota_final) : null;
+                            const cual = n ? n.cualitativa : '';
+                            const comp = n ? (n.comportamiento || '') : '';
+                            const ap = nf !== null && nf >= parseFloat(config.nota_min_aprob);
+                            const rp = nf !== null && nf < parseFloat(config.nota_min_aprob);
+                            return `<tr data-ec-id="${est.id}">
+                                <td>${est.numero_lista}</td><td><strong>${est.nombre_completo}</strong></td>
+                                <td><input type="number" class="nota-parcial" value="${np}" min="0" max="${config.nota_max}" step="0.01"></td>
+                                <td><input type="number" class="examen" value="${ex}" min="0" max="${config.nota_max}" step="0.01"></td>
+                                <td><input type="number" class="supletorio" value="${sup}" min="0" max="${config.nota_max}" step="0.01" placeholder="Opc."></td>
+                                <td class="nota-final">${pp !== null ? pp.toFixed(2) : '—'}</td>
+                                <td class="nota-final">${nf !== null ? `<span class="nota-badge ${ap?'aprobado':'reprobado'}">${nf.toFixed(2)}</span>` : '—'}</td>
+                                <td class="cualitativa" style="font-size:0.75rem;color:var(--gray-500);">${cual || '—'}</td>
+                                <td><select class="comportamiento" style="font-family:Poppins,sans-serif;font-size:0.75rem;padding:4px;">
+                                    <option value="">—</option>
+                                    ${['A+','A-','B+','B-','F'].map(v => `<option value="${v}" ${comp===v?'selected':''}>${v}</option>`).join('')}
+                                </select></td>
+                            </tr>`;
+                        }).join('')}</tbody>
+                    </table>`;
+            } catch(err) {
+                container.innerHTML = `<div class="empty-state">❌ Error: ${err.message}</div>`;
+            }
+        }
+
+        document.getElementById('save-notas-btn').addEventListener('click', async () => {
+            if (!selectedMateria) return;
+            const msg = document.getElementById('save-msg');
+            msg.className = 'save-msg'; msg.textContent = '';
+            const rows = document.querySelectorAll('#notas-table-container tbody tr');
+            const notas = [];
+            rows.forEach(row => {
+                const ecId = row.dataset.ecId;
+                const np = parseFloat(row.querySelector('.nota-parcial').value);
+                const ex = parseFloat(row.querySelector('.examen').value) || 0;
+                const sup = row.querySelector('.supletorio').value;
+                const comp = row.querySelector('.comportamiento').value;
+                if (!isNaN(np)) notas.push({ estudiante_curso_id: parseInt(ecId), nota_parcial: np, examen: ex, supletorio: sup ? parseFloat(sup) : null, comportamiento: comp || null });
+            });
+            if (notas.length === 0) { msg.textContent = '⚠️ Ingresa al menos una nota.'; msg.className = 'save-msg error'; return; }
+            try {
+                const res = await fetch(API + '/notas', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+                    body: JSON.stringify({ asignatura_id: selectedMateria.asignatura_id, grado_id: selectedMateria.grado_id, curso_id: selectedMateria.curso_id, trimestre: currentTrimestre, notas })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    msg.innerHTML = `✅ ${data.guardados} notas guardadas. Promedio: <strong>${data.resumen.promedio_curso}</strong> | ✅${data.resumen.aprobados} ❌${data.resumen.reprobados}`;
+                    msg.className = 'save-msg success';
+                    loadNotas();
+                } else { msg.textContent = '❌ ' + (data.message || 'Error'); msg.className = 'save-msg error'; }
+            } catch(err) { msg.textContent = '❌ Error de conexión'; msg.className = 'save-msg error'; }
+        });
+
+        loadMaterias();
+    </script>
 </body>
 </html>

@@ -1,12 +1,13 @@
 const express = require('express');
-const pool = require('../db'); // Asumimos que tienes un archivo db.js que exporta el pool
+const pool = require('../db');
 const bcrypt = require('bcryptjs');
-const { verifyToken, isAdmin } = require('../middleware/auth'); // Correcto: Sube un nivel y entra a middleware/
+const { verifyToken, isAdmin, isEditor } = require('../middleware/auth');
 
 const router = express.Router();
+const BCRYPT_ROUNDS = 12;
 
-// GET todos los usuarios (solo admin)
-router.get('/', verifyToken, isAdmin, async (req, res) => {
+// GET todos los usuarios (admin, secretaria, docente)
+router.get('/', verifyToken, isEditor, async (req, res) => {
     try {
         const result = await pool.query('SELECT id, email, nombre_completo, username, edad, rol FROM usuarios ORDER BY id ASC');
         res.json(result.rows);
@@ -15,8 +16,8 @@ router.get('/', verifyToken, isAdmin, async (req, res) => {
     }
 });
 
-// GET un usuario por ID (solo admin)
-router.get('/:id', verifyToken, isAdmin, async (req, res) => {
+// GET un usuario por ID (admin, secretaria, docente)
+router.get('/:id', verifyToken, isEditor, async (req, res) => {
     try {
         const { id } = req.params;
         const result = await pool.query('SELECT id, email, nombre_completo, username, edad, rol FROM usuarios WHERE id = $1', [id]);
@@ -31,13 +32,18 @@ router.get('/:id', verifyToken, isAdmin, async (req, res) => {
 router.post('/', verifyToken, isAdmin, async (req, res) => {
     const { email, password, nombre_completo, username, edad, rol } = req.body;
     if (!email || !password || !username) return res.status(400).json({ message: 'Email, contraseña y nombre de usuario son requeridos.' });
+    if (password.length < 6) return res.status(400).json({ message: 'La contraseña debe tener al menos 6 caracteres.' });
     try {
-        const salt = await bcrypt.genSalt(10);
-        const password_hash = await bcrypt.hash(password, salt);
-        const newUser = await pool.query('INSERT INTO usuarios (email, password_hash, nombre_completo, username, edad, rol) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, email, rol', [email, password_hash, nombre_completo, username, edad, rol || 'estudiante']);
+        // ✅ Single call: bcrypt.hash(password, rounds) — nunca separar genSalt + hash
+        const password_hash = await bcrypt.hash(password, BCRYPT_ROUNDS);
+        const newUser = await pool.query(
+            'INSERT INTO usuarios (email, password_hash, nombre_completo, username, edad, rol) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, email, rol',
+            [email, password_hash, nombre_completo, username, edad, rol || 'estudiante']
+        );
         res.status(201).json(newUser.rows[0]);
     } catch (err) {
         if (err.code === '23505') return res.status(400).json({ message: 'El email o nombre de usuario ya está registrado.' });
+        console.error('Error al crear usuario:', err);
         res.status(500).json({ message: "Error del servidor" });
     }
 });

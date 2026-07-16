@@ -4,9 +4,9 @@ const { verifyToken, isAdmin, isEstudiante, isDocente } = require('../middleware
 
 const router = express.Router();
 
-// Middleware personalizado para permitir acceso a admin O docente
+// Middleware personalizado para permitir acceso a admin, docente O secretaria
 const isDocenteOrAdmin = (req, res, next) => {
-    if (req.user.rol === 'admin' || req.user.rol === 'docente') {
+    if (req.user.rol === 'admin' || req.user.rol === 'docente' || req.user.rol === 'secretaria') {
         return next();
     }
     return res.status(403).json({ message: 'Acceso no autorizado para este rol.' });

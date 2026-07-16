@@ -60,7 +60,7 @@
             async function cargarNotas() {
                 var container = document.getElementById('grades-container');
                 try {
-                    var API_URL = 'https://colegio-backend-6oun.onrender.com/api';
+                    var API_URL = '/api';
                     var response = await fetch(API_URL + '/notas/mis-notas', {
                         headers: { 'Authorization': 'Bearer ' + token }
                     });
